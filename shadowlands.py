@@ -1,5 +1,5 @@
 
-import npyscreen, os, hashlib, argparse, struct
+import npyscreen, os, hashlib, argparse, struct, time
 from pyfiglet import Figlet
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
@@ -26,18 +26,18 @@ def parse_bip32_path(path="44'/60'/0'/0"):
             result = result + struct.pack(">I", 0x80000000 | int(element[0]))
     return result
 
-def ledgerPublicAddress()
-    donglePath = parse_bip32_path(args.path)
+def ledgerPublicAddress():
+    donglePath = parse_bip32_path()
 #apdu = "e0020100".decode('hex') + chr(len(donglePath) + 1) + chr(len(donglePath) / 4) + donglePath
     apdu = "e0020000".decode('hex') + chr(len(donglePath) + 1) + chr(len(donglePath) / 4) + donglePath
 
-    dongle = getDongle(True)
+    dongle = getDongle(False)
     result = dongle.exchange(bytes(apdu))
     offset = 1 + result[0]
     address = result[offset + 1 : offset + 1 + result[offset]]
 
-    print "Public key " + str(result[1 : 1 + result[0]]).encode('hex')
-    print "Address 0x" + str(address)
+ #   print "Public key " + str(result[1 : 1 + result[0]]).encode('hex')
+ #   print "Address 0x" + str(address)
     return address
 
 
@@ -48,9 +48,20 @@ print '[ '+ file_checksum() + ' ]'
 print Figlet(font='slant').renderText('Shadowlands') 
 print 'by CeilingCat\t\t' + 'v0.01\t\t' 
 print '\n\n\n\n\n'
+print('Welcome, chummer.  Insert your credstick to log in.\n\n')
 
-input('Welcome, chummer.  Insert your credstick to log in.\n\n')
-#print('Welcome, chummer.  Insert your credstick to log in.\n\n')
+while True:
+    try: 
+        address = ledgerPublicAddress()
+        break
+    except(CommException, IOError):
+        time.sleep(0.5)
+
+        
+print '0x' + address
+
+print("Success!")
+exit()
 
 
 
