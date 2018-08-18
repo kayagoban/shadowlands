@@ -2,12 +2,14 @@ import npyscreen, sys, os, hashlib, argparse, struct, time, locale, qrcode_termi
 from pyfiglet import Figlet
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
+from web3.exceptions import UnhandledRequest
 from web3.auto import w3
 
 # Get a connection
 
 block = ""
 nodeVersion = ""
+syncing = {}
 
 connected = w3.isConnected()
 if connected and w3.version.node.startswith('Parity'):
@@ -25,11 +27,15 @@ if not w3.isConnected():
     exit()
 
 def heartbeat():
-    global nodeVersion, block
+    global nodeVersion, block, blocksBehind, syncing
     while True:
 #       assert w3.isConnected()
        nodeVersion = w3.version.node
        block = str(w3.eth.blockNumber)
+       syncing = w3.eth.syncing
+       if syncing:
+           blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
+            
        time.sleep(5)
     return
 
@@ -54,20 +60,23 @@ def ledgerEthAddress():
     address = result[offset + 1 : offset + 1 + result[offset]]
     return address
 
+def header():
+    print('Connected to ' + nodeVersion)
+    if not syncing:
+        print('[block ' + block + ']')
+    else:
+        print('[syncing:  ' + str(blocksBehind) + ' blocks to ' + str(syncing['highestBlock']) + ']')
+ 
 ## Loading Screen
 #print('[ '+ file_checksum() + ' ]')
 def loadingScreen():
     os.system("clear")
-    print('Connected to ' + nodeVersion)
-    print('[block ' + block + ']')
+    header()       
     print(Figlet(font='slant').renderText('Shadowlands') )
     print('public terminal \t\t' + 'v0.01' )
     print( '\n\n\n\n\n' )
     print('Welcome, chummer.  Insert your credstick to log in.')
     return
-
-def headerLine():
-    return print('Welcome, ' + ethAddress + '\t[block ' + block + ']')
 
 boxDictionary = {
         '\\' : b'\xe2\x95\x9a',
@@ -87,28 +96,43 @@ def ethBalance(address):
 
 def mainMenu():
     os.system("clear")
-    headerLine()
+    header()
+    print('\n')
+    print('  ' + ethAddress)
     print('\n')
     print(boxDecode('  +- Account Balances -------------%'))
     print(boxDecode('  |                                    '))
     print(boxDecode('  |  Ξth: ' + ethBalance(ethAddress) + ''))
     print(boxDecode('  |  Dai: ' + ethBalance(ethAddress) + ''))
+    print(boxDecode('  |                                    '))
     print(boxDecode('  \\--------------------------------/'))
+    print('\n')
+    print(boxDecode('  +- Things to do -------------------------------------%'))
+    print(boxDecode('  |                                    '))
+    print(boxDecode('  |  (S)end ether and tokens '))
+    print(boxDecode('  |  (V)iew your transaction history '))
+    print(boxDecode('  |  (T)rade Ether for Dai '))
+    print(boxDecode('  |  (O)pen a CDP loan [borrow dai against your ether]'))
+    print(boxDecode('  |  (R)egister your ENS name '))
+    print(boxDecode('  |  (C)hat on the whispernet '))
+    print(boxDecode('  |  (P)ublic forums '))
+    print(boxDecode('  |  (B)rowse the take-out menu '))
+    print(boxDecode('  |                                    '))
+    print(boxDecode('  \\----------------------------------------------------/'))
+ 
     return
 
 def blastOff():
-    timeout = 0.09 
+    timeout = 0.11
     for x in range(70):
       time.sleep(timeout)
       sys.stdout.write(".")
       sys.stdout.flush()
-      timeout = timeout * 0.9 
-        
+      timeout = timeout * 0.93
     return
 
 
 loadingScreen()
-
 
 while True:
     try: 
