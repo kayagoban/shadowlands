@@ -12,7 +12,7 @@ ethAddress = None
 
 
 def connect():
-    global w3, localNode
+    global w3, localNode, nodeVersion
 
     connected = w3.isConnected()
     if connected and w3.version.node.startswith('Parity'):
@@ -21,7 +21,6 @@ def connect():
         enode = w3.admin.nodeInfo['enode']
     else:
         localNode = False
-        print("Could not find parity or geth locally")
         del sys.modules['web3.auto']
         os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
         from web3.auto.infura import w3
@@ -30,17 +29,19 @@ def connect():
         print("Sorry chummer, couldn't connect to an Ethereum node.")
         exit()
 
+    nodeVersion = w3.version.node
+
 
 def heartbeat():
-    global nodeVersion, block, blocksBehind, syncing, ethBalance
+    global block, blocksBehind, syncing, ethBalance
     while True:
         #       assert w3.isConnected()
-        nodeVersion = w3.version.node
-        block = str(w3.eth.blockNumber)
         syncing = w3.eth.syncing
 
         if syncing:
             blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
+        else:
+            block = str(w3.eth.blockNumber)
 
         if ethAddress:
             ethBalance = w3.eth.getBalance(ethAddress)
@@ -48,6 +49,6 @@ def heartbeat():
         if localNode:
             time.sleep(.5)
         else:
-            time.sleep(10)
+            time.sleep(13)
 
 

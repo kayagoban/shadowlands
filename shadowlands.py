@@ -28,15 +28,17 @@ def ledgerEthAddress():
 
 def header():
     if shadownode.localNode:
-        nodeString = 'local node at ' + shadownode.nodeVersion
+        nodeString = 'local' 
     else:
-        nodeString = 'infura node at ' + shadownode.nodeVersion
+        nodeString = 'infura'
 
-    print('Connected to ' + nodeString)
+    print('Connected to ' + nodeString + ' node at ' + shadownode.nodeVersion)
+
     if not shadownode.syncing:
-        print('[block ' + shadownode.block + ']')
+        print('[synced: block ' + shadownode.block + ']')
     else:
-        print('[syncing:  ' + str(shadownode.blocksBehind) + ' blocks to ' + str(shadownode.syncing['highestBlock']) + ']')
+        print('[syncing:  ' + str(shadownode.blocksBehind) + ' blocks to ' 
+              + str(shadownode.syncing['highestBlock']) + ']')
  
 ## Loading Screen
 #print('[ '+ file_checksum() + ' ]')
