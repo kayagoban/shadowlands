@@ -1,39 +1,41 @@
-import npyscreen, sys, os, hashlib, argparse, struct, time, locale, qrcode_terminal
+import npyscreen, sys, os, hashlib, argparse, struct, time, locale, qrcode_terminal, threading
 from pyfiglet import Figlet
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
-from web3.auto.infura import w3
+from web3.auto import w3
 
 # Get a connection
 
-"""
-try:
-    connected = w3.isConnected()
-    if connected and w3.version.node.startswith('Parity'):
-        enode = w3.parity.enode
-    elif connected and w3.version.node.startswith('Geth'):
-        enode = w3.admin.nodeInfo['enode']
-except(TypeError)
+block = ""
+nodeVersion = ""
+
+connected = w3.isConnected()
+if connected and w3.version.node.startswith('Parity'):
+    enode = w3.parity.enode
+elif connected and w3.version.node.startswith('Geth'):
+    enode = w3.admin.nodeInfo['enode']
+else:
+    print("Could not find parity or geth locally")
+    del sys.modules['web3.auto']
     os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
     from web3.auto.infura import w3
-    try:
-        w3.isConnected()
-    except(TypeError)
 
-    printf("Sorry chummer, couldn't find a node.")
-        exit()
-""" 
-
-#throws  web3.utils.threads.Timeout
 if not w3.isConnected():
-    from web3.auto import w3
-    if connected and w3.version.node.startswith('Parity'):
-        enode = w3.parity.enode
-    elif connected and w3.version.node.startswith('Geth'):
-        enode = w3.admin.nodeInfo['enode']
-    else:
-        printf("Sorry chummer, couldn't find a node.")
-        exit()
+    print("Sorry chummer, couldn't connect to an Ethereum node.")
+    exit()
+
+def heartbeat():
+    global nodeVersion, block
+    while True:
+#       assert w3.isConnected()
+       nodeVersion = w3.version.node
+       block = str(w3.eth.blockNumber)
+       time.sleep(5)
+    return
+
+t = threading.Thread(target=heartbeat)
+t.start()
+
 
 # Check the file for tampering
 def file_checksum():
@@ -56,25 +58,25 @@ def ledgerEthAddress():
 #print('[ '+ file_checksum() + ' ]')
 def loadingScreen():
     os.system("clear")
-    print('Connected to ' + w3.version.node)
-    print('[block ' + str(w3.eth.blockNumber) + ']')
+    print('Connected to ' + nodeVersion)
+    print('[block ' + block + ']')
     print(Figlet(font='slant').renderText('Shadowlands') )
     print('public terminal \t\t' + 'v0.01' )
     print( '\n\n\n\n\n' )
-    print('Welcome, chummer.  Insert your credstick to log in.\n\n')
+    print('Welcome, chummer.  Insert your credstick to log in.')
     return
 
 def headerLine():
-    return print('Welcome, ' + ethAddress + '\t[block ' + str(w3.eth.blockNumber) + ']')
+    return print('Welcome, ' + ethAddress + '\t[block ' + block + ']')
 
 boxDictionary = {
-'\\' : b'\xe2\x95\x9a',
-'-'  : b'\xe2\x95\x90',
-'/'  : b'\xe2\x95\x9d',
-'|'  : b'\xe2\x95\x91',
-'+'  : b'\xe2\x95\x94',
-'%'  : b'\xe2\x95\x97',
-}
+        '\\' : b'\xe2\x95\x9a',
+        '-'  : b'\xe2\x95\x90',
+        '/'  : b'\xe2\x95\x9d',
+        '|'  : b'\xe2\x95\x91',
+        '+'  : b'\xe2\x95\x94',
+        '%'  : b'\xe2\x95\x97',
+        }
 
 def boxDecode(x):
     return (''.join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
@@ -87,29 +89,42 @@ def mainMenu():
     os.system("clear")
     headerLine()
     print('\n')
-    print(boxDecode('  +- Account Balances ------------------%'))
+    print(boxDecode('  +- Account Balances -------------%'))
     print(boxDecode('  |                                    '))
     print(boxDecode('  |  Ξth: ' + ethBalance(ethAddress) + ''))
     print(boxDecode('  |  Dai: ' + ethBalance(ethAddress) + ''))
-    print(boxDecode('  \\------------------------------------/'))
+    print(boxDecode('  \\--------------------------------/'))
+    return
+
+def blastOff():
+    timeout = 0.09 
+    for x in range(70):
+      time.sleep(timeout)
+      sys.stdout.write(".")
+      sys.stdout.flush()
+      timeout = timeout * 0.9 
+        
     return
 
 
-
-
 loadingScreen()
+
 
 while True:
     try: 
         #address = ledgerPublicAddress()
         address = ledgerEthAddress()
+        ethAddress = '0x' + address.decode('utf-8') 
+        sys.stdout.write("\033[F")
+      #  print("\nSuccess.  Logging in with public address " + ethAddress)
+        blastOff()
+
         break
     except(CommException, IOError):
-        time.sleep(1.5)
+        time.sleep(0.5)
         loadingScreen()
 
-ethAddress = '0x' + address.decode('utf-8') 
-        
+
 mainMenu()
 
 
