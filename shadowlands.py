@@ -177,15 +177,18 @@ def mainMenuLoop():
     global menuSelection, old_settings
     while menuSelection is None:
         mainMenu()
-        time.sleep(6)
+        time.sleep(0.25)
 
     return
 
 m = threading.Thread(target=mainMenuLoop)
 m.start()
 
-
 menuSelection = input()
+m.join()
+
+print( "You selected " + menuSelection.upper())
+
 
 
 #import subprocess
