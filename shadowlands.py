@@ -10,6 +10,7 @@ from web3.auto import w3
 block = ""
 nodeVersion = ""
 syncing = {}
+localNode = True
 
 connected = w3.isConnected()
 if connected and w3.version.node.startswith('Parity'):
@@ -17,6 +18,7 @@ if connected and w3.version.node.startswith('Parity'):
 elif connected and w3.version.node.startswith('Geth'):
     enode = w3.admin.nodeInfo['enode']
 else:
+    localNode = False
     print("Could not find parity or geth locally")
     del sys.modules['web3.auto']
     os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
@@ -36,7 +38,10 @@ def heartbeat():
        if syncing:
            blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
             
-       time.sleep(5)
+       if localNode:
+           time.sleep(.5)
+       else:
+           time.sleep(5)
     return
 
 t = threading.Thread(target=heartbeat)
@@ -145,11 +150,12 @@ while True:
 
         break
     except(CommException, IOError):
-        time.sleep(0.5)
+        time.sleep(0.25)
         loadingScreen()
 
-
-mainMenu()
+while True:
+    mainMenu()
+    time.sleep(0.25)
 
 
 input()
