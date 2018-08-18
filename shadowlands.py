@@ -72,7 +72,12 @@ def ledgerEthAddress():
     return address
 
 def header():
-    print('Connected to ' + nodeVersion)
+    if localNode:
+        nodeString = 'local node at ' + nodeVersion
+    else:
+        nodeString = 'infura node at ' + nodeVersion
+
+    print('Connected to ' + nodeString)
     if not syncing:
         print('[block ' + block + ']')
     else:
@@ -123,7 +128,9 @@ def mainMenu():
     print(boxDecode('  +- Things to do -------------------------------------%'))
     print(boxDecode('  |                                    '))
     print(boxDecode('  |  (S)end ether and tokens '))
-    print(boxDecode('  |  (V)iew your transaction history '))
+    print(boxDecode('  |  (B)rowse your transaction history '))
+    print(boxDecode('  |  (C)opy your address to the system clipboard '))
+    print(boxDecode('  |  (V)iew your address QRcode '))
     print(boxDecode('  |  (T)rade Ether for Dai '))
     print(boxDecode('  |  (O)pen a CDP loan [borrow dai against your ether]'))
     print(boxDecode('  |  (R)egister your ENS name '))
@@ -169,7 +176,12 @@ while True:
 input()
 
 
+#import subprocess
+#subprocess.call(["/usr/bin/open", 'http://apple.com'])
 
+
+#import pyperclip
+#pyperclip.copy('The text to be copied to the clipboard.')
 
 # o = qrcode_terminal.qr_terminal_str('0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898', 1)
 
