@@ -4,62 +4,20 @@ import tty, termios
 from pyfiglet import Figlet
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
-from web3.exceptions import UnhandledRequest
-from web3.auto import w3
-from getch import getch
+import shadownode
 
 TREZOR = '0x8041436E41F2FCA14d55eb892166715d7f8eA7A2'
 LEDGER = '0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898'
 
-# Get a connection
 
-block = ""
-nodeVersion = ""
-syncing = {}
-localNode = True
-ethAddress = None
-ethBalance = None
 menuSelection = None
-old_settings = None
 
-connected = w3.isConnected()
-if connected and w3.version.node.startswith('Parity'):
-    enode = w3.parity.enode
-elif connected and w3.version.node.startswith('Geth'):
-    enode = w3.admin.nodeInfo['enode']
-else:
-    localNode = False
-    print("Could not find parity or geth locally")
-    del sys.modules['web3.auto']
-    os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
-    from web3.auto.infura import w3
 
-if not w3.isConnected():
-    print("Sorry chummer, couldn't connect to an Ethereum node.")
-    exit()
-
-def heartbeat():
-    global nodeVersion, block, blocksBehind, syncing, ethBalance
-    while True:
-#       assert w3.isConnected()
-       nodeVersion = w3.version.node
-       block = str(w3.eth.blockNumber)
-
-       if ethAddress: 
-           ethBalance = w3.eth.getBalance(ethAddress)
-
-       syncing = w3.eth.syncing
-       if syncing:
-           blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
-            
-       if localNode:
-           time.sleep(.5)
-       else:
-           time.sleep(10)
-    return
-
-t = threading.Thread(target=heartbeat)
+# Get a connection
+shadownode.connect()
+t = threading.Thread(target=shadownode.heartbeat)
 t.start()
+
 
 def ledgerEthAddress():
     dongle = getDongle(False)
@@ -69,16 +27,16 @@ def ledgerEthAddress():
     return address
 
 def header():
-    if localNode:
-        nodeString = 'local node at ' + nodeVersion
+    if shadownode.localNode:
+        nodeString = 'local node at ' + shadownode.nodeVersion
     else:
-        nodeString = 'infura node at ' + nodeVersion
+        nodeString = 'infura node at ' + shadownode.nodeVersion
 
     print('Connected to ' + nodeString)
-    if not syncing:
-        print('[block ' + block + ']')
+    if not shadownode.syncing:
+        print('[block ' + shadownode.block + ']')
     else:
-        print('[syncing:  ' + str(blocksBehind) + ' blocks to ' + str(syncing['highestBlock']) + ']')
+        print('[syncing:  ' + str(shadownode.blocksBehind) + ' blocks to ' + str(shadownode.syncing['highestBlock']) + ']')
  
 ## Loading Screen
 #print('[ '+ file_checksum() + ' ]')
@@ -104,8 +62,8 @@ def boxDecode(x):
     return (''.join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
 
 def ethBalanceStr():
-    if ethBalance:
-        return str(w3.fromWei(ethBalance, 'ether'))
+    if shadownode.ethBalance:
+        return str(w3.fromWei(shadownode.ethBalance, 'ether'))
     else:
         return 'Unknown'
 
@@ -113,7 +71,7 @@ def mainMenu():
     os.system("clear")
     header()
     print('\n')
-    print('  ' + ethAddress)
+    print('  ' + shadownode.ethAddress)
     print('\n')
     print(boxDecode('  +- Account Balances -------------%'))
     print(boxDecode('  |                                    '))
@@ -156,7 +114,7 @@ loadingScreen()
 while True:
     try: 
         address = ledgerEthAddress()
-        ethAddress = '0x' + address.decode('utf-8') 
+        shadownode.ethAddress = '0x' + address.decode('utf-8') 
         blastOff()
 
         break
