@@ -8,6 +8,9 @@ from web3.exceptions import UnhandledRequest
 from web3.auto import w3
 from getch import getch
 
+TREZOR = '0x8041436E41F2FCA14d55eb892166715d7f8eA7A2'
+LEDGER = '0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898'
+
 # Get a connection
 
 block = ""
@@ -57,16 +60,6 @@ def heartbeat():
 
 t = threading.Thread(target=heartbeat)
 t.start()
-
-# Check the file for tampering
-def file_checksum():
-    script_path = os.path.abspath(__file__)
-    shahash = hashlib.sha256()
-    with open(script_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            shahash.update(chunk)
-    return shahash.hexdigest()
-
 
 def ledgerEthAddress():
     dongle = getDongle(False)
@@ -148,6 +141,7 @@ def mainMenu():
     return
 
 def blastOff():
+    sys.stdout.write("\033[F")
     timeout = 0.11
     for x in range(70):
       time.sleep(timeout)
@@ -161,11 +155,8 @@ loadingScreen()
 
 while True:
     try: 
-        #address = ledgerPublicAddress()
         address = ledgerEthAddress()
         ethAddress = '0x' + address.decode('utf-8') 
-        sys.stdout.write("\033[F")
-      #  print("\nSuccess.  Logging in with public address " + ethAddress)
         blastOff()
 
         break
@@ -188,6 +179,19 @@ menuSelection = input()
 m.join()
 
 print( "You selected " + menuSelection.upper())
+
+
+
+
+# Check the file for tampering
+def file_checksum():
+    script_path = os.path.abspath(__file__)
+    shahash = hashlib.sha256()
+    with open(script_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            shahash.update(chunk)
+    return shahash.hexdigest()
+
 
 
 
