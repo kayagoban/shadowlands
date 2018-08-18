@@ -11,6 +11,7 @@ block = ""
 nodeVersion = ""
 syncing = {}
 localNode = True
+ethAddress = ""
 
 connected = w3.isConnected()
 if connected and w3.version.node.startswith('Parity'):
@@ -41,7 +42,7 @@ def heartbeat():
        if localNode:
            time.sleep(.5)
        else:
-           time.sleep(5)
+           time.sleep(10)
     return
 
 t = threading.Thread(target=heartbeat)
