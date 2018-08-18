@@ -11,7 +11,8 @@ block = ""
 nodeVersion = ""
 syncing = {}
 localNode = True
-ethAddress = ""
+ethAddress = None
+ethBalance = None
 
 connected = w3.isConnected()
 if connected and w3.version.node.startswith('Parity'):
@@ -30,11 +31,15 @@ if not w3.isConnected():
     exit()
 
 def heartbeat():
-    global nodeVersion, block, blocksBehind, syncing
+    global nodeVersion, block, blocksBehind, syncing, ethBalance
     while True:
 #       assert w3.isConnected()
        nodeVersion = w3.version.node
        block = str(w3.eth.blockNumber)
+
+       if ethAddress: 
+           ethBalance = w3.eth.getBalance(ethAddress)
+
        syncing = w3.eth.syncing
        if syncing:
            blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
@@ -96,9 +101,11 @@ boxDictionary = {
 def boxDecode(x):
     return (''.join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
 
-def ethBalance(address):
-    bal = w3.eth.getBalance(address)
-    return str(w3.fromWei(bal, 'ether'))
+def ethBalanceStr():
+    if ethBalance:
+        return str(w3.fromWei(ethBalance, 'ether'))
+    else:
+        return 'Unknown'
 
 def mainMenu():
     os.system("clear")
@@ -108,8 +115,8 @@ def mainMenu():
     print('\n')
     print(boxDecode('  +- Account Balances -------------%'))
     print(boxDecode('  |                                    '))
-    print(boxDecode('  |  Ξth: ' + ethBalance(ethAddress) + ''))
-    print(boxDecode('  |  Dai: ' + ethBalance(ethAddress) + ''))
+    print(boxDecode('  |  Ξth: ' + ethBalanceStr() + ''))
+    print(boxDecode('  |  Dai: ' ))
     print(boxDecode('  |                                    '))
     print(boxDecode('  \\--------------------------------/'))
     print('\n')
