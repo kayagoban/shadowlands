@@ -1,9 +1,12 @@
-import npyscreen, sys, os, hashlib, argparse, struct, time, locale, qrcode_terminal, threading
+import npyscreen, sys, os, hashlib, argparse
+import struct, time, locale, qrcode_terminal, threading
+import tty, termios
 from pyfiglet import Figlet
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
 from web3.exceptions import UnhandledRequest
 from web3.auto import w3
+from getch import getch
 
 # Get a connection
 
@@ -13,6 +16,8 @@ syncing = {}
 localNode = True
 ethAddress = None
 ethBalance = None
+menuSelection = None
+old_settings = None
 
 connected = w3.isConnected()
 if connected and w3.version.node.startswith('Parity'):
@@ -52,7 +57,6 @@ def heartbeat():
 
 t = threading.Thread(target=heartbeat)
 t.start()
-
 
 # Check the file for tampering
 def file_checksum():
@@ -139,6 +143,7 @@ def mainMenu():
     print(boxDecode('  |  (B)rowse the take-out menu '))
     print(boxDecode('  |                                    '))
     print(boxDecode('  \\----------------------------------------------------/'))
+    print('\n  Type the letter of your selection and hit enter:')
  
     return
 
@@ -168,12 +173,19 @@ while True:
         time.sleep(0.25)
         loadingScreen()
 
-while True:
-    mainMenu()
-    time.sleep(0.25)
+def mainMenuLoop():
+    global menuSelection, old_settings
+    while menuSelection is None:
+        mainMenu()
+        time.sleep(6)
+
+    return
+
+m = threading.Thread(target=mainMenuLoop)
+m.start()
 
 
-input()
+menuSelection = input()
 
 
 #import subprocess
@@ -184,40 +196,5 @@ input()
 #pyperclip.copy('The text to be copied to the clipboard.')
 
 # o = qrcode_terminal.qr_terminal_str('0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898', 1)
-
-"""
-def parse_bip32_path(path="44'/60'/0'/0"):
-    if len(path) == 0:
-        return ""
-    result = ""
-    elements = path.split('/')
-    for pathElement in elements:
-        element = pathElement.split('\'')
-        if len(element) == 1:
-            result = result + struct.pack(">I", int(element[0]))
-        else:
-            result = result + struct.pack(">I", 0x80000000 | int(element[0]))
-            print("element[0]: " + element[0])
-            print( "pathcode: " + (struct.pack(">I", 0x80000000 | int(element[0]))).encode('hex'))
-
-    return result
-
-def ledgerPublicAddress():
-    donglePath = parse_bip32_path()
-#apdu = "e0020100".decode('hex') + chr(len(donglePath) + 1) + chr(len(donglePath) / 4) + donglePath
-    apdu = "e0020000".decode('hex') + chr(len(donglePath) + 1) + chr(len(donglePath) / 4) + donglePath
-
-    dongle = getDongle(True)
-    print 'donglepath: ' + donglePath.encode('hex')
-    print "Apdu: " + bytes(apdu).encode('hex')
-    #print "Apdu bytes: " + bytes(apdu)
-    result = dongle.exchange(bytes(apdu))
-    offset = 1 + result[0]
-    address = result[offset + 1 : offset + 1 + result[offset]]
-
- #   print "Public key " + str(result[1 : 1 + result[0]]).encode('hex')
- #   print "Address 0x" + str(address)
-    return address
-"""
 
 
