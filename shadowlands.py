@@ -2,29 +2,29 @@ import npyscreen, sys, os, hashlib, argparse
 import struct, time, locale, qrcode_terminal, threading
 import tty, termios
 from pyfiglet import Figlet
-from ledgerblue.comm import getDongle
-from ledgerblue.commException import CommException
 import shadownode
-
-TREZOR = '0x8041436E41F2FCA14d55eb892166715d7f8eA7A2'
-LEDGER = '0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898'
-
+import credstick 
+from credstick import AddressError
 
 menuSelection = None
+
+boxDictionary = {
+        '\\' : b'\xe2\x95\x9a',
+        '-'  : b'\xe2\x95\x90',
+        '/'  : b'\xe2\x95\x9d',
+        '|'  : b'\xe2\x95\x91',
+        '+'  : b'\xe2\x95\x94',
+        '%'  : b'\xe2\x95\x97',
+        }
+
+def boxDecode(x):
+    return (''.join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
 
 
 # Get a connection
 shadownode.connect()
 t = threading.Thread(target=shadownode.heartbeat)
 t.start()
-
-
-def ledgerEthAddress():
-    dongle = getDongle(False)
-    result = dongle.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
-    offset = 1 + result[0]
-    address = result[offset + 1 : offset + 1 + result[offset]]
-    return address
 
 def header():
     if shadownode.localNode:
@@ -40,8 +40,6 @@ def header():
         print('[syncing:  ' + str(shadownode.blocksBehind) + ' blocks to ' 
               + str(shadownode.syncing['highestBlock']) + ']')
  
-## Loading Screen
-#print('[ '+ file_checksum() + ' ]')
 def loadingScreen():
     os.system("clear")
     header()       
@@ -51,21 +49,9 @@ def loadingScreen():
     print('Welcome, chummer.  Insert your credstick to log in.')
     return
 
-boxDictionary = {
-        '\\' : b'\xe2\x95\x9a',
-        '-'  : b'\xe2\x95\x90',
-        '/'  : b'\xe2\x95\x9d',
-        '|'  : b'\xe2\x95\x91',
-        '+'  : b'\xe2\x95\x94',
-        '%'  : b'\xe2\x95\x97',
-        }
-
-def boxDecode(x):
-    return (''.join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
-
 def ethBalanceStr():
     if shadownode.ethBalance:
-        return str(w3.fromWei(shadownode.ethBalance, 'ether'))
+        return str(shadownode.ethBalance)
     else:
         return 'Unknown'
 
@@ -111,36 +97,41 @@ def blastOff():
     return
 
 
-loadingScreen()
-
-while True:
-    try: 
-        address = ledgerEthAddress()
-        shadownode.ethAddress = '0x' + address.decode('utf-8') 
-        blastOff()
-
-        break
-    except(CommException, IOError):
-        time.sleep(0.25)
-        loadingScreen()
-
 def mainMenuLoop():
     global menuSelection, old_settings
     while menuSelection is None:
         mainMenu()
         time.sleep(0.25)
 
-    return
 
+# Begin screen displays
+
+loadingScreen()
+
+while True:
+    try: 
+        credstick.getAddress()
+        shadownode.ethAddress = '0x' + credstick.address.decode('utf-8') 
+        shadownode.poll()
+        blastOff()
+
+        break
+    except AddressError:
+        time.sleep(0.25)
+        loadingScreen()
+
+
+# Show main menu in a thread to provide live updates
 m = threading.Thread(target=mainMenuLoop)
 m.start()
+
 
 menuSelection = input()
 m.join()
 
+
+os.system("clear")
 print( "You selected " + menuSelection.upper())
-
-
 
 
 # Check the file for tampering

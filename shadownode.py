@@ -1,4 +1,4 @@
-import sys, time
+import sys, time, os
 from web3.exceptions import UnhandledRequest
 from web3.auto import w3
 
@@ -10,6 +10,11 @@ blocksBehind = None
 ethBalance = None
 ethAddress = None
 
+def ethBalanceStr():
+    if shadownode.ethBalance:
+        return str(w3.fromWei(shadownode.ethBalance, 'ether'))
+    else:
+        return 'Unknown'
 
 def connect():
     global w3, localNode, nodeVersion
@@ -31,20 +36,23 @@ def connect():
 
     nodeVersion = w3.version.node
 
+def poll():
+    global block, blocksBehind, syncing, ethBalance
+    syncing = w3.eth.syncing
+
+    if syncing:
+        blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
+    else:
+        block = str(w3.eth.blockNumber)
+
+    if ethAddress:
+        ethBalance = w3.fromWei(w3.eth.getBalance(ethAddress), 'ether')
+
 
 def heartbeat():
-    global block, blocksBehind, syncing, ethBalance
     while True:
         #       assert w3.isConnected()
-        syncing = w3.eth.syncing
-
-        if syncing:
-            blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
-        else:
-            block = str(w3.eth.blockNumber)
-
-        if ethAddress:
-            ethBalance = w3.eth.getBalance(ethAddress)
+        poll()
 
         if localNode:
             time.sleep(.5)
