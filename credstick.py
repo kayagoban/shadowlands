@@ -1,28 +1,25 @@
-from ledgerblue.comm import getDongle
-from ledgerblue.commException import CommException
-
-address = None
-
 class AddressError(Exception):
     pass
 
-def getAddress():
-    global address
+class Credstick(object):
 
-    try:
-#        import pdb; pdb.set_trace()
-        dongle = getDongle(False)
-        result = dongle.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
-        offset = 1 + result[0]
-        address = result[offset + 1 : offset + 1 + result[offset]]
-    except(CommException, IOError):
-        raise AddressError("Could not get an address from your credstick, chummer.")
+    def open(<args>):
+        raise NotImplementedError(optional_error_message)
 
+    def close(<args>):
+        raise NotImplementedError(optional_error_message)
 
+    def heartbeat(<args>):
+        raise NotImplementedError(optional_error_message)
 
-def ledgerEthAddress():
-    dongle = getDongle(False)
-    result = dongle.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
-    offset = 1 + result[0]
-    address = result[offset + 1 : offset + 1 + result[offset]]
-    return address
+    def derive(<args>):
+        raise NotImplementedError(optional_error_message)
+
+    def signTx(<args>):
+        raise NotImplementedError(optional_error_message)
+
+    def open(<args>):
+        raise NotImplementedError(optional_error_message)
+
+    def addressStr():
+        raise NotImplementedError(optional_error_message)

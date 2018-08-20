@@ -1,10 +1,16 @@
+#!/usr/bin/env python
+
 import npyscreen, sys, os, hashlib, argparse
 import struct, time, locale, qrcode_terminal, threading
 import tty, termios
 from pyfiglet import Figlet
-import shadownode
-import credstick 
-from credstick import AddressError
+import eth_node
+
+import ledger_ethdriver
+from ledger_ethdriver import LedgerEthDriver, AddressError
+
+#import credstick 
+#from credstick import AddressError
 
 menuSelection = None
 
@@ -30,24 +36,24 @@ def boxDecode(x):
 
 
 # Get a connection
-shadownode.connect()
-t = threading.Thread(target=shadownode.heartbeat)
+eth_node.connect()
+t = threading.Thread(target=eth_node.heartbeat)
 t.start()
 
 def header():
-    if shadownode.localNode:
+    if eth_node.localNode:
         nodeString = 'local' 
     else:
         nodeString = 'infura'
 
-    print('Connected to ' + nodeString + ' node at ' + shadownode.nodeVersion)
+    print('Connected to ' + nodeString + ' node at ' + eth_node.nodeVersion)
 
 
-    if not shadownode.syncing:
-        print('[synced: block ' + shadownode.block + ']' + '\t\tNetwork: ' + networkName[shadownode.network]) 
+    if not eth_node.syncing:
+        print('[synced: block ' + eth_node.block + ']' + '\t\tNetwork: ' + networkName[eth_node.network]) 
     else:
-        print('[syncing:  ' + str(shadownode.blocksBehind) + ' blocks to ' 
-              + str(shadownode.syncing['highestBlock']) + ']' +  '\t\tNetwork: ' + networkName[shadownode.network]) 
+        print('[syncing:  ' + str(eth_node.blocksBehind) + ' blocks to ' 
+              + str(eth_node.syncing['highestBlock']) + ']' +  '\t\tNetwork: ' + networkName[eth_node.network]) 
  
 def loadingScreen():
     os.system("clear")
@@ -59,8 +65,8 @@ def loadingScreen():
     return
 
 def ethBalanceStr():
-    if shadownode.ethBalance:
-        return str(shadownode.ethBalance)
+    if eth_node.ethBalance:
+        return str(eth_node.ethBalance)
     else:
         return 'Unknown'
 
@@ -68,7 +74,7 @@ def mainMenu():
     os.system("clear")
     header()
     print('\n')
-    print('  ' + shadownode.ethAddress)
+    print('  ' + eth_node.ethAddress)
     print('\n')
     print(boxDecode('  +- Account Balances -------------%'))
     print(boxDecode('  |                                    '))
@@ -119,9 +125,8 @@ loadingScreen()
 
 while True:
     try: 
-        credstick.getAddress()
-        shadownode.ethAddress = '0x' + credstick.address.decode('utf-8') 
-        shadownode.poll()
+        eth_node.ethAddress = LedgerEthDriver.derive()
+        eth_node.poll()
         blastOff()
 
         break
