@@ -5,14 +5,16 @@ import struct, time, locale, qrcode_terminal, threading
 import tty, termios
 from pyfiglet import Figlet
 import eth_node
-
-import ledger_ethdriver
-from ledger_ethdriver import LedgerEthDriver, AddressError
+from hid_probe import find_credstick
+from credstick import Credstick, DeriveError, OpenError, CloseError
 
 #import credstick 
 #from credstick import AddressError
 
+# import pdb; pdb.set_trace()
+
 menuSelection = None
+credstick = None
 
 networkName = {
     '1': 'MainNet',
@@ -28,11 +30,11 @@ boxDictionary = {
         '/'  : b'\xe2\x95\x9d',
         '|'  : b'\xe2\x95\x91',
         '+'  : b'\xe2\x95\x94',
-        '%'  : b'\xe2\x95\x97',
+        '$'  : b'\xe2\x95\x97',
         }
 
 def boxDecode(x):
-    return (''.join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
+    return ("".join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
 
 
 # Get a connection
@@ -74,16 +76,17 @@ def mainMenu():
     os.system("clear")
     header()
     print('\n')
-    print('  ' + eth_node.ethAddress)
-    print('\n')
-    print(boxDecode('  +- Account Balances -------------%'))
+    print(boxDecode("  +- %s %s ---------------------------------------$") 
+          %(credstick.manufacturerStr, credstick.productStr))
+    print(boxDecode('  |                                    '))
+    print(boxDecode('  |  Address: %s' ) %(credstick.addressStr()) )
     print(boxDecode('  |                                    '))
     print(boxDecode('  |  Ξth: ' + ethBalanceStr() + ''))
     print(boxDecode('  |  Dai: ' ))
     print(boxDecode('  |                                    '))
-    print(boxDecode('  \\--------------------------------/'))
+    print(boxDecode('  \\-------------------------------------------------------/'))
     print('\n')
-    print(boxDecode('  +- Things to do -------------------------------------%'))
+    print(boxDecode('  +- Things to do -------------------------------------$'))
     print(boxDecode('  |                                    '))
     print(boxDecode('  |  (S)end ether and tokens '))
     print(boxDecode('  |  (B)rowse your transaction history '))
@@ -125,12 +128,14 @@ loadingScreen()
 
 while True:
     try: 
-        eth_node.ethAddress = LedgerEthDriver.derive()
+        credstick = find_credstick()
+        credstick.open()
+        eth_node.ethAddress = credstick.derive()
         eth_node.poll()
         blastOff()
 
         break
-    except AddressError:
+    except(NoCredstickFoundError, DeriveError):
         time.sleep(0.25)
         loadingScreen()
 

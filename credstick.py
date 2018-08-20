@@ -1,4 +1,26 @@
+class DeriveError(Exception):
+    pass
+
+class OpenError(Exception):
+    pass
+
+class CloseError(Exception):
+    pass
+
+
+
 class Credstick(object):
+
+    _driver = None
+    manufacturerStr = None
+    productStr = None
+    address = None
+
+    @classmethod
+    def addressStr(cls):
+        return '0x' + cls.address.decode('ascii')
+
+# The rest are unimplemented abstract methods
 
     @classmethod
     def open(cls):
@@ -24,6 +46,4 @@ class Credstick(object):
     def open(cls):
         raise NotImplementedError(optional_error_message)
 
-    @classmethod
-    def addressStr(cls):
-        raise NotImplementedError(optional_error_message)
+

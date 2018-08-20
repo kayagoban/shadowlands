@@ -1,0 +1,3 @@
+*.py.swp
+detritus
+__pycache__
