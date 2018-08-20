@@ -16,6 +16,7 @@ class LedgerEthDriver(Credstick):
     @classmethod
     def close(cls):
         cls._driver.device.close()
+        cls._driver = None
 
     @classmethod
     def derive(cls):
@@ -26,5 +27,22 @@ class LedgerEthDriver(Credstick):
         except(CommException, IOError):
             raise DeriveError("Could not derive an address from your credstick, user.")
         return cls.addressStr()
+
+    @classmethod
+    def version(cls):
+        try:
+            apdu = b'\xe0\x06\x00\x00\x00\x04'
+            result = cls._driver.exchange(apdu)
+            import pdb; pdb.set_trace()
+        except(CommException, IOError):
+            raise DeriveError("Could not derive an address from your credstick, user.")
+        return cls.addressStr()
+
+
+    @classmethod
+    def _send(cls):
+
+        return
+
 
        

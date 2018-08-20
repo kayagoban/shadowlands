@@ -20,6 +20,11 @@ class Credstick(object):
     def addressStr(cls):
         return '0x' + cls.address.decode('ascii')
 
+    @classmethod
+    def heartbeat(cls):
+        return
+
+
 # The rest are unimplemented abstract methods
 
     @classmethod

@@ -66,12 +66,6 @@ def loadingScreen():
     print('Welcome, chummer.  Insert your credstick to log in.')
     return
 
-def ethBalanceStr():
-    if eth_node.ethBalance:
-        return str(eth_node.ethBalance)
-    else:
-        return 'Unknown'
-
 def mainMenu():
     os.system("clear")
     header()
@@ -81,7 +75,7 @@ def mainMenu():
     print(boxDecode('  |                                    '))
     print(boxDecode('  |  Address: %s' ) %(credstick.addressStr()) )
     print(boxDecode('  |                                    '))
-    print(boxDecode('  |  Ξth: ' + ethBalanceStr() + ''))
+    print(boxDecode('  |  Ξth: ' + eth_node.ethBalanceStr() + ''))
     print(boxDecode('  |  Dai: ' ))
     print(boxDecode('  |                                    '))
     print(boxDecode('  \\-------------------------------------------------------/'))

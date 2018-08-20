@@ -9,12 +9,12 @@ nodeVersion = ""
 network = None
 syncing = {}
 blocksBehind = None
-ethBalance = None
+weiBalance = None
 ethAddress = None
 
 def ethBalanceStr():
-    if shadownode.ethBalance:
-        return str(w3.fromWei(shadownode.ethBalance, 'ether'))
+    if weiBalance:
+        return str(w3.fromWei(weiBalance, 'ether'))
     else:
         return 'Unknown'
 
@@ -40,7 +40,7 @@ def connect():
     network = w3.version.network
 
 def poll():
-    global block, blocksBehind, syncing, ethBalance
+    global block, blocksBehind, syncing, weiBalance
     syncing = w3.eth.syncing
 
     if syncing:
@@ -49,7 +49,7 @@ def poll():
         block = str(w3.eth.blockNumber)
 
     if ethAddress:
-        ethBalance = w3.fromWei(w3.eth.getBalance(ethAddress), 'ether')
+        weiBalance = w3.eth.getBalance(ethAddress)
 
 
 def heartbeat():
