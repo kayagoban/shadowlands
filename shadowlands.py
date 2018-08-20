@@ -8,6 +8,14 @@ from credstick import AddressError
 
 menuSelection = None
 
+networkName = {
+    '1': 'MainNet',
+    '2': 'Morden',
+    '3': 'Ropsten',
+    '4': 'Rinkeby',
+    '42': 'Kovan'
+}
+
 boxDictionary = {
         '\\' : b'\xe2\x95\x9a',
         '-'  : b'\xe2\x95\x90',
@@ -34,11 +42,12 @@ def header():
 
     print('Connected to ' + nodeString + ' node at ' + shadownode.nodeVersion)
 
+
     if not shadownode.syncing:
-        print('[synced: block ' + shadownode.block + ']')
+        print('[synced: block ' + shadownode.block + ']' + '\t\tNetwork: ' + networkName[shadownode.network]) 
     else:
         print('[syncing:  ' + str(shadownode.blocksBehind) + ' blocks to ' 
-              + str(shadownode.syncing['highestBlock']) + ']')
+              + str(shadownode.syncing['highestBlock']) + ']' +  '\t\tNetwork: ' + networkName[shadownode.network]) 
  
 def loadingScreen():
     os.system("clear")
@@ -132,6 +141,8 @@ m.join()
 
 os.system("clear")
 print( "You selected " + menuSelection.upper())
+
+import pdb; pdb.set_trace()
 
 
 # Check the file for tampering

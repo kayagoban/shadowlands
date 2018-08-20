@@ -1,10 +1,12 @@
 import sys, time, os
 from web3.exceptions import UnhandledRequest
 from web3.auto import w3
+from enum import Enum
 
 localNode = True
 block = ""
 nodeVersion = ""
+network = None
 syncing = {}
 blocksBehind = None
 ethBalance = None
@@ -17,7 +19,7 @@ def ethBalanceStr():
         return 'Unknown'
 
 def connect():
-    global w3, localNode, nodeVersion
+    global w3, localNode, nodeVersion, network
 
     connected = w3.isConnected()
     if connected and w3.version.node.startswith('Parity'):
@@ -35,6 +37,7 @@ def connect():
         exit()
 
     nodeVersion = w3.version.node
+    network = w3.version.network
 
 def poll():
     global block, blocksBehind, syncing, ethBalance

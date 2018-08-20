@@ -10,6 +10,7 @@ def getAddress():
     global address
 
     try:
+#        import pdb; pdb.set_trace()
         dongle = getDongle(False)
         result = dongle.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
         offset = 1 + result[0]
