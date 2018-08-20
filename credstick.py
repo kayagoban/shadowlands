@@ -1,25 +1,29 @@
-class AddressError(Exception):
-    pass
-
 class Credstick(object):
 
-    def open(<args>):
+    @classmethod
+    def open(cls):
         raise NotImplementedError(optional_error_message)
 
-    def close(<args>):
+    @classmethod
+    def close(cls):
         raise NotImplementedError(optional_error_message)
 
-    def heartbeat(<args>):
+    @classmethod
+    def heartbeat(cls):
         raise NotImplementedError(optional_error_message)
 
-    def derive(<args>):
+    @classmethod
+    def derive(cls):
         raise NotImplementedError(optional_error_message)
 
-    def signTx(<args>):
+    @classmethod
+    def signTx(cls):
         raise NotImplementedError(optional_error_message)
 
-    def open(<args>):
+    @classmethod
+    def open(cls):
         raise NotImplementedError(optional_error_message)
 
-    def addressStr():
+    @classmethod
+    def addressStr(cls):
         raise NotImplementedError(optional_error_message)

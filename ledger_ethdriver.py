@@ -1,15 +1,16 @@
+from credstick import Credstick
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
+
 
 # import pdb; pdb.set_trace()
 
 class AddressError(Exception):
     pass
 
-class LedgerEthDriver():
+class LedgerEthDriver(Credstick):
 
     address = None
-
 
     @classmethod
     def derive(cls):
