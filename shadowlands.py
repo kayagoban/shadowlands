@@ -5,8 +5,8 @@ import struct, time, locale, qrcode_terminal, threading
 import tty, termios
 from pyfiglet import Figlet
 import eth_node
-from hid_probe import find_credstick
-from credstick import Credstick, DeriveError, OpenError, CloseError
+from hid_probe import find_credstick, NoCredstickFoundError
+from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 
 #import credstick 
 #from credstick import AddressError
@@ -129,7 +129,7 @@ while True:
         blastOff()
 
         break
-    except(NoCredstickFoundError, DeriveError):
+    except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
         time.sleep(0.25)
         loadingScreen()
 

@@ -1,12 +1,11 @@
-class DeriveError(Exception):
+class DeriveCredstickAddressError(Exception):
     pass
 
-class OpenError(Exception):
+class OpenCredstickError(Exception):
     pass
 
-class CloseError(Exception):
+class CloseCredstickError(Exception):
     pass
-
 
 
 class Credstick(object):
