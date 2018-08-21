@@ -2,6 +2,7 @@ import sys, time, os
 from web3.exceptions import UnhandledRequest
 from web3.auto import w3
 from enum import Enum
+from eth_utils import decode_hex, encode_hex
 
 localNode = True
 block = ""
@@ -11,6 +12,17 @@ syncing = {}
 blocksBehind = None
 weiBalance = None
 ethAddress = None
+
+networkDict = {
+    '1': 'MainNet',
+    '2': 'Morden',
+    '3': 'Ropsten',
+    '4': 'Rinkeby',
+    '42': 'Kovan'
+}
+
+def networkName():
+    return networkDict[network]
 
 def ethBalanceStr():
     if weiBalance:
@@ -62,4 +74,18 @@ def heartbeat():
         else:
             time.sleep(13)
 
+def build_send_tx(amt, recipient):
+   # import pdb; pdb.set_trace()
+
+    return  dict(
+        nonce=w3.eth.getTransactionCount(ethAddress),
+        gasPrice=w3.eth.gasPrice,
+        gas=100000,
+        to=decode_hex(recipient),
+        value=w3.toWei(amt, 'ether'),
+        data=b''
+    )
+
+def send(signed_txn):
+    return w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 

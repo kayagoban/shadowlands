@@ -1,11 +1,27 @@
+import rlp, struct
+from hexbytes import HexBytes
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
 from rlp import encode, decode
 from rlp.sedes import big_endian_int, binary, Binary
-#from rlp import Serializable
+###from rlp import Serializable
 from rlp.sedes.serializable import Serializable
 from eth_utils import decode_hex, encode_hex
+from eth_keys.datatypes import PrivateKey
+#from eth_account.internal.transactions import UnsignedTransaction, Transaction
+from eth_account.datastructures import AttributeDict
+from eth_utils.crypto import keccak
+
+
+from eth_account.internal.transactions import (
+    ChainAwareUnsignedTransaction,
+    UnsignedTransaction,
+    Transaction,
+    encode_transaction,
+    serializable_unsigned_transaction_from_dict,
+    strip_signature,
+)
 
 ## Constants for APDU exchanges
 
@@ -30,7 +46,7 @@ from eth_utils import decode_hex, encode_hex
 //
 """
 
-# Ethereaum ledger app opcodes 
+# Ethereum ledger app opcodes 
 CLA = b'\xe0'
 INS_OPCODE_GET_ADDRESS = b'\x02'
 INS_OPCODE_SIGN_TRANS = b'\x04'
@@ -48,8 +64,32 @@ P1_SUBSEQUENT_TRANS_DATA_BLOCK = b'\x80'
 P2_UNUSED_PARAMETER = b'\x00'
 
 
+BIP44_PATH="44'/60'/0'/0/0"
+LEDGER_PATH="44'/60'/0'/0"
 
+EXAMPLE_DICT = {
+    'nonce': 80,
+    'gasPrice': 21000,
+    'gas': 4000000,
+    'value': int(100000),
+    'to': decode_hex('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5'),
+    'data': b''
+}
+ 
 # import pdb; pdb.set_trace()
+def hd_path(pathStr=LEDGER_PATH):
+    result = b''
+    if len(pathStr) == 0:
+        return result
+    elements = pathStr.split('/')
+    for pathElement in elements:
+        element = pathElement.split('\'')
+        if len(element) == 1:
+            result = result + struct.pack(">I", int(element[0]))			
+        else:
+            result = result + struct.pack(">I", 0x80000000 | int(element[0]))
+    return result
+
 
 class LedgerEthDriver(Credstick):
 
@@ -90,9 +130,25 @@ class LedgerEthDriver(Credstick):
         return cls.addressStr()
 
     @classmethod
-    def signTx(cls, encodedTx, pathStr="44'/60'/0'/0"):
-        import pdb; pdb.set_trace()
-        encodedPath = cls._hd_path(pathStr)
+    def signTransaction(cls,transaction_dict=EXAMPLE_DICT):
+        '''
+        tx = UnsignedTransaction.from_dict({
+            'nonce': 80,
+            'gasPrice': 21000,
+            'gas': 4000000,
+            'value': int(0.00001),
+            'to': decode_hex('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5'),
+            'data': b''
+        })
+        '''
+        tx = UnsignedTransaction.from_dict(transaction_dict)
+
+
+        #tx = UnsignedTransaction(transaction_dict)
+
+        encodedTx = rlp.encode(tx, UnsignedTransaction)
+
+        encodedPath = hd_path()
         # Each path element is 4 bytes.  How many path elements are we sending?
         derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
         # Prepend the byte representing the count of path elements to the path encoding itself.
@@ -100,60 +156,25 @@ class LedgerEthDriver(Credstick):
         dataPayloadSize = (len(encodedPath) + len(encodedTx)).to_bytes(1, 'big')
         dataPayload = dataPayloadSize + encodedPath + encodedTx
         apdu = CLA + INS_OPCODE_SIGN_TRANS + P1_FIRST_TRANS_DATA_BLOCK + P2_UNUSED_PARAMETER + dataPayloadSize + encodedPath + encodedTx
-
-
         result = cls._driver.exchange(apdu)
         v = result[0]
         r = int((result[1:1 + 32]).hex(), 16)
         s = int((result[1 + 32: 1 + 32 + 32]).hex(), 16)
-        tx = Transaction(tx.nonce, tx.gasprice, tx.startgas, tx.to, tx.value, tx.data, v, r, s)
-        return encode_hex(rlp.encode(tx))
+        
+        trx = Transaction(tx.nonce, tx.gasPrice, tx.gas, tx.to, tx.value, tx.data, v, r, s)
+        enctx = rlp.encode(trx)
+        transaction_hash = keccak(enctx)
 
-    @classmethod
-    def _hd_path(cls, pathStr="44'/60'/0'/0"):
-        result = b''
-        if len(path) == 0:
-            return result
-        elements = path.split('/')
-        for pathElement in elements:
-            element = pathElement.split('\'')
-            if len(element) == 1:
-                result = result + struct.pack(">I", int(element[0]))			
-            else:
-                result = result + struct.pack(">I", 0x80000000 | int(element[0]))
-                return result
+        attr_dict =  AttributeDict({
+            'rawTransaction': HexBytes(enctx),
+            'hash': HexBytes(transaction_hash),
+            'r': r,
+            's': s,
+            'v': v,
+        })
+        #import pdb; pdb.set_trace()
+        return attr_dict
 
 
-address = Binary.fixed_length(20, allow_empty=True)
-
-class UnsignedTransaction(Serializable):
-	fields = [
-		('nonce', big_endian_int),
-		('gasprice', big_endian_int),
-		('startgas', big_endian_int),
-		('to', address),
-		('value', big_endian_int),
-		('data', binary)
-	]	
-
-	def __init__(self, nonce, gasprice, startgas, to, value, data):
-		super(Transaction, self).__init__(nonce, gasprice, startgas, to, value, data)
-
-
-class Transaction(Serializable):
-	fields = [
-		('nonce', big_endian_int),
-		('gasprice', big_endian_int),
-		('startgas', big_endian_int),
-		('to', address),
-		('value', big_endian_int),
-		('data', binary),
-		('v', big_endian_int),
-		('r', big_endian_int),
-		('s', big_endian_int),
-	]	
-
-	def __init__(self, nonce, gasprice, startgas, to, value, data, v=0, r=0, s=0):
-		super(Transaction, self).__init__(nonce, gasprice, startgas, to, value, data, v, r, s)
-
+# address = Binary.fixed_length(20, allow_empty=True)
 

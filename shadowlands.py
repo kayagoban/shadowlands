@@ -16,14 +16,6 @@ from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError
 menuSelection = None
 credstick = None
 
-networkName = {
-    '1': 'MainNet',
-    '2': 'Morden',
-    '3': 'Ropsten',
-    '4': 'Rinkeby',
-    '42': 'Kovan'
-}
-
 boxDictionary = {
         '\\' : b'\xe2\x95\x9a',
         '-'  : b'\xe2\x95\x90',
@@ -33,14 +25,10 @@ boxDictionary = {
         '$'  : b'\xe2\x95\x97',
         }
 
+
+
 def boxDecode(x):
     return ("".join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
-
-
-# Get a connection
-eth_node.connect()
-t = threading.Thread(target=eth_node.heartbeat)
-t.start()
 
 def header():
     if eth_node.localNode:
@@ -52,10 +40,10 @@ def header():
 
 
     if not eth_node.syncing:
-        print('[synced: block ' + eth_node.block + ']' + '\t\tNetwork: ' + networkName[eth_node.network]) 
+        print('[synced: block ' + eth_node.block + ']' + '\t\tNetwork: ' + eth_node.networkName() )
     else:
         print('[syncing:  ' + str(eth_node.blocksBehind) + ' blocks to ' 
-              + str(eth_node.syncing['highestBlock']) + ']' +  '\t\tNetwork: ' + networkName[eth_node.network]) 
+              + str(eth_node.syncing['highestBlock']) + ']' +  '\t\tNetwork: ' + eth_node.networkName() )
  
 def loadingScreen():
     os.system("clear")
@@ -115,6 +103,11 @@ def mainMenuLoop():
         mainMenu()
         time.sleep(0.25)
 
+# Get a connection
+eth_node.connect()
+t = threading.Thread(target=eth_node.heartbeat)
+t.start()
+
 
 # Begin screen displays
 
@@ -144,11 +137,33 @@ m.join()
 
 
 os.system("clear")
+
+
+tx_dict = eth_node.build_send_tx(0.00001, '0x1545fed39abc1b82c4711d8888fb35a87304817a')
+
+print(tx_dict)
+
+signed_tx = credstick.signTransaction(tx_dict)
+
+print(signed_tx)
+
+#import pdb; pdb.set_trace()
+rx = eth_node.send(signed_tx)
+
+
+print(rx)
+
+
 print( "You selected " + menuSelection.upper())
 
-import pdb; pdb.set_trace()
 
 
+
+
+
+
+
+"""
 # Check the file for tampering
 def file_checksum():
     script_path = os.path.abspath(__file__)
@@ -157,7 +172,7 @@ def file_checksum():
         for chunk in iter(lambda: f.read(4096), b""):
             shahash.update(chunk)
     return shahash.hexdigest()
-
+"""
 
 
 
