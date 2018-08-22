@@ -4,6 +4,7 @@ from web3.auto import w3
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
 
+
 localNode = True
 block = ""
 nodeVersion = ""
@@ -22,6 +23,9 @@ networkDict = {
 }
 
 def networkName():
+    if network is None:
+        raise Exception
+
     return networkDict[network]
 
 def ethBalanceStr():
@@ -74,18 +78,5 @@ def heartbeat():
         else:
             time.sleep(13)
 
-def build_send_tx(amt, recipient):
-   # import pdb; pdb.set_trace()
 
-    return  dict(
-        nonce=w3.eth.getTransactionCount(ethAddress),
-        gasPrice=w3.eth.gasPrice,
-        gas=100000,
-        to=decode_hex(recipient),
-        value=w3.toWei(amt, 'ether'),
-        data=b''
-    )
-
-def send(signed_txn):
-    return w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 

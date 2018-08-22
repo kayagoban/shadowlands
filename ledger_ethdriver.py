@@ -13,7 +13,6 @@ from eth_keys.datatypes import PrivateKey
 from eth_account.datastructures import AttributeDict
 from eth_utils.crypto import keccak
 
-
 from eth_account.internal.transactions import (
     ChainAwareUnsignedTransaction,
     UnsignedTransaction,
@@ -23,6 +22,7 @@ from eth_account.internal.transactions import (
     strip_signature,
 )
 
+#import pdb; pdb.set_trace()
 ## Constants for APDU exchanges
 
 """
@@ -60,7 +60,9 @@ P2_RETURN_CHAIN_CODE = b'\x01'
 
 # transaction protocol
 P1_FIRST_TRANS_DATA_BLOCK = b'\x00'
-P1_SUBSEQUENT_TRANS_DATA_BLOCK = b'\x80'
+# Seems to crash the app on the ledger.  Possibly incomplete documentation on this
+# Opcode
+#P1_SUBSEQUENT_TRANS_DATA_BLOCK = b'\x80'  
 P2_UNUSED_PARAMETER = b'\x00'
 
 
@@ -130,7 +132,18 @@ class LedgerEthDriver(Credstick):
         return cls.addressStr()
 
     @classmethod
-    def signTransaction(cls,transaction_dict=EXAMPLE_DICT):
+    def signTx(cls,transaction_dict=EXAMPLE_DICT):
+
+        # Strip chainId if it's there...
+        del(transaction_dict['chainId'])
+
+        # if to and data fieds are hex strings, turn them into byte arrays
+        if (transaction_dict['to']).__class__ == str:
+            transaction_dict['to'] = decode_hex(transaction_dict['to'])
+
+        if (transaction_dict['data']).__class__ == str:
+            transaction_dict['data'] = decode_hex(transaction_dict['data'])
+
         '''
         tx = UnsignedTransaction.from_dict({
             'nonce': 80,
@@ -172,7 +185,6 @@ class LedgerEthDriver(Credstick):
             's': s,
             'v': v,
         })
-        #import pdb; pdb.set_trace()
         return attr_dict
 
 

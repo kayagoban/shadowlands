@@ -5,6 +5,7 @@ import struct, time, locale, qrcode_terminal, threading
 import tty, termios
 from pyfiglet import Figlet
 import eth_node
+import dapp
 from hid_probe import find_credstick, NoCredstickFoundError
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 
@@ -118,6 +119,7 @@ while True:
         credstick = find_credstick()
         credstick.open()
         eth_node.ethAddress = credstick.derive()
+        dapp.credstick = credstick
         eth_node.poll()
         blastOff()
 
@@ -139,28 +141,13 @@ m.join()
 os.system("clear")
 
 
-tx_dict = eth_node.build_send_tx(0.00001, '0x1545fed39abc1b82c4711d8888fb35a87304817a')
-
-print(tx_dict)
-
-signed_tx = credstick.signTransaction(tx_dict)
-
-print(signed_tx)
-
-#import pdb; pdb.set_trace()
-rx = eth_node.send(signed_tx)
-
-
-print(rx)
-
 
 print( "You selected " + menuSelection.upper())
 
 
 
-
-
-
+dapp.send_weth()
+#dapp.send_ether()
 
 
 """

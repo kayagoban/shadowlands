@@ -43,7 +43,7 @@ class Credstick(object):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
-    def signTx(cls):
+    def signTx(cls, tx):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
