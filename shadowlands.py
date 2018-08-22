@@ -142,13 +142,18 @@ os.system("clear")
 
 
 
-print( "You selected " + menuSelection.upper())
+dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 1000)
+
+#dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
+ 
 
 
+credstick.close()
 
-dapp.send_weth()
-#dapp.send_ether()
+eth_node.shutdown = True
+t.join()
 
+exit()
 
 """
 # Check the file for tampering

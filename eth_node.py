@@ -14,6 +14,9 @@ blocksBehind = None
 weiBalance = None
 ethAddress = None
 
+# Flag to shut down heartbeat thread
+shutdown = False
+
 networkDict = {
     '1': 'MainNet',
     '2': 'Morden',
@@ -77,6 +80,10 @@ def heartbeat():
             time.sleep(.5)
         else:
             time.sleep(13)
+
+        if shutdown:
+            break
+
 
 
 
