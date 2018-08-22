@@ -98,13 +98,12 @@ class LedgerEthDriver(Credstick):
     @classmethod
     def open(cls):
         try:
+            # getDongle(True) forces verification of the user address on the device.
             cls._driver = getDongle(False)
-            #cls._driver = getDongle(True)
             cls.manufacturerStr = cls._driver.device.get_manufacturer_string()
             cls.productStr = cls._driver.device.get_product_string()
         except OSError:
             raise OpenCredstickError
-
 
     @classmethod
     def close(cls):
@@ -123,21 +122,16 @@ class LedgerEthDriver(Credstick):
 
     @classmethod
     def version(cls):
-        try:
-            apdu = b'\xe0\x06\x00\x00\x00\x04'
-            result = cls._driver.exchange(apdu)
-            import pdb; pdb.set_trace()
-        except(CommException, IOError):
-            raise DeriveError("Could not derive an address from your credstick, user.")
-        return cls.addressStr()
+        apdu = b'\xe0\x06\x00\x00\x00\x04'
+        result = cls._driver.exchange(apdu)
 
     @classmethod
     def signTx(cls,transaction_dict=EXAMPLE_DICT):
 
-        # Strip chainId if it's there...
+        # Strip chainId if it's there...  the ledger doesn't like it.
         del(transaction_dict['chainId'])
 
-        # if to and data fieds are hex strings, turn them into byte arrays
+        # if to and data fields are hex strings, turn them into byte arrays
         if (transaction_dict['to']).__class__ == str:
             transaction_dict['to'] = decode_hex(transaction_dict['to'])
 
@@ -155,9 +149,6 @@ class LedgerEthDriver(Credstick):
         })
         '''
         tx = UnsignedTransaction.from_dict(transaction_dict)
-
-
-        #tx = UnsignedTransaction(transaction_dict)
 
         encodedTx = rlp.encode(tx, UnsignedTransaction)
 
@@ -186,7 +177,4 @@ class LedgerEthDriver(Credstick):
             'v': v,
         })
         return attr_dict
-
-
-# address = Binary.fixed_length(20, allow_empty=True)
 

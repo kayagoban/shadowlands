@@ -28,14 +28,15 @@ networkDict = {
 def networkName():
     if network is None:
         raise Exception
-
     return networkDict[network]
+
 
 def ethBalanceStr():
     if weiBalance:
         return str(w3.fromWei(weiBalance, 'ether'))
     else:
         return 'Unknown'
+
 
 def connect():
     global w3, localNode, nodeVersion, network
@@ -58,6 +59,7 @@ def connect():
     nodeVersion = w3.version.node
     network = w3.version.network
 
+
 def poll():
     global block, blocksBehind, syncing, weiBalance
     syncing = w3.eth.syncing
@@ -66,7 +68,6 @@ def poll():
         blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
     else:
         block = str(w3.eth.blockNumber)
-
     if ethAddress:
         weiBalance = w3.eth.getBalance(ethAddress)
 

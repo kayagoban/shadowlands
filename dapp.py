@@ -31,22 +31,21 @@ def load_contract(contract_class, network = 'MAINNET'):
     except:
         raise ContractConfigError('Could not find that contract definition for the current network')
 
-
     try:
         _contract = w3.eth.contract(_address, abi=_abi)
     except:
         raise OpenContractError('Could not open the Dapp contract')
 
-    if _contract.functions.decimals().call() != 18:
-        raise NonStandardContractDecimalsError('Shadowlands assumes 18 decimal places on ERC20 contracts in its conversion methods.  Refusing to load contract for the safety of the user.')
-
     return _contract
+
 
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_erc20(token, destination, amount):
-    #    import pdb; pdb.set_trace()
 
-    weth = load_contract(ERC20[token])
+    token_contract = load_contract(ERC20[token])
+
+    if token_contract.functions.decimals().call() != 18:
+        raise NonStandardContractDecimalsError('Shadowlands assumes 18 decimal places on ERC20 contracts in its conversion methods.  Refusing to load contract for the safety of the user.')
 
     # NOTE
     # We borrow the web3 toWei method here.  We can do this because we assert 18
@@ -56,14 +55,14 @@ def send_erc20(token, destination, amount):
     # are looking murky and I know I can trust the web3 code.
     value = w3.toWei(amount, 'ether')
 
-    tx = weth.functions.transfer(destination, value).buildTransaction(defaultTxDict())
+    tx = token_contract.functions.transfer(destination, value).buildTransaction(defaultTxDict())
     signed_tx = credstick.signTx(tx)
     rx = transact(signed_tx)
 
 
 # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_ether(destination, amount):
-    tx_dict = build_send_tx(0.00001, '0x1545fed39abc1b82c4711d8888fb35a87304817a')
+    tx_dict = build_send_tx(amount, destination)
     print("Unsigned transaction: ", tx_dict)
     signed_tx = credstick.signTx(tx_dict)
     print("Signed tx: ", signed_tx)
