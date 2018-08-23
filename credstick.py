@@ -1,5 +1,9 @@
 import hid
 
+# TODO
+# fork eth-account and eth-keys repos from the Web3.py project and 
+# submit a PR to make this all a subsystem of web3
+
 class NoCredstickFoundError(Exception):
     pass
 

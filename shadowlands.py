@@ -144,7 +144,7 @@ os.system("clear")
 #dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
 
 
-dapp.register_ens('ceilingcat', eth_node.ethAddress)
+dapp.register_ens_resolver('ceilingcat', eth_node.ethAddress)
 
 credstick.close()
 

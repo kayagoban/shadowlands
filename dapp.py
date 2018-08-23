@@ -5,7 +5,8 @@ from web3.auto import w3
 from eth_utils import decode_hex, encode_hex
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 import eth_node 
-#from namehash import namehash
+from namehash import namehash
+from hexbytes import HexBytes
 
 
 #from eth_node import networkName, ethAddress
@@ -43,7 +44,7 @@ def load_contract(contract_class, network = 'MAINNET'):
     return _contract
 
 
-def register_ens(name, address_target):
+def register_ens_resolver(name, address_target):
     import pdb; pdb.set_trace()
 
     if not name.endswith(".eth"):
@@ -51,10 +52,9 @@ def register_ens(name, address_target):
 
     _namehash = namehash(name)
     ens_registry = load_contract(EnsRegistry)
-
-
-     
-
+    tx = ens_registry.functions.setResolver(_namehash, HexBytes(EnsRegistry.PUBLIC_ENS_RESOLVER)).buildTransaction(defaultTxDict())
+    signed_tx = credstick.signTx(tx)
+    rx = transact(signed_tx)
 
 
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
