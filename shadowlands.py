@@ -102,6 +102,16 @@ def mainMenuLoop():
 
 # Get a connection
 eth_node.connect()
+
+# This is absurd.  There must be a better way of getting
+# a singleton instance of web3.
+# The problem is: invoking web3.auto gives a different w3 object than web3.auto.infura.
+# I either must use the same switching logic in every module that needs w3, or I must
+# distribute it everywhere.  Annoying but no way around it yet that I can see.
+dapp.w3 = eth_node.web3_obj
+dapp.register_w3_on_contracts()
+
+
 t = threading.Thread(target=eth_node.heartbeat)
 t.start()
 
@@ -143,9 +153,10 @@ os.system("clear")
 
 #dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
 
-#dapp.register_ens_resolver('ceilingcat', eth_node.ethAddress)
 
+#dapp.register_ens_resolver('ceilingcat')
 
+dapp.set_ens_resolver_address('ceilingcat', eth_node.ethAddress)
 
 credstick.close()
 

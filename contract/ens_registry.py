@@ -9,7 +9,7 @@ class EnsRegistry(Contract):
 
 
     @classmethod
-    def set_resolver(cls, name, address_target):
+    def set_resolver(cls, name):
         if cls._contract == None:
            cls.load()
 

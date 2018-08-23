@@ -1,12 +1,12 @@
+from contract.contract import Contract
 from contract.weth import Weth
-from contract.ens import Ens
+#from contract.ens import Ens
 from contract.ens_registry import EnsRegistry
-from web3.auto import w3
+from contract.ens_resolver import EnsResolver
 from eth_utils import decode_hex, encode_hex
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 import eth_node 
 
-#from eth_node import networkName, ethAddress
 
 ERC20 = {
     'WETH': Weth
@@ -14,6 +14,11 @@ ERC20 = {
 
 credstick = None
 
+w3 = None
+
+
+def register_w3_on_contracts():
+    Contract.w3 = w3
 
 # import pdb; pdb.set_trace()
 
@@ -21,13 +26,17 @@ credstick = None
 # Both of these invocations have the same precise effect.  the .eth domain will be added
 # if it is not already in the string.
 #
-# register_ens_resolver('ceilingcat', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5')
-# register_ens_resolver('ceilingcat.eth', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5')
-def register_ens_resolver(name, address_target):
-
-    #EnsRegistry.load(eth_node.networkName())
+# register_ens_resolver('ceilingcat')
+# register_ens_resolver('ceilingcat.eth')
+def register_ens_resolver(name):
     return push( 
-        EnsRegistry.set_resolver(name, address_target) 
+        EnsRegistry.set_resolver(name) 
+    )
+
+def set_ens_resolver_address(name, address_target):
+
+    return push(
+        EnsResolver.set_address(name, address_target)
     )
    
 

@@ -5,6 +5,7 @@ from enum import Enum
 from eth_utils import decode_hex, encode_hex
 
 
+web3_obj = None
 localNode = True
 block = ""
 nodeVersion = ""
@@ -39,7 +40,7 @@ def ethBalanceStr():
 
 
 def connect():
-    global w3, localNode, nodeVersion, network
+    global w3, localNode, nodeVersion, network, web3_obj
 
     connected = w3.isConnected()
     if connected and w3.version.node.startswith('Parity'):
@@ -58,6 +59,7 @@ def connect():
 
     nodeVersion = w3.version.node
     network = w3.version.network
+    web3_obj = w3
 
 
 def poll():
