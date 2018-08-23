@@ -5,9 +5,6 @@ from web3.auto import w3
 from eth_utils import decode_hex, encode_hex
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 import eth_node 
-from namehash import namehash
-from hexbytes import HexBytes
-
 
 #from eth_node import networkName, ethAddress
 
@@ -17,65 +14,37 @@ ERC20 = {
 
 credstick = None
 
+
 # import pdb; pdb.set_trace()
 
-class ContractConfigError(Exception):
-    pass
 
-class OpenContractError(Exception):
-    pass
-
-class NonStandardContractDecimalsError(Exception):
-    pass
-
-
-def load_contract(contract_class, network = 'MAINNET'):
-    try:
-        _address = contract_class.__dict__[eth_node.networkName().upper()]
-        _abi = contract_class.__dict__['ABI']
-    except:
-        raise ContractConfigError('Could not find that contract definition for the current network')
-
-    try:
-        _contract = w3.eth.contract(_address, abi=_abi)
-    except:
-        raise OpenContractError('Could not open the Dapp contract')
-
-    return _contract
-
-
+# Both of these invocations have the same precise effect.  the .eth domain will be added
+# if it is not already in the string.
+#
+# register_ens_resolver('ceilingcat', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5')
+# register_ens_resolver('ceilingcat.eth', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5')
 def register_ens_resolver(name, address_target):
-    import pdb; pdb.set_trace()
 
-    if not name.endswith(".eth"):
-        name += '.eth'
-
-    _namehash = namehash(name)
-    ens_registry = load_contract(EnsRegistry)
-    tx = ens_registry.functions.setResolver(_namehash, HexBytes(EnsRegistry.PUBLIC_ENS_RESOLVER)).buildTransaction(defaultTxDict())
-    signed_tx = credstick.signTx(tx)
-    rx = transact(signed_tx)
-
+    #EnsRegistry.load(eth_node.networkName())
+    return push( 
+        EnsRegistry.set_resolver(name, address_target) 
+    )
+   
 
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_erc20(token, destination, amount):
-
-    token_contract = load_contract(ERC20[token])
-
-    if token_contract.functions.decimals().call() != 18:
-        raise NonStandardContractDecimalsError('Shadowlands assumes 18 decimal places on ERC20 contracts in its conversion methods.  Refusing to load contract for the safety of the user.')
 
     # NOTE
     # We borrow the web3 toWei method here.  We can do this because we assert 18
     # decimal places on all ERC contracts - or else they cannot load.
     # If I am able to figure out how to reliably get Decimal conversion working
     # for variable decimal place values on ERC20s, this can change.  So far things
-    # are looking murky and I know I can trust the web3 code.
+    # are looking murky and I know I can trust the web3 code. (I hope)
     value = w3.toWei(amount, 'ether')
 
-    tx = token_contract.functions.transfer(destination, value).buildTransaction(defaultTxDict())
-    signed_tx = credstick.signTx(tx)
-    rx = transact(signed_tx)
+    return push(
+        ERC20[token].transfer(destination, value)
+    )
 
 
 # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
@@ -88,6 +57,12 @@ def send_ether(destination, amount):
     print("tx receipt: ", rx)
 
 
+def push( contract_function ):
+    tx = contract_function.buildTransaction(defaultTxDict())
+    signed_tx = credstick.signTx(tx)
+    return w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+
+
 def build_send_tx(amt, recipient):
     return  dict(
         nonce=w3.eth.getTransactionCount(eth_node.ethAddress),
@@ -98,8 +73,6 @@ def build_send_tx(amt, recipient):
         data=b''
     )
 
-def transact(signed_txn):
-    return w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 
 def defaultTxDict():
     return dict(
@@ -108,7 +81,4 @@ def defaultTxDict():
         gas=800000,
         value=0
     ) 
- 
-def wethContract():
-    return w3.eth.contract(address=dapp_addr.WETH_KOVAN, dapp_abi=WETH)
 
