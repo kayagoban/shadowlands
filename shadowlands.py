@@ -6,8 +6,8 @@ import tty, termios
 from pyfiglet import Figlet
 import eth_node
 import dapp
-from hid_probe import find_credstick, NoCredstickFoundError
-from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
+from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
+from namehash import namehash
 
 # import pdb; pdb.set_trace()
 
@@ -112,7 +112,8 @@ loadingScreen()
 
 while True:
     try: 
-        credstick = find_credstick()
+        #credstick = find_credstick()
+        credstick = Credstick.detect()
         credstick.open()
         eth_node.ethAddress = credstick.derive()
         dapp.credstick = credstick
@@ -141,8 +142,9 @@ os.system("clear")
 #dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
 
 #dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
- 
 
+
+dapp.register_ens('ceilingcat', eth_node.ethAddress)
 
 credstick.close()
 

@@ -1,8 +1,12 @@
 from contract.weth import Weth
+from contract.ens import Ens
+from contract.ens_registry import EnsRegistry
 from web3.auto import w3
 from eth_utils import decode_hex, encode_hex
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 import eth_node 
+#from namehash import namehash
+
 
 #from eth_node import networkName, ethAddress
 
@@ -37,6 +41,20 @@ def load_contract(contract_class, network = 'MAINNET'):
         raise OpenContractError('Could not open the Dapp contract')
 
     return _contract
+
+
+def register_ens(name, address_target):
+    import pdb; pdb.set_trace()
+
+    if not name.endswith(".eth"):
+        name += '.eth'
+
+    _namehash = namehash(name)
+    ens_registry = load_contract(EnsRegistry)
+
+
+     
+
 
 
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
