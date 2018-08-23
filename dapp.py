@@ -3,6 +3,7 @@ from contract.weth import Weth
 #from contract.ens import Ens
 from contract.ens_registry import EnsRegistry
 from contract.ens_resolver import EnsResolver
+from contract.ens_reverse_resolver import EnsReverseResolver
 from eth_utils import decode_hex, encode_hex
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
 import eth_node 
@@ -34,11 +35,15 @@ def register_ens_resolver(name):
     )
 
 def set_ens_resolver_address(name, address_target):
-
     return push(
         EnsResolver.set_address(name, address_target)
     )
    
+def set_ens_reverse_lookup(name):
+    return push(
+        EnsReverseResolver.set_name(name)
+    )
+ 
 
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_erc20(token, destination, amount):

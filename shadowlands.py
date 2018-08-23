@@ -156,7 +156,9 @@ os.system("clear")
 
 #dapp.register_ens_resolver('ceilingcat')
 
-dapp.set_ens_resolver_address('ceilingcat', eth_node.ethAddress)
+# dapp.set_ens_reverse_lookup('ceilingcat')
+
+#dapp.set_ens_resolver_address('ceilingcat', eth_node.ethAddress)
 
 credstick.close()
 
