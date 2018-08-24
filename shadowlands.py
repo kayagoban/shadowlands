@@ -148,6 +148,7 @@ m.join()
 os.system("clear")
 
 
+rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
 
 #rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
 
@@ -159,6 +160,11 @@ os.system("clear")
 # dapp.set_ens_reverse_lookup('ceilingcat')
 
 #dapp.set_ens_resolver_address('ceilingcat', eth_node.ethAddress)
+
+if rx != None:
+    print('Transaction sent.')
+    print(rx)
+
 
 credstick.close()
 

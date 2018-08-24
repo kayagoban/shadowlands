@@ -1,6 +1,6 @@
 from contract.contract import Contract
 from contract.weth import Weth
-#from contract.ens import Ens
+from contract.ens import Ens
 from contract.ens_registry import EnsRegistry
 from contract.ens_resolver import EnsResolver
 from contract.ens_reverse_resolver import EnsReverseResolver
@@ -22,6 +22,13 @@ def register_w3_on_contracts():
     Contract.w3 = w3
 
 # import pdb; pdb.set_trace()
+
+
+# reveal_bid('ceilingcat', '0.01', 'burly jumper knife')
+def ens_reveal_bid(name, bid_amount, secret):
+    return push(
+        Ens.unsealBid(name, bid_amount, secret)
+    )
 
 
 # Sets the resolver on your name record.  No idea why we have to do this - there should 
@@ -87,8 +94,12 @@ def send_ether(destination, amount):
 def push( contract_function ):
     tx = contract_function.buildTransaction(defaultTxDict())
     signed_tx = credstick.signTx(tx)
-    return w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
+    # TODO wrap in a try to catch credstick exception if user chooses
+    # not to verify transaction on credstick. (CommException on ledger, etc)
+    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    
+    return rx
 
 def build_send_tx(amt, recipient):
     return  dict(
@@ -100,12 +111,13 @@ def build_send_tx(amt, recipient):
         data=b''
     )
 
-
 def defaultTxDict():
-    return dict(
+    _dict = dict(
         nonce=w3.eth.getTransactionCount(eth_node.ethAddress),
-        gasPrice=w3.eth.gasPrice,
+        gasPrice=int(w3.eth.gasPrice * 1.4),
         gas=800000,
         value=0
     ) 
+
+    return _dict
 
