@@ -30,6 +30,11 @@ def ens_reveal_bid(name, bid_amount, secret):
         Ens.unsealBid(name, bid_amount, secret)
     )
 
+# ens_finalize_auction(name)
+def ens_finalize_auction(name):
+    return push(
+        Ens.finalizeAuction(name)
+    )
 
 # Sets the resolver on your name record.  No idea why we have to do this - there should 
 # only be one resolver per ENS registrar.  But who am I to question the gods?

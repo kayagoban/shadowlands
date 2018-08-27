@@ -1,0 +1,41 @@
+# Check if a name is available
+#ethRegistrar.entries(web3.sha3('name'))[0];
+"""
+This will return a single integer between 0 and 5. The full solidity data structure for this can be viewed here in the Registrar contract. The numbers represent different ‘states’ a name is currently in.
+
+0 - Name is available and the auction hasn’t started
+1 - Name is available and the auction has been started
+2 - Name is taken and currently owned by someone
+3 - Name is forbidden
+4 - Name is currently in the ‘reveal’ stage of the auction
+5 - Name is not yet available due to the ‘soft launch’ of names.
+"""
+
+# If the returned value is 5, and is in the ‘soft launch’ is in effect; you can check when it will be available for auction with:
+#  new Date(ethRegistrar.getAllowedTime(web3.sha3('name')) * 1000);
+
+#To start an auction for a name that’s not already up for auction, call startAuction:
+# ethRegistrar.startAuction(web3.sha3('name'), {from: eth.accounts[0], gas: 100000});
+
+
+"""
+Auctions normally run for 5 days: 3 days of bidding and 2 days of reveal phase. When initially deployed, there’s a “soft start” phase during which names are released for bidding gradually; this soft start lasts 4 weeks on ropsten, and 13 weeks on mainnet.
+
+When a name is under auction, you can check the end time of the auction as follows:
+
+"""
+#new Date(ethRegistrar.entries(web3.sha3('name'))[2].toNumber() * 1000)
+
+#Now, you can generate your ‘sealed’ bid, with the following code:
+# bid = ethRegistrar.shaBid(web3.sha3('name'), eth.accounts[0], web3.toWei(1, 'ether'), web3.sha3('secret'));
+"""
+The arguments are, in order, the name you want to register, the account you are sending the bid from, your maximum bid, and the secret value you generated earlier. Note that the bidding account will become the owner. You will lose funds if you seal with one account and send the bid with another!
+"""
+#Next, submit your bid to the registrar:
+#ethRegistrar.newBid(bid, {from: eth.accounts[0], value: web3.toWei(2, 'ether'), gas: 500000});
+
+
+#Now it’s a matter of waiting until the reveal period before revealing your bid. Run the command to check the expiration date of the auction again, and make sure to come back in the final 48 hours of the auction:
+#new Date(ethRegistrar.entries(web3.sha3('name'))[2].toNumber() * 1000)
+
+

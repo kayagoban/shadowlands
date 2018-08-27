@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import npyscreen, sys, os, hashlib, argparse
+import sys, os, hashlib, argparse
 import struct, time, locale, qrcode_terminal, threading
 import tty, termios
 from pyfiglet import Figlet
@@ -148,22 +148,29 @@ m.join()
 os.system("clear")
 
 
-rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
+def send_tx(rx):
+    if rx != None:
+        print('Transaction sent.')
+        print(rx)
+
 
 #rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
 
 #dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
 
+# import pdb; pdb.set_trace()
 
-#dapp.register_ens_resolver('ceilingcat')
+
+#rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
+
+rx = dapp.ens_finalize_auction('cthomas')
+
+#dapp.register_ens_resolver('mindmyvagina')
+
+#dapp.set_ens_resolver_address('mindmyvagina', eth_node.ethAddress)
 
 # dapp.set_ens_reverse_lookup('ceilingcat')
 
-#dapp.set_ens_resolver_address('ceilingcat', eth_node.ethAddress)
-
-if rx != None:
-    print('Transaction sent.')
-    print(rx)
 
 
 credstick.close()
