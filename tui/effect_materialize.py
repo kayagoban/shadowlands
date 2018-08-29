@@ -40,6 +40,11 @@ class Materialize(Effect):
         image, colours = self._renderer.rendered_text
         line = None
 
+    def process_event(self, event):
+        debug(self._screen._screen); import pdb; pdb.set_trace()
+        return event
+ 
+
     def _update(self, frame_no):
         if frame_no % 2 == 0:
             return
