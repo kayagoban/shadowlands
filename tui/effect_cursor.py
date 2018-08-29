@@ -3,6 +3,7 @@ from asciimatics.screen import Screen
 from random import random
 import curses
 from tui.debug import debug
+from time import sleep
 
 CURSOR = u"\u2588"
 
@@ -34,6 +35,7 @@ class Cursor(Effect):
     def reset(self):
         image, colours = self._renderer.rendered_text
         self.char = 0
+        self._x = 0
 
     def _update(self, frame_no):
 
@@ -43,11 +45,15 @@ class Cursor(Effect):
         image, colours = self._renderer.rendered_text
 
         if self.char >= len(image[0]):
+            sleep(0.5)
+
+
             if self.blink is True:
-                self._screen.print_at(CURSOR, x+1, y, self._colour)
+                self._screen.print_at(CURSOR, x, y, self._colour)
             else:
-                self._screen.print_at('', x+1, y, self._colour)
-                self.blink = not self.blink
+                self._screen.print_at(' ', x, y, self._colour)
+
+            self.blink = not self.blink
             return
 
 
