@@ -2,14 +2,8 @@ from asciimatics.effects import Effect
 from asciimatics.screen import Screen
 from random import random
 import curses
-from tui import debug
+from tui.debug import debug
 
-def debug(stdscr):
-    curses.nocbreak()
-    stdscr.keypad(0)
-    curses.echo()
-    curses.endwin()
- 
 class Materialize(Effect):
 
     DEMATERIALIZE=0
@@ -36,12 +30,12 @@ class Materialize(Effect):
         self._x = x
         self._y = y
         self._colour = colour
-        self._signal_strength = 1.0 
+        self._signal_strength = 1.0
         self._signal_step = signal_step
         self._signal_acceleration_factor = signal_acceleration_factor
 
     def reset(self):
-        #self._signal_strength = 1.0 
+        #self._signal_strength = 1.0
         #self._signal_step = -0.05
         image, colours = self._renderer.rendered_text
         line = None
@@ -52,11 +46,12 @@ class Materialize(Effect):
 
         y = self._y
         image, colours = self._renderer.rendered_text
+
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
         for i, line in enumerate(image):
             if self._screen.is_visible(0, y):
                 # Start each line at the x we specified
-                x = self._x 
-                # debug(self._screen._screen); import pdb; pdb.set_trace()
+                x = self._x
                 for j, c in enumerate(line):
                     if random() > self._signal_strength:
                         if colours[i][j][0] is not None:
@@ -78,7 +73,7 @@ class Materialize(Effect):
         # If we have reached full signal, set the stop frame to 4 from now.
         if self._signal_strength < 0:
             self._stop_frame = frame_no + 4
- 
+
 
     @property
     def stop_frame(self):

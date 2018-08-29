@@ -5,6 +5,7 @@ from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError
 from tui.effect_materialize import Materialize
+from tui.effect_cursor import Cursor
 import sys
 from tui import debug
 
@@ -25,12 +26,14 @@ def loading_screen(screen):
     _node='Connected to infura node at Geth/v1.8.13-patched-infura-omnibus-b59d4428/linux-amd64/go1.9.2'
     _sync='[synced: block 6230988]\t\tNetwork: MainNet'
     _pubterm='p u b l i c    t e r m i n a l\t\t\tv0 . 0 1'
+    _prompt='Welcome, chummer.  Insert your credstick to begin...'
 
     effects = [
         Materialize(screen, StaticRenderer([_node]), 0, 0),
         Materialize(screen, StaticRenderer([_sync]), 0, 1, start_frame=10),
         Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 3, signal_acceleration_factor=1.1, start_frame=15),
         Materialize(screen, StaticRenderer([_pubterm]), 10, 10, signal_acceleration_factor=1.0005,start_frame=35),
+        Cursor(screen, StaticRenderer([_prompt]), 0, 14, start_frame=75),
         #Materialize(screen, StaticRenderer([_image]), 20, 20, Screen.COLOUR_GREEN, -0.005, 1.4)# , start_frame=0, stop_frame=5000),
         #UnicodeNoise( screen, BasicText(), stop_frame=300 ),
     ]
@@ -54,7 +57,7 @@ while True:
         self._plain_image = [" " * self._width for _ in range(self._height)]
         self._colour_map = [[(None, 0, 0) for _ in range(self._width)]
                             for _ in range(self._height)]
-''' 
+'''
 
 
 
