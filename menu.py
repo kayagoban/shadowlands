@@ -14,17 +14,28 @@ from tui import debug
 def menu(screen):
 
     # Typical terminals are 80x24 on UNIX and 80x25 on Windows
-    #if screen.width != 80 or screen.height not in (24, 25):
+    # if screen.width != 80 or screen.height not in (24, 25):
     credstick_display = '''
-╔═ Ledger Nano S ═══════════════════════════════════════╗
-║
-║  Address: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898
-║
-║  Ξth: 0.06040540066484375
-║  Dai:
-║
-╚═══════════════════════════════════════════════════════╝
+╔═ Ledger Nano S ═══════════════════════════════════════════════════════════╗
+║                                                       ║   ║   ║ Q ║ T ║ D ║
+║  Address: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898  ║ ${7,1}S${2,2} ║ C ║ R ║ o ║ a ║ 
+║                                                       ║ e ║ o ║ c ║ k ║ p ║ 
+║  Ξth: 0.06040540066484375                             ║ n ║ p ║ o ║ e ║ p ║
+║  Dai:                                                 ║ d ║ y ║ d ║ n ║ s ║
+║                                                       ║   ║   ║ e ║ s ║   ║
+╚═══════════════════════════════════════════════════════════════════════════╝
 '''
+    dapp_menu = '''
+╔═ Dapps ═══════════════════════════════════════════╗
+║                            
+║  Trade Ether for Dai                      (Oasis)
+║  Borrow Dai against Eth with a CDP Loan   (Maker)
+║  Manage ethereum names                    (ENS)
+║  Shadowland BBS Forums           
+║  Chat on the whispernet 
+╚═══════════════════════════════════════════════════╝
+'''
+
 
     node='Connected to infura node at Geth/v1.8.13-patched-infura-omnibus-b59d4428/linux-amd64/go1.9.2'
     sync='[synced: block 6230988]\t\tNetwork: MainNet'
@@ -47,7 +58,8 @@ Or just keep hitting the enter button.  Have fun with that.'''
     main_menu_effects = [
         Materialize(screen, StaticRenderer([node]), 0, 0),
         Materialize(screen, StaticRenderer([sync]), 0, 1),
-        Materialize(screen, StaticRenderer([credstick_display]), 0, 3)
+        Materialize(screen, StaticRenderer([credstick_display]), 0, 3),
+        #Materialize(screen, StaticRenderer([dapp_menu]), 0, 7),
     ] 
 
     scenes = [ 
