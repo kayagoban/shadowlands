@@ -1,10 +1,11 @@
 from asciimatics.effects import Effect
 from asciimatics.screen import Screen
 from asciimatics.exceptions import NextScene
+from asciimatics.event import KeyboardEvent
 from random import random
-import curses
 from tui.debug import debug
 from time import sleep
+import curses
 import sys
 
 CURSOR = u"\u2588"
@@ -79,9 +80,12 @@ class Cursor(Effect):
         return self._stop_frame
 
 
-
 class LoadingScreenCursor(Cursor):
     def process_event(self, event):
+
+        if type(event) != KeyboardEvent:
+            return None
+
         # if user just hits enter, give them some extra info
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
