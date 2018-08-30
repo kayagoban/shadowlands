@@ -9,7 +9,7 @@ import sys
 
 CURSOR = u"\u2588"
 
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
+#debug(self._screen._screen); import pdb; pdb.set_trace()
 class Cursor(Effect):
 
     """
@@ -46,6 +46,41 @@ class Cursor(Effect):
         self._y = self.origin_y
         self.image_index = 0
 
+    def _update(self, frame_no):
+        image, colours = self._renderer.rendered_text
+        if self.char >= len(image[self.image_index]):
+            sleep(0.5)
+            if self.blink is True:
+                self._screen.print_at(CURSOR, self._x, self._y, self._colour)
+            else:
+                self._screen.print_at(' ', self._x, self._y, self._colour)
+
+            self.blink = not self.blink
+            return
+
+        # If the nex char is going to go off the screen, wrap to next line.
+        if self._x >= self._screen.width:
+            self._x = self.origin_x
+            self._y += 1
+
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+
+        self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
+        self._screen.print_at(CURSOR, self._x+1, self._y, self._colour)
+        # u"\u2588" '█'
+
+        #self._screen.print_at(chr(randint(33, 126)), x, y, self._colour)
+        self._x += 1
+        #self._y += 1
+        self.char += 1
+
+    @property
+    def stop_frame(self):
+        return self._stop_frame
+
+
+
+class LoadingScreenCursor(Cursor):
     def process_event(self, event):
         # if user just hits enter, give them some extra info
 
@@ -62,52 +97,13 @@ class Cursor(Effect):
             self._x = self.origin_x
             self._y += 2
             self.char = 0
-            return None 
+            return None
 
         elif event.key_code == 110:
             raise NextScene("MainMenu")
         else:
             return None
-
-
         return event
- 
-    def _update(self, frame_no):
-
-        image, colours = self._renderer.rendered_text
-
-        if self.char >= len(image[self.image_index]):
-            sleep(0.5)
-
-            if self.blink is True:
-                self._screen.print_at(CURSOR, self._x, self._y, self._colour)
-            else:
-                self._screen.print_at(' ', self._x, self._y, self._colour)
-
-            self.blink = not self.blink
-            return
-
-        # If the nex char is going to go off the screen, wrap to next line.
-        if self._x >= self._screen.width:
-            self._x = self.origin_x
-            self._y += 1
-
-
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
-
-        self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
-        self._screen.print_at(CURSOR, self._x+1, self._y, self._colour)
-        # u"\u2588" '█'
-
-        #self._screen.print_at(chr(randint(33, 126)), x, y, self._colour)
-        self._x += 1
-        #self._y += 1
-        self.char += 1
-
-
-    @property
-    def stop_frame(self):
-        return self._stop_frame
 
 
 

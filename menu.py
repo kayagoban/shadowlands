@@ -2,14 +2,19 @@
 
 from asciimatics.renderers import StaticRenderer, FigletText
 from asciimatics.scene import Scene
+from asciimatics.exceptions import NextScene
 from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError
-from tui.effect_materialize import Materialize
-from tui.effect_cursor import Cursor
+from tui.effects.materialize import Materialize
+from tui.effects.cursor import LoadingScreenCursor
+from tui.debug import debug
 import sys
-from tui import debug
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
+
+class CredstickMenuEffect(Materialize):
+    def process_event(self, event):
+        return None
 
 def menu(screen):
 
@@ -18,8 +23,8 @@ def menu(screen):
     credstick_display = '''
 ╔═ Ledger Nano S ═══════════════════════════════════════════════════════════╗
 ║                                                       ║   ║   ║ Q ║ T ║ D ║
-║  Address: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898  ║ ${7,1}S${2,2} ║ C ║ R ║ o ║ a ║ 
-║                                                       ║ e ║ o ║ c ║ k ║ p ║ 
+║  Address: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898  ║ ${7,1}S${2,2} ║ C ║ R ║ o ║ a ║
+║                                                       ║ e ║ o ║ c ║ k ║ p ║
 ║  Ξth: 0.06040540066484375                             ║ n ║ p ║ o ║ e ║ p ║
 ║  Dai:                                                 ║ d ║ y ║ d ║ n ║ s ║
 ║                                                       ║   ║   ║ e ║ s ║   ║
@@ -27,12 +32,12 @@ def menu(screen):
 '''
     dapp_menu = '''
 ╔═ Dapps ═══════════════════════════════════════════╗
-║                            
+║
 ║  Trade Ether for Dai                      (Oasis)
 ║  Borrow Dai against Eth with a CDP Loan   (Maker)
 ║  Manage ethereum names                    (ENS)
-║  Shadowland BBS Forums           
-║  Chat on the whispernet 
+║  Shadowland BBS Forums
+║  Chat on the whispernet
 ╚═══════════════════════════════════════════════════╝
 '''
 
@@ -50,7 +55,7 @@ Or just keep hitting the enter button.  Have fun with that.'''
         Materialize(screen, StaticRenderer([sync]), 0, 1, start_frame=10),
         Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 3, signal_acceleration_factor=1.1, start_frame=15),
         Materialize(screen, StaticRenderer([pubterm]), 10, 10, signal_acceleration_factor=1.0005,start_frame=35),
-        Cursor(screen, StaticRenderer([prompt]), 0, 14, start_frame=75),
+        LoadingScreenCursor(screen, StaticRenderer([prompt]), 0, 14, start_frame=75),
         #Materialize(screen, StaticRenderer([_image]), 20, 20, Screen.COLOUR_GREEN, -0.005, 1.4)# , start_frame=0, stop_frame=5000),
         #UnicodeNoise( screen, BasicText(), stop_frame=300 ),
     ]
@@ -58,11 +63,11 @@ Or just keep hitting the enter button.  Have fun with that.'''
     main_menu_effects = [
         Materialize(screen, StaticRenderer([node]), 0, 0),
         Materialize(screen, StaticRenderer([sync]), 0, 1),
-        Materialize(screen, StaticRenderer([credstick_display]), 0, 3),
+        CredstickMenuEffect(screen, StaticRenderer([credstick_display]), 0, 3),
         #Materialize(screen, StaticRenderer([dapp_menu]), 0, 7),
-    ] 
+    ]
 
-    scenes = [ 
+    scenes = [
         Scene(loading_screen_effects, -1, name="LoadingScreen"),
         Scene(main_menu_effects, -1, name="MainMenu"),
     ]

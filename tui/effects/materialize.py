@@ -3,6 +3,7 @@ from asciimatics.screen import Screen
 from random import random
 import curses
 from tui.debug import debug
+#from tui.effect_responder import ResponsiveEffect
 
 class Materialize(Effect):
 
@@ -39,11 +40,6 @@ class Materialize(Effect):
         #self._signal_step = -0.05
         image, colours = self._renderer.rendered_text
         line = None
-
-    def process_event(self, event):
-        debug(self._screen._screen); import pdb; pdb.set_trace()
-        return event
- 
 
     def _update(self, frame_no):
         if frame_no % 2 == 0:
