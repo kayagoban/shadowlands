@@ -119,7 +119,7 @@ def build_send_tx(amt, recipient):
 def defaultTxDict():
     _dict = dict(
         nonce=w3.eth.getTransactionCount(eth_node.ethAddress),
-        gasPrice=int(w3.eth.gasPrice * 1.4),
+        gasPrice=int(w3.eth.gasPrice * 1.1),
         gas=800000,
         value=0
     ) 

@@ -112,9 +112,14 @@ dapp.w3 = eth_node.web3_obj
 dapp.register_w3_on_contracts()
 
 
+import pdb; pdb.set_trace()
+
 t = threading.Thread(target=eth_node.heartbeat)
 t.start()
 
+# pip install cryptocompy
+#>>> from cryptocompy import price
+#>>> prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
 
 # Begin screen displays
 
