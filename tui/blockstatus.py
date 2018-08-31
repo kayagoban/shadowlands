@@ -11,12 +11,13 @@ class BlockStatusRenderer(DynamicRenderer):
 
     def _render_now(self):
         if not self.node.syncing:
-            images = ['[synced: block ' + self.node.block + ']' + '    Network: ' + self.node.networkName() ]
+            images = ['[synced: block ' + self.node.block + ']'
+                     ]
         else:
-            images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' +  '   Network: ' + self.node.networkName() ]
+            images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
         return images, None
 
-
+# +  '   Network: ' + self.node.networkName()
 
 class BlockStatusCursor(Cursor):
 
@@ -24,7 +25,7 @@ class BlockStatusCursor(Cursor):
         super(BlockStatusCursor, self).__init__(screen, BlockStatusRenderer(node), x, y, **kwargs)
 
     def _update(self, frame_no):
-        if frame_no % 40 == 0:
+        if frame_no % 100 == 0:
             self.reset()
             
         super(BlockStatusCursor, self)._update(frame_no)

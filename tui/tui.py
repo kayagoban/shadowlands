@@ -41,11 +41,9 @@ class Interface():
     def _tui(self, screen):
         self._screen = screen
 
-        #debug(screen._screen); import pdb; pdb.set_trace()
 
         self.effect_blockstatus = BlockStatusCursor(
-            screen, self.node, 0, 0, speed=2, no_blink=True)
-
+            screen, self.node, 0, 0, speed=4, no_blink=True)
 
         self.scene_loading_screen = Scene([], -1, name="LoadingScreen")
 
