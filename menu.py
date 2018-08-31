@@ -8,17 +8,10 @@ from asciimatics.screen import Screen
 from asciimatics.event import KeyboardEvent
 from tui.effects.materialize import Materialize
 from tui.effects.cursor import LoadingScreenCursor
-from blockies import create_blockie
-
-blockie = create_blockie('0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359')
-# `rows` contains ansi escaped strings
-#for row in rows:
-#    print(row)
-
 from tui.debug import debug
 import sys
 
- 
+
 dapp_menu = '''
 ╔═ Dapps ═══════════════════════════════════════════╗
 ║
@@ -39,10 +32,8 @@ class CredstickMenu(Materialize):
             return None
 
         if event.key_code == 100:
-            print(blockie)
             self._scene.add_effect(
-                Print(self._screen, StaticRenderer(blockie), 15, 7)
-                #Materialize(self._screen, StaticRenderer([dapp_menu]), 15, 7)
+                Materialize(self._screen, StaticRenderer([dapp_menu]), 15, 7)
                 )
         else:
             return None
@@ -53,35 +44,57 @@ def menu(screen):
     # Typical terminals are 80x24 on UNIX and 80x25 on Windows
     # if screen.width != 80 or screen.height not in (24, 25):
 
-    credstick_display2 = '''
+    credstick_display = '''
 ╔═ Ledger Nano S ══════════════════════════════════════════════════════════════╗
-║                                                            ${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}T${2,2} ║ ${7,1}D${2,2}
-║  ${7,1}A${2,2}ddress: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898       e ║ o ║ o ║ a
-║                                                            n ║ p ║ k ║ p
-║  Ξth: 2993450.06040540066484375                            d ║ y ║ e ║ p
-║                                                                  ║ n ║ s
-║  $96.27  ║  £53.03  ║  €104.23  ║   ${7,1}E${2,2}NS: kayagoban.eth             s  
+║                                                                ${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}T${2,2} ║ ${7,1}D${2,2}
+║  ${7,1}A${2,2}ddress: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898           e ║ o ║ o ║ a
+║                                                                n ║ p ║ k ║ p
+║  Ξth: 2993450.06040540066484375                                d ║ y ║ e ║ p
+║                                                                      ║ n ║ s
+║  $96.27  ║  £53.03  ║  €104.23  ║   ${7,1}E${2,2}NS: kayagoban.eth               ║ s
 ╚══════════╩══════════╩═══════════╩════════════════════════════════════════════╝
 
 '''
-
 
     credstick_display = '''
 ╔═ Ledger Nano S ══════════════════════════════════════════════════════════════╗
-║                                                            ${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}H${2,2} ║ ${7,1}T${2,2} ║ ${7,1}D${2,2}
-║  Address: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898       e ║ o ║ D ║ o ║ a
-║                                                            n ║ p ║ p ║ k ║ p
-║  Ξth: 2993450.06040540066484375                            d ║ y ║ a ║ e ║ p
-║                                                                  ║ t ║ n ║ s
-║  $96.27  ║  £53.03  ║  €104.23  ║   ${7,1}E${2,2}NS: kayagoban.eth             h ║ s  
+║                                                                ${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}T${2,2} ║ ${7,1}D${2,2}
+║  ${7,1}A${2,2}ddress: 0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898           e ║ o ║ o ║ a
+║                                                                n ║ p ║ k ║ p
+║  Ξth: 2993450.06040540066484375                                d ║ y ║ e ║ p
+║                                                                      ║ n ║ s
+║  $96.27  ║  £53.03  ║  €104.23  ║   ${7,1}E${2,2}NS: kayagoban.eth               ║ s
 ╚══════════╩══════════╩═══════════╩════════════════════════════════════════════╝
 
 '''
+    txdisplay = '''
+     T${7,1}x${2,2}
+     ║║
+ ${7,1}1${2,2}│ ${7,1}0${2,2}║║
+ ═╪══╣╠
+ 5│ b║║
+ 1│ 8║║
+ a│ b║║
+ c│ f║║
+ 9│ 2║║
+ 9│ 5║║
+     ╝╚
+'''
 
-#║  USD $96.27 ║  GBP £53.03  ║ EUR €104.23  ║        
+    alttxdisplay='''
+T${7,1}x${2,2}
+─╖
+${7,1}0${2,2}║  0x80fbe87fc0221221644987b1d67837be4a30b1c3cc3461554c314b8a72d47ba0
+─╢
+${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b2e00
+'''
+
+
+
+#║  USD $96.27 ║  GBP £53.03  ║ EUR €104.23  ║
 
     node='Connected to infura node at Geth/v1.8.13-patched-infura-omnibus-b59d4428/linux-amd64/go1.9.2'
-    sync='[synced: block 6230988]      Network: MainNet       Remote Node: infura at Geth/v1.8.13-patch...'
+    sync='[synced: block 6230988]                               ${7,1}N${2,2}etwork: MainNet (local)'
     pubterm='p u b l i c    t e r m i n a l\t\t\tv0 . 0 1'
     prompt='''Welcome, chummer.  Insert your credstick to begin...
 A credstick, like a Trezor or a Ledger.   You know, what the bakebrains call a 'hardware wallet'. No creds, no joy, dataslave.
@@ -98,15 +111,11 @@ Or just keep hitting the enter button.  Have fun with that.'''
         #UnicodeNoise( screen, BasicText(), stop_frame=300 ),
     ]
 
-    main_menu_effects = [
-        Materialize(screen, StaticRenderer([node]), 0, 0),
-        Materialize(screen, StaticRenderer([sync]), 0, 1),
-        CredstickMenu(screen, StaticRenderer([credstick_display2]), 0, 3),
-    ]
-
     main_menu_effects2 = [
         Materialize(screen, StaticRenderer([sync]), 0, 0),
-        CredstickMenu(screen, StaticRenderer([credstick_display2]), 0, 3),
+        CredstickMenu(screen, StaticRenderer([credstick_display]), 0, 2),
+        Materialize(screen, StaticRenderer([alttxdisplay]), 0 , 18),
+        #Materialize(screen, StaticRenderer([txdisplay]), screen.width // 2 - 4 , 13),
     ]
 
 
