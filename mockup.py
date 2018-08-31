@@ -4,8 +4,8 @@ from asciimatics.renderers import StaticRenderer, FigletText
 from asciimatics.scene import Scene
 from asciimatics.exceptions import NextScene, ResizeScreenError
 from asciimatics.effects import Print
-from asciimatics.screen import Screen
 from asciimatics.event import KeyboardEvent
+from asciimatics.screen import Screen
 from tui.effects.materialize import Materialize
 from tui.effects.cursor import LoadingScreenCursor
 from tui.debug import debug
@@ -94,10 +94,10 @@ Or just keep hitting the enter button.  Have fun with that.'''
         Materialize(screen, StaticRenderer([sync]), 0, 1, start_frame=10),
         Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 3, signal_acceleration_factor=1.1, start_frame=15),
         Materialize(screen, StaticRenderer([pubterm]), 10, 10, signal_acceleration_factor=1.0005,start_frame=35),
-        LoadingScreenCursor(screen, StaticRenderer([prompt]), 0, 14, start_frame=75),
-        #Materialize(screen, StaticRenderer([_image]), 20, 20, Screen.COLOUR_GREEN, -0.005, 1.4)# , start_frame=0, stop_frame=5000),
-        #UnicodeNoise( screen, BasicText(), stop_frame=300 ),
+        LoadingScreenCursor(screen, StaticRenderer([prompt]), 0, 14, start_frame=75, speed=2),
     ]
+
+    #UnicodeNoise( screen, BasicText(), stop_frame=300 ),
 
     main_menu_effects2 = [
         Materialize(screen, StaticRenderer([sync]), 0, 0),

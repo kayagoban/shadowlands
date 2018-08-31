@@ -18,7 +18,7 @@ class Cursor(Effect):
     text is automatically centred on the screen.
     """
 
-    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, **kwargs):
+    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, **kwargs):
         """
         :param screen: The Screen being used for the Scene.
         :param renderer: The renderer to be displayed.
@@ -38,6 +38,7 @@ class Cursor(Effect):
         self.char = 0
         self.blink = False
         self.current_line = None
+        self._speed = speed
 
 
     def reset(self):
@@ -64,16 +65,20 @@ class Cursor(Effect):
             self._x = self.origin_x
             self._y += 1
 
+
         #debug(self._screen._screen); import pdb; pdb.set_trace()
 
-        self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
-        self._screen.print_at(CURSOR, self._x+1, self._y, self._colour)
-        # u"\u2588" '█'
+        for i in range(self._speed):
+            # If rendering more than one char per pass, we have to force update.
+            if self._speed > 1:
+                self._screen.force_update()
 
-        #self._screen.print_at(chr(randint(33, 126)), x, y, self._colour)
-        self._x += 1
-        #self._y += 1
-        self.char += 1
+            # Stop if we came to the end of the line.
+            if self.char < len(image[self.image_index]):
+                self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
+                self._x += 1
+                self.char += 1
+                self._screen.print_at(CURSOR, self._x, self._y, self._colour)
 
     @property
     def stop_frame(self):
