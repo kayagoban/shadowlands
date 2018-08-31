@@ -18,7 +18,7 @@ class Cursor(Effect):
     text is automatically centred on the screen.
     """
 
-    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, **kwargs):
+    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, no_blink=False, **kwargs):
         """
         :param screen: The Screen being used for the Scene.
         :param renderer: The renderer to be displayed.
@@ -27,7 +27,9 @@ class Cursor(Effect):
 
         Also see the common keyword arguments in :py:obj:`.Effect`.
         """
+        #debug(screen._screen); import pdb; pdb.set_trace()
         super(Cursor, self).__init__(screen, **kwargs)
+
         self._renderer = renderer
         self._x = x
         self.origin_x = x
@@ -39,9 +41,11 @@ class Cursor(Effect):
         self.blink = False
         self.current_line = None
         self._speed = speed
-
+        self._no_blink = no_blink
+    
 
     def reset(self):
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
         image, colours = self._renderer.rendered_text
         self.char = 0
         self._x = self.origin_x
@@ -49,16 +53,21 @@ class Cursor(Effect):
         self.image_index = 0
 
     def _update(self, frame_no):
+#        if frame_no % 40 == 0:
+            #debug(self._screen._screen); import pdb; pdb.set_trace()
+        
         image, colours = self._renderer.rendered_text
-        if self.char >= len(image[self.image_index]):
-            sleep(0.5)
-            if self.blink is True:
-                self._screen.print_at(CURSOR, self._x, self._y, self._colour)
-            else:
-                self._screen.print_at(' ', self._x, self._y, self._colour)
 
-            self.blink = not self.blink
-            return
+        if not self._no_blink:
+            if self.char >= len(image[self.image_index]):
+                sleep(0.5)
+                if self.blink is True:
+                    self._screen.print_at(CURSOR, self._x, self._y, self._colour)
+                else:
+                    self._screen.print_at(' ', self._x, self._y, self._colour)
+
+                self.blink = not self.blink
+                return
 
         # If the nex char is going to go off the screen, wrap to next line.
         if self._x >= self._screen.width:
@@ -78,7 +87,9 @@ class Cursor(Effect):
                 self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
                 self._x += 1
                 self.char += 1
-                self._screen.print_at(CURSOR, self._x, self._y, self._colour)
+                # only print the cursor if there's one more char to go
+                if self.char < len(image[self.image_index]) - 1:
+                    self._screen.print_at(CURSOR, self._x, self._y, self._colour)
 
     @property
     def stop_frame(self):
@@ -113,6 +124,8 @@ class LoadingScreenCursor(Cursor):
         else:
             return None
         return event
+
+
 
 
 

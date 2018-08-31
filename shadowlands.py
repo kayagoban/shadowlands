@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 
-import sys, os, hashlib, argparse
-import struct, time, locale, qrcode_terminal, threading
+import sys, os, hashlib, argparse, struct, time, locale, qrcode_terminal, threading
 import tty, termios
+from namehash import namehash
 from pyfiglet import Figlet
+from cryptocompy import price
 import eth_node
 import dapp
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
-from namehash import namehash
+from tui.tui import Interface
 
 # import pdb; pdb.set_trace()
 
 menuSelection = None
 credstick = None
 
+'''
 boxDictionary = {
         '\\' : b'\xe2\x95\x9a',
         '-'  : b'\xe2\x95\x90',
@@ -99,6 +101,30 @@ def mainMenuLoop():
     while menuSelection is None:
         mainMenu()
         time.sleep(0.25)
+'''
+
+
+def credstick_finder(interface):
+    #import pdb; pdb.set_trace()
+    not_found = True
+    while not_found:
+        try: 
+            credstick = Credstick.detect()
+            credstick.open()
+            eth_node.ethAddress = credstick.derive()
+            dapp.credstick = credstick
+            eth_node.poll()
+            interface.set_credstick(credstick)
+            not_found = False
+        except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
+            time.sleep(0.25)
+
+def eth_price_poller(interface):
+    while True:
+        prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
+        interface.update_prices(prices)
+        # 5 minutes seems responsible.
+        time.sleep(300)
 
 # Get a connection
 eth_node.connect()
@@ -111,46 +137,46 @@ eth_node.connect()
 dapp.w3 = eth_node.web3_obj
 dapp.register_w3_on_contracts()
 
-
-import pdb; pdb.set_trace()
-
+# eth node heartbeat thread
 t = threading.Thread(target=eth_node.heartbeat)
 t.start()
 
-# pip install cryptocompy
-#>>> from cryptocompy import price
-#>>> prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
+# create interface 
+interface = Interface(eth_node, dapp)
 
-# Begin screen displays
+# price import thread
+p = threading.Thread(target=eth_price_poller, args=[interface])
+p.start()
 
-loadingScreen()
-
-while True:
-    try: 
-        #credstick = find_credstick()
-        credstick = Credstick.detect()
-        credstick.open()
-        eth_node.ethAddress = credstick.derive()
-        dapp.credstick = credstick
-        eth_node.poll()
-        blastOff()
-
-        break
-    except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
-        time.sleep(0.25)
-        loadingScreen()
-
-
-# Show main menu in a thread to provide live updates
-m = threading.Thread(target=mainMenuLoop)
+# credstick finder thread
+m = threading.Thread(target=credstick_finder, args = [interface])
 m.start()
 
 
-menuSelection = input()
-m.join()
+# Begin interface
+interface.load()
 
 
-os.system("clear")
+
+# Shut it down.
+credstick.close()
+eth_node.shutdown = True
+
+exit()
+
+
+# start up credstick detect method in a thread, pass in the interface.
+# when the credstick is detected, it will send 
+ 
+
+# Show main menu in a thread to provide live updates
+
+
+#menuSelection = input()
+#m.join()
+
+
+#os.system("clear")
 
 
 def send_tx(rx):
@@ -168,7 +194,7 @@ def send_tx(rx):
 
 #rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
 
-rx = dapp.ens_finalize_auction('cthomas')
+# rx = dapp.ens_finalize_auction('cthomas')
 
 #dapp.register_ens_resolver('mindmyvagina')
 
@@ -177,13 +203,6 @@ rx = dapp.ens_finalize_auction('cthomas')
 # dapp.set_ens_reverse_lookup('ceilingcat')
 
 
-
-credstick.close()
-
-eth_node.shutdown = True
-t.join()
-
-exit()
 
 """
 # Check the file for tampering

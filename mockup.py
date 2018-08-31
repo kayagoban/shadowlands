@@ -78,7 +78,6 @@ ${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b
 '''
 
 
-
 #║  USD $96.27 ║  GBP £53.03  ║ EUR €104.23  ║
 
     node='Connected to infura node at Geth/v1.8.13-patched-infura-omnibus-b59d4428/linux-amd64/go1.9.2'
@@ -94,7 +93,7 @@ Or just keep hitting the enter button.  Have fun with that.'''
         Materialize(screen, StaticRenderer([sync]), 0, 1, start_frame=10),
         Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 3, signal_acceleration_factor=1.1, start_frame=15),
         Materialize(screen, StaticRenderer([pubterm]), 10, 10, signal_acceleration_factor=1.0005,start_frame=35),
-        LoadingScreenCursor(screen, StaticRenderer([prompt]), 0, 14, start_frame=75, speed=2),
+        LoadingScreenCursor(screen, StaticRenderer([prompt]), 0, 14, start_frame=75, speed=2, no_blink=False),
     ]
 
     #UnicodeNoise( screen, BasicText(), stop_frame=300 ),
