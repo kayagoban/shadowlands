@@ -2,9 +2,8 @@ from asciimatics.exceptions import NextScene, ResizeScreenError
 #from asciimatics.effects import Print
 #from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
-from tui.effects.blockstatus import BlockStatusCursor
-from tui.effects.networkstatus import NetworkStatusCursor
 from tui.scenes.loading import LoadingScene
+from tui.scenes.main import MainScene
 from tui.debug import debug
 import sys
 
@@ -32,13 +31,9 @@ class Interface():
 
         # We re-use these two effects, which is why we define
         # them here.
-        self.blockstatus_cursor = BlockStatusCursor(
-            self._screen, self.node, 0, 0, speed=4, no_blink=True)
-        self.networkstatus_cursor = NetworkStatusCursor(
-            self._screen, self.node, 60, 0, speed=4, no_blink=True)
-
         scenes = [
-            LoadingScene(screen, "LoadingScene", self.blockstatus_cursor, self.networkstatus_cursor)
+            LoadingScene(screen, "LoadingScene", self.node),
+            MainScene(screen, "Main", self.node)
         ]
 
         screen.play(scenes, stop_on_resize=True)

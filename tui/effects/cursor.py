@@ -138,7 +138,7 @@ class LoadingScreenCursor(Cursor):
             return None
 
         elif event.key_code == 110:
-            raise NextScene("MainMenu")
+            raise NextScene("Main")
         else:
             return None
         return event
