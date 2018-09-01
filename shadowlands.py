@@ -16,6 +16,10 @@ from asciimatics.exceptions import NextScene
 menuSelection = None
 credstick = None
 
+# Flags to halt threads
+credstick_thread_shutdown = False
+price_poller_thread_shutdown = False
+
 '''
 boxDictionary = {
         '\\' : b'\xe2\x95\x9a',
@@ -30,61 +34,6 @@ boxDictionary = {
 def boxDecode(x):
     return ("".join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
 
-def header():
-    if eth_node.localNode:
-        nodeString = 'local' 
-    else:
-        nodeString = 'infura'
-
-    print('Connected to ' + nodeString + ' node at ' + eth_node.nodeVersion)
-
-
-    if not eth_node.syncing:
-        print('[synced: block ' + eth_node.block + ']' + '\t\tNetwork: ' + eth_node.networkName() )
-    else:
-        print('[syncing:  ' + str(eth_node.blocksBehind) + ' blocks to ' 
-              + str(eth_node.syncing['highestBlock']) + ']' +  '\t\tNetwork: ' + eth_node.networkName() )
- 
-def loadingScreen():
-    os.system("clear")
-    header()       
-    print(Figlet(font='slant').renderText('Shadowlands') )
-    print('public terminal \t\t' + 'v0.01' )
-    print( '\n\n\n\n\n' )
-    print('Welcome, chummer.  Insert your credstick to log in.')
-    return
-
-def mainMenu():
-    os.system("clear")
-    header()
-    print('\n')
-    print(boxDecode("  +- %s %s ---------------------------------------$") 
-          %(credstick.manufacturerStr, credstick.productStr))
-    print(boxDecode('  |                                    '))
-    print(boxDecode('  |  Address: %s' ) %(credstick.addressStr()) )
-    print(boxDecode('  |                                    '))
-    print(boxDecode('  |  Ξth: ' + eth_node.ethBalanceStr() + ''))
-    print(boxDecode('  |  Dai: ' ))
-    print(boxDecode('  |                                    '))
-    print(boxDecode('  \\-------------------------------------------------------/'))
-    print('\n')
-    print(boxDecode('  +- Things to do -------------------------------------$'))
-    print(boxDecode('  |                                    '))
-    print(boxDecode('  |  (S)end ether and tokens '))
-    print(boxDecode('  |  (B)rowse your transaction history '))
-    print(boxDecode('  |  (C)opy your address to the system clipboard '))
-    print(boxDecode('  |  (V)iew your address QRcode '))
-    print(boxDecode('  |  (T)rade Ether for Dai '))
-    print(boxDecode('  |  (O)pen a CDP loan [borrow dai against your ether]'))
-    print(boxDecode('  |  (R)egister your ENS name '))
-    print(boxDecode('  |  (C)hat on the whispernet '))
-    print(boxDecode('  |  (P)ublic forums '))
-    print(boxDecode('  |  (B)rowse the take-out menu '))
-    print(boxDecode('  |                                    '))
-    print(boxDecode('  \\----------------------------------------------------/'))
-    print('\n  Type the letter of your selection and hit enter:')
- 
-    return
 
 def blastOff():
     sys.stdout.write("\033[F")
@@ -96,18 +45,14 @@ def blastOff():
       timeout = timeout * 0.93
     return
 
-
-def mainMenuLoop():
-    global menuSelection, old_settings
-    while menuSelection is None:
-        mainMenu()
-        time.sleep(0.25)
 '''
 
 
 def credstick_finder(interface):
+    global credstick_thread_shutdown
     #import pdb; pdb.set_trace()
     not_found = True
+
     while not_found:
         try: 
             credstick = Credstick.detect()
@@ -120,12 +65,23 @@ def credstick_finder(interface):
         except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
             time.sleep(0.25)
 
+        if credstick_thread_shutdown:
+            break
+
+
+
 def eth_price_poller(interface):
+    global price_poller_thread_shutdown
+
     while True:
         prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
         interface.update_prices(prices)
         # 5 minutes seems responsible.
-        time.sleep(300)
+        for i in range (150):
+            time.sleep(2)
+            if price_poller_thread_shutdown:
+               return
+
 
 # Get a connection
 eth_node.connect()
@@ -160,8 +116,19 @@ interface.load()
 
 
 # Shut it down.
-credstick.close()
+if credstick != None:
+    credstick.close()
+
+credstick_thread_shutdown = True
+m.join()
+
 eth_node.shutdown = True
+t.join()
+
+
+price_poller_thread_shutdown = True
+print("Waiting for price poller to shut down...")
+p.join()
 
 exit()
 

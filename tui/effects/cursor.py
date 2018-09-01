@@ -4,6 +4,7 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from random import random
 from tui.debug import debug
+from tui.errors import ExitTuiError
 from time import sleep
 import logging
 import threading
@@ -155,7 +156,7 @@ class LoadingScreenCursor(Cursor):
             # blank the cursor if it's there.
             image, colours = self._renderer.rendered_text
             if len(image) == (self.image_index + 1):
-                sys.exit(0)
+                raise ExitTuiError
             self._screen.print_at(' ', self._x, self._y, self._colour)
 
             # move 2 lines down and prepare to render the next line of text
@@ -167,11 +168,12 @@ class LoadingScreenCursor(Cursor):
         # Test 'n' to continue to main
         #elif event.key_code == 110:
         #    raise NextScene("Main")
+        elif event.key_code == -1 or event.key_code == 113:
+            raise ExitTuiError
         else:
             return None
-        return event
 
-
-
-
-
+        
+        # This lets the event bubble up through the other effects
+        # in the scene
+        #return event

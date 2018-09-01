@@ -5,6 +5,7 @@ from asciimatics.screen import Screen
 from tui.scenes.loading import LoadingScene
 from tui.scenes.main import MainScene
 from tui.debug import debug
+from tui.errors import ExitTuiError
 import sys
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
@@ -46,8 +47,9 @@ class Interface():
         while True:
             try:
                 Screen.wrapper(self.tui)
-                debug(self._screen._screen); import pdb; pdb.set_trace()
-                sys.exit(0)
+                break
             except ResizeScreenError:
                 pass
+            except ExitTuiError:
+                break
 
