@@ -57,8 +57,13 @@ class BlockStatusCursor(Cursor):
         size_difference = len(self._previous_buffer[self.image_index]) - len(self._current_buffer[self.image_index])
 
         if size_difference > 0:
-            spaces = ' ' * size_difference
-            self._screen.print_at(spaces , self._x, self._y, self._colour)
+            #spaces = ' ' * size_difference
+            for i in range(size_difference):
+                self._screen.print_at(' ', self._x+i, self._y, self._colour)
+                if i < size_difference - 1:
+                    self._screen.print_at(self.CURSOR, self._x+i+1, self._y, self._colour)
+  
+            #self._screen.print_at(spaces , self._x, self._y, self._colour)
 
 
 
