@@ -97,6 +97,13 @@ class Cursor(Effect):
 
 
 class LoadingScreenCursor(Cursor):
+
+    #def _update(self, frame_no):
+    #    if frame_no % 2 == 0:
+    #        return
+    #    super(LoadingScreenCursor, self)._update(frame_no)
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+ 
     def process_event(self, event):
 
         if type(event) != KeyboardEvent:
