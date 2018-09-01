@@ -136,9 +136,9 @@ class LoadingScreenCursor(Cursor):
             self._y += 2
             self.char = 0
             return None
-
-        elif event.key_code == 110:
-            raise NextScene("Main")
+        # Test 'n' to continue to main
+        #elif event.key_code == 110:
+        #    raise NextScene("Main")
         else:
             return None
         return event

@@ -9,6 +9,7 @@ import eth_node
 import dapp
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
 from tui.tui import Interface
+from asciimatics.exceptions import NextScene
 
 # import pdb; pdb.set_trace()
 
@@ -114,8 +115,8 @@ def credstick_finder(interface):
             eth_node.ethAddress = credstick.derive()
             dapp.credstick = credstick
             eth_node.poll()
-            interface.set_credstick(credstick)
             not_found = False
+            interface.set_credstick(credstick)
         except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
             time.sleep(0.25)
 

@@ -18,6 +18,9 @@ class Interface():
         self.prices = None
         self._screen = None
 
+    # Callback from the credstick_finder thread.
+    # the credstick watcher effect will see this
+    # and switch to the main scene.
     def set_credstick(self, _credstick):
         self.credstick = _credstick
 
@@ -32,7 +35,7 @@ class Interface():
         # We re-use these two effects, which is why we define
         # them here.
         scenes = [
-            LoadingScene(screen, "LoadingScene", self.node),
+            LoadingScene(screen, "LoadingScene", self),
             MainScene(screen, "Main", self.node)
         ]
 
@@ -43,6 +46,7 @@ class Interface():
         while True:
             try:
                 Screen.wrapper(self.tui)
+                debug(self._screen._screen); import pdb; pdb.set_trace()
                 sys.exit(0)
             except ResizeScreenError:
                 pass
