@@ -18,21 +18,42 @@ class BlockStatusRenderer(DynamicRenderer):
         return images, None
 
 
+# class DynamicSourceCursor
 class BlockStatusCursor(Cursor):
 
     def __init__(self, screen, node, x, y, **kwargs):
         super(BlockStatusCursor, self).__init__(screen, BlockStatusRenderer(node), x, y, **kwargs)
-        self._previous_image = ''
+        self._previous_buffer = ['']
+        self._current_buffer = None
 
-    def _update(self, frame_no):
-        if frame_no % 100 == 0:
+    def need_new_buffer(self):
+        return self._current_buffer == None or (self.char >= len(self._current_buffer[self.image_index]) and self._current_buffer != self._renderer.rendered_text[0])
+
+
+    def get_buffer(self):
+        # if current buffer is unset, grab the rendered text.
+        # also, if we have already reached the end of the text,
+        # go ahead and grab another buffer from the renderer.
+        if self.need_new_buffer():
+            image, colours = self._renderer.rendered_text
+            self._previous_buffer = self._current_buffer
+            self._current_buffer = image
             self.reset()
 
+        return self._current_buffer
+
+
+
+
+    def _update(self, frame_no):
+        #if frame_no % 100 == 0:
+        #    self.reset()
+
+        '''
         image, colours = self._renderer.rendered_text
 
         if len(self._previous_image) > len(image[self.image_index]) :
 
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
 
             for i in range(len(image[0])):
                 if self.char < len(self._previous_image):
@@ -49,7 +70,7 @@ class BlockStatusCursor(Cursor):
 
         if len(self._previous_image) != len(image[0]):
             self._previous_image = image[0]
-
+        '''
             
         super(BlockStatusCursor, self)._update(frame_no)
         return

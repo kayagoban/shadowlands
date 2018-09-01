@@ -52,7 +52,6 @@ class Cursor(Effect):
 
     def reset(self):
         #debug(self._screen._screen); import pdb; pdb.set_trace()
-        image, colours = self._renderer.rendered_text
         self.char = 0
         self._x = self.origin_x
         self._y = self.origin_y
@@ -99,11 +98,17 @@ class Cursor(Effect):
             self._y += 1
 
 
+    def get_buffer(self):
+        image, colours = self._renderer.rendered_text
+        return image
+
+
     def _update_thread(self, frame_no):
         
-        image, colours = self._renderer.rendered_text
+        image = self.get_buffer()
 
         # Exit if we are already at the end of the line
+        # otherwise, blink if you wanna
         if self.char >= len(image[self.image_index]):
             if not self._no_blink:
                 self.blink()
