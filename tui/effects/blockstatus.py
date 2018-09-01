@@ -17,7 +17,6 @@ class BlockStatusRenderer(DynamicRenderer):
             images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
         return images, None
 
-# +  '   Network: ' + self.node.networkName()
 
 class BlockStatusCursor(Cursor):
 

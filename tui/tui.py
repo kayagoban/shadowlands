@@ -1,16 +1,12 @@
-from asciimatics.renderers import StaticRenderer, FigletText
-from asciimatics.scene import Scene
 from asciimatics.exceptions import NextScene, ResizeScreenError
-from asciimatics.effects import Print
-from asciimatics.event import KeyboardEvent
+#from asciimatics.effects import Print
+#from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
-from tui.effects.materialize import Materialize
-from tui.effects.cursor import LoadingScreenCursor
-from tui.blockstatus import BlockStatusCursor
-from tui.networkstatus import NetworkStatusCursor
+from tui.effects.blockstatus import BlockStatusCursor
+from tui.effects.networkstatus import NetworkStatusCursor
+from tui.scenes.loading import LoadingScene
 from tui.debug import debug
 import sys
-from time import sleep
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
 #debug(screen._screen); import pdb; pdb.set_trace()
@@ -21,15 +17,7 @@ class Interface():
         self.node = _eth_node
         self.dapp = _dapp
         self.prices = None
-
-
         self._screen = None
-
-        # effects
-        self.effect_blockstatus = None 
-
-        # scenes
-        self.scene_loading_screen = None
 
     def set_credstick(self, _credstick):
         self.credstick = _credstick
@@ -39,23 +27,18 @@ class Interface():
         # reset price cursor print effect
 
 
-    def _tui(self, screen):
+    def tui(self, screen):
         self._screen = screen
 
-
-        self.effect_blockstatus = BlockStatusCursor(
-            screen, self.node, 0, 0, speed=4, no_blink=True)
-
-        self.effect_networkstatus = NetworkStatusCursor(
-            screen, self.node, 60, 0, speed=4, no_blink=True)
-
-        self.scene_loading_screen = Scene([], -1, name="LoadingScreen")
-
-        self.scene_loading_screen.add_effect(self.effect_blockstatus)
-        self.scene_loading_screen.add_effect(self.effect_networkstatus)
+        # We re-use these two effects, which is why we define
+        # them here.
+        self.blockstatus_cursor = BlockStatusCursor(
+            self._screen, self.node, 0, 0, speed=4, no_blink=True)
+        self.networkstatus_cursor = NetworkStatusCursor(
+            self._screen, self.node, 60, 0, speed=4, no_blink=True)
 
         scenes = [
-            self.scene_loading_screen
+            LoadingScene(screen, "LoadingScene", self.blockstatus_cursor, self.networkstatus_cursor)
         ]
 
         screen.play(scenes, stop_on_resize=True)
@@ -64,7 +47,7 @@ class Interface():
     def load(self):
         while True:
             try:
-                Screen.wrapper(self._tui)
+                Screen.wrapper(self.tui)
                 sys.exit(0)
             except ResizeScreenError:
                 pass

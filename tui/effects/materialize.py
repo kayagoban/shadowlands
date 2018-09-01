@@ -34,7 +34,7 @@ class Materialize(Effect):
         self._signal_strength = 1.0
         self._signal_step = signal_step
         self._signal_acceleration_factor = signal_acceleration_factor
-
+        
     def reset(self):
         #self._signal_strength = 1.0
         #self._signal_step = -0.05
