@@ -6,7 +6,7 @@ from asciimatics.renderers import DynamicRenderer
 class BlockStatusRenderer(DynamicRenderer):
 
     def __init__(self, _node):
-        super(BlockStatusRenderer, self).__init__(1, 25)
+        super(BlockStatusRenderer, self).__init__(1, 40)
         self.node = _node
 
     def _render_now(self):

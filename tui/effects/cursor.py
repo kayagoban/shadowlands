@@ -5,6 +5,7 @@ from asciimatics.event import KeyboardEvent
 from random import random
 from tui.debug import debug
 from time import sleep
+import threading
 import curses
 import sys
 
@@ -18,7 +19,7 @@ class Cursor(Effect):
     text is automatically centred on the screen.
     """
 
-    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, no_blink=False, **kwargs):
+    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, no_blink=False, thread=False, **kwargs):
         """
         :param screen: The Screen being used for the Scene.
         :param renderer: The renderer to be displayed.
@@ -42,6 +43,7 @@ class Cursor(Effect):
         self.current_line = None
         self._speed = speed
         self._no_blink = no_blink
+        self._thread = thread
     
 
     def reset(self):
@@ -52,7 +54,8 @@ class Cursor(Effect):
         self._y = self.origin_y
         self.image_index = 0
 
-    def _update(self, frame_no):
+
+    def _update_thread(self, frame_no):
 #        if frame_no % 40 == 0:
             #debug(self._screen._screen); import pdb; pdb.set_trace()
         
@@ -91,6 +94,13 @@ class Cursor(Effect):
                 if self.char < len(image[self.image_index]) - 1:
                     self._screen.print_at(CURSOR, self._x, self._y, self._colour)
 
+    def _update(self, frame_no):
+        if self._thread:
+            t = threading.Thread(target=self._update_thread, args=[frame_no])
+            t.start()
+        else:
+            self._update_thread(frame_no)
+
     @property
     def stop_frame(self):
         return self._stop_frame
@@ -99,8 +109,9 @@ class Cursor(Effect):
 class LoadingScreenCursor(Cursor):
 
     #def _update(self, frame_no):
-    #    if frame_no % 2 == 0:
+    #    if frame_no % 10  == 0:
     #        return
+    #
     #    super(LoadingScreenCursor, self)._update(frame_no)
         #debug(self._screen._screen); import pdb; pdb.set_trace()
  
