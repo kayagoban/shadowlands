@@ -32,7 +32,7 @@ class BlockStatusCursor(Cursor):
 
         if len(self._previous_image) > len(image[self.image_index]) :
 
-            debug(self._screen._screen); import pdb; pdb.set_trace()
+            #debug(self._screen._screen); import pdb; pdb.set_trace()
 
             for i in range(len(image[0])):
                 if self.char < len(self._previous_image):
@@ -41,7 +41,7 @@ class BlockStatusCursor(Cursor):
                     self.char += 1
                     # only print the cursor if there's one more char to go
                     if self.char < len(self._previous_image) - 1:
-                        self._screen.print_at(CURSOR, self._x, self._y, self._colour)
+                        self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
 
 
             self.reset()    

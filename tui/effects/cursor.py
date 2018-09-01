@@ -5,11 +5,13 @@ from asciimatics.event import KeyboardEvent
 from random import random
 from tui.debug import debug
 from time import sleep
+import logging
 import threading
 import curses
 import sys
 
-CURSOR = u"\u2588"
+
+logging.basicConfig(filename='shadow.log', filemode='w', level=logging.INFO)
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
 class Cursor(Effect):
@@ -18,6 +20,8 @@ class Cursor(Effect):
     Special effect to make bits of the specified text appear over time.  This
     text is automatically centred on the screen.
     """
+
+    CURSOR = u"\u2588"
 
     def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, no_blink=False, thread=False, **kwargs):
         """
@@ -39,7 +43,7 @@ class Cursor(Effect):
         self._colour = colour
         self.line = 0
         self.char = 0
-        self.blink = False
+        self._blink_state = False
         self.current_line = None
         self._speed = speed
         self._no_blink = no_blink
@@ -53,47 +57,66 @@ class Cursor(Effect):
         self._x = self.origin_x
         self._y = self.origin_y
         self.image_index = 0
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+        #logging.info([self.char, len(image[self.image_index])])
 
 
-    def _update_thread(self, frame_no):
-#        if frame_no % 40 == 0:
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
-        
-        image, colours = self._renderer.rendered_text
+    def render_multiple_chars(self, image):
+        for i in range(self._speed):
+            #logging.info('in for loop')
+            #logging.info([self.char, len(image[self.image_index])])
+            self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
+            self._x += 1
+            self.char += 1
 
-        if not self._no_blink:
-            if self.char >= len(image[self.image_index]):
-                sleep(0.5)
-                if self.blink is True:
-                    self._screen.print_at(CURSOR, self._x, self._y, self._colour)
-                else:
-                    self._screen.print_at(' ', self._x, self._y, self._colour)
+            # Force rendering if more than one char per pass
+            if self._speed > 1:
+                self._screen.force_update()
 
-                self.blink = not self.blink
-                return
+            # only print the cursor if there's one more char to go
+            if self.char >= len(image[self.image_index]) - 1:
+                break
 
+            self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
+            # Force rendering if more than one char per pass
+            if self._speed > 1:
+                self._screen.force_update()
+
+
+    def blink(self):
+        sleep(0.5)
+        if self._blink_state is True:
+            self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
+        else:
+            self._screen.print_at(' ', self._x, self._y, self._colour)
+
+        self._blink_state = not self._blink_state
+
+    def wrap_if_needed(self):
         # If the nex char is going to go off the screen, wrap to next line.
         if self._x >= self._screen.width:
             self._x = self.origin_x
             self._y += 1
 
 
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
+    def _update_thread(self, frame_no):
+        
+        image, colours = self._renderer.rendered_text
 
-        for i in range(self._speed):
-            # If rendering more than one char per pass, we have to force update.
-            if self._speed > 1:
-                self._screen.force_update()
+        # Exit if we are already at the end of the line
+        if self.char >= len(image[self.image_index]):
+            if not self._no_blink:
+                self.blink()
+            return
 
-            # Stop if we came to the end of the line.
-            if self.char < len(image[self.image_index]):
-                self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
-                self._x += 1
-                self.char += 1
-                # only print the cursor if there's one more char to go
-                if self.char < len(image[self.image_index]) - 1:
-                    self._screen.print_at(CURSOR, self._x, self._y, self._colour)
+        self.wrap_if_needed()
 
+        self.render_multiple_chars(image)
+
+
+            
+
+    
     def _update(self, frame_no):
         if self._thread:
             t = threading.Thread(target=self._update_thread, args=[frame_no])
