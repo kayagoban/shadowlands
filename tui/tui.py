@@ -6,7 +6,8 @@ from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from tui.effects.materialize import Materialize
 from tui.effects.cursor import LoadingScreenCursor
-from tui.blockstatus import BlockStatusCursor, BlockStatusRenderer
+from tui.blockstatus import BlockStatusCursor
+from tui.networkstatus import NetworkStatusCursor
 from tui.debug import debug
 import sys
 from time import sleep
@@ -45,9 +46,13 @@ class Interface():
         self.effect_blockstatus = BlockStatusCursor(
             screen, self.node, 0, 0, speed=4, no_blink=True)
 
+        self.effect_networkstatus = NetworkStatusCursor(
+            screen, self.node, 60, 0, speed=4, no_blink=True)
+
         self.scene_loading_screen = Scene([], -1, name="LoadingScreen")
 
         self.scene_loading_screen.add_effect(self.effect_blockstatus)
+        self.scene_loading_screen.add_effect(self.effect_networkstatus)
 
         scenes = [
             self.scene_loading_screen
