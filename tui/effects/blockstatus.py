@@ -24,7 +24,7 @@ class BlockStatusCursor(Cursor):
     def __init__(self, screen, node, x, y, **kwargs):
         super(BlockStatusCursor, self).__init__(screen, BlockStatusRenderer(node), x, y, **kwargs)
         self._previous_buffer = ['']
-        self._current_buffer = None
+        self._current_buffer = ['']
 
     def need_new_buffer(self):
         return self._current_buffer == None or (self.char >= len(self._current_buffer[self.image_index]) and self._current_buffer != self._renderer.rendered_text[0])
@@ -48,31 +48,17 @@ class BlockStatusCursor(Cursor):
     def _update(self, frame_no):
         #if frame_no % 100 == 0:
         #    self.reset()
-
-        '''
-        image, colours = self._renderer.rendered_text
-
-        if len(self._previous_image) > len(image[self.image_index]) :
-
-
-            for i in range(len(image[0])):
-                if self.char < len(self._previous_image):
-                    self._screen.print_at(' ', self._x, self._y, self._colour)
-                    self._x += 1
-                    self.char += 1
-                    # only print the cursor if there's one more char to go
-                    if self.char < len(self._previous_image) - 1:
-                        self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
-
-
-            self.reset()    
-
-
-        if len(self._previous_image) != len(image[0]):
-            self._previous_image = image[0]
-        '''
-            
+           
         super(BlockStatusCursor, self)._update(frame_no)
-        return
+
+        # Now we overwrite with spaces the difference between the sizes
+        # of the current and previous buffer, if the prev buffer was
+        # larger.
+        size_difference = len(self._previous_buffer[self.image_index]) - len(self._current_buffer[self.image_index])
+
+        if size_difference > 0:
+            spaces = ' ' * size_difference
+            self._screen.print_at(spaces , self._x, self._y, self._colour)
+
 
 
