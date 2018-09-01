@@ -1,3 +1,4 @@
 *.swp
 detritus
 __pycache__
+shadow.log
