@@ -52,7 +52,6 @@ def blastOff():
 def credstick_finder(interface):
     global credstick_thread_shutdown
     not_found = True
-    #import pdb; pdb.set_trace()
 
     while not_found:
         try: 
@@ -148,8 +147,8 @@ sleep(0.3)
 print("Closing connection to ethereum node...")
 t.join()
 
+sys.exit(0)
 
-exit()
 
 
 # start up credstick detect method in a thread, pass in the interface.

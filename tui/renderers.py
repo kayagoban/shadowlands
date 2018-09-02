@@ -1,6 +1,7 @@
 from asciimatics.renderers import DynamicRenderer
 from tui.debug import debug
 from decimal import Decimal
+from ens import ENS
 
 class NetworkStatusRenderer(DynamicRenderer):
     def __init__(self, _node):
@@ -86,4 +87,22 @@ class EthValueRenderer(DynamicRenderer):
             val = 'Unknown'
 
         return [val], None
+
+
+class ENSRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(ENSRenderer, self).__init__(1, 16)
+        self._interface = interface
+
+    def _render_now(self):
+        ns = ENS.fromWeb3(self._interface.node.web3_obj)
+        domain = ns.name('0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898')
+            #network = 'Network: ' + self.node.networkName()
+        #except:
+            #network = 'Network unavailable'
+
+        return [domain], None
+
+
+
 

@@ -75,12 +75,15 @@ def poll():
 
 
 def heartbeat():
+    global shutdown
     while True:
         #       assert w3.isConnected()
         poll()
 
         if localNode:
             time.sleep(.5)
+            if shutdown:
+                return
         else:
             for i in range(7):
                 time.sleep(2)
