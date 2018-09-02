@@ -42,6 +42,8 @@ class Materialize(Effect):
         line = None
 
     def _update(self, frame_no):
+        super(Materialize, self)._update(frame_no)
+
         if frame_no % 2 == 0:
             return
 

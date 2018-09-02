@@ -24,7 +24,7 @@ class Cursor(Effect):
 
     CURSOR = u"\u2588"
 
-    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=1, no_blink=False, thread=False, **kwargs):
+    def __init__(self, screen, renderer, x, y, colour=Screen.COLOUR_GREEN, speed=4, no_blink=True, thread=False, **kwargs):
         """
         :param screen: The Screen being used for the Scene.
         :param renderer: The renderer to be displayed.
@@ -137,11 +137,23 @@ class Cursor(Effect):
 
 class LoadingScreenCursor(Cursor):
 
+    def __init__(self, screen, renderer, x, y, _interface=None, **kwargs):
+        super(LoadingScreenCursor, self).__init__(screen, renderer, x, y, **kwargs)
+        self.interface = _interface
+        self._first_frame = True
+
+    def _update(self, frame_no):
+        if self._first_frame:
+            self._first_frame = False
+            if self.interface.credstick:
+                raise NextScene("Main")
+
+        super(LoadingScreenCursor, self)._update(frame_no)
+
     #def _update(self, frame_no):
     #    if frame_no % 10  == 0:
     #        return
     #
-    #    super(LoadingScreenCursor, self)._update(frame_no)
         #debug(self._screen._screen); import pdb; pdb.set_trace()
  
     def process_event(self, event):
@@ -167,8 +179,8 @@ class LoadingScreenCursor(Cursor):
             return None
         # Test 'n' to continue to main
         #elif event.key_code == 110:
-        #    raise NextScene("Main")
         elif event.key_code == -1 or event.key_code == 113:
+        #    raise NextScene("Main")
             raise ExitTuiError
         else:
             return None

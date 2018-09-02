@@ -3,6 +3,7 @@ from web3.exceptions import UnhandledRequest
 from web3.auto import w3
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
+from ens import ENS
 
 
 web3_obj = None
@@ -14,6 +15,8 @@ syncing = {}
 blocksBehind = None
 weiBalance = None
 ethAddress = None
+domain = None
+
 
 # Flag to shut down heartbeat thread
 shutdown = False
@@ -40,7 +43,7 @@ def ethBalanceStr():
 
 
 def connect():
-    global w3, localNode, nodeVersion, network, web3_obj
+    global w3, localNode, nodeVersion, network, web3_obj, ns
 
     connected = w3.isConnected()
     if connected and w3.version.node.startswith('Parity'):
@@ -60,10 +63,11 @@ def connect():
     nodeVersion = w3.version.node
     network = w3.version.network
     web3_obj = w3
+    ns = ENS.fromWeb3(w3)
 
 
 def poll():
-    global block, blocksBehind, syncing, weiBalance
+    global block, blocksBehind, syncing, weiBalance, domain
     syncing = w3.eth.syncing
 
     if syncing:
@@ -72,6 +76,7 @@ def poll():
         block = str(w3.eth.blockNumber)
     if ethAddress:
         weiBalance = w3.eth.getBalance(ethAddress)
+        domain = ns.name(ethAddress)
 
 
 def heartbeat():
