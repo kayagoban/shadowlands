@@ -25,13 +25,13 @@ class BlockStatusRenderer(DynamicRenderer):
 
     def _render_now(self):
         try:
-            if not self.node.syncing:
+            if not self.node.syncingHash():
                 images = ['[synced: block ' + self.node.block + ']'
                          ]
             else:
                 images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
         except:
-            images = [ 'ethereum connection error' ]
+            images = [ '[No blocks available]' ]
 
         return images, None
 
@@ -95,10 +95,10 @@ class ENSRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        domain = self._interface.node.domain
-        #network = 'Network: ' + self.node.networkName()
-        #except:
-        #network = 'Network unavailable'
+        try:
+            domain = self._interface.node.ens_domain()
+        except:
+            domain = 'Service unavailable'
 
         return [domain], None
 

@@ -51,8 +51,8 @@ d ║ y ║ e ║ p
 
         effects = [
             MainMenuListener(screen),
-            DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0),
-            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 60, 0),
+            DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0, refresh_period=220),
+            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 60, 0, refresh_period=250),
             Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05),
             Materialize(screen, StaticRenderer([self.MENU_TOP]), 17, 3, signal_acceleration_factor=1.05),
             DynamicSourceCursor(screen, CredstickNameRenderer(interface), 3, 3),

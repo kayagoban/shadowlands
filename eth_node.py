@@ -36,10 +36,28 @@ def networkName():
 
 
 def ethBalanceStr():
+    if network is None:
+        raise Exception
     if weiBalance:
         return str(w3.fromWei(weiBalance, 'ether'))
     else:
         return 'Unknown'
+
+def syncingHash():
+    global syncing
+
+    if syncing == {}:
+        raise Exception
+
+    return syncing
+
+def ens_domain():
+    global domain
+    
+    if not domain:
+        raise Exception
+
+    return domain
 
 
 def connect():
@@ -67,16 +85,24 @@ def connect():
 
 
 def poll():
-    global block, blocksBehind, syncing, weiBalance, domain
-    syncing = w3.eth.syncing
+    global block, blocksBehind, syncing, weiBalance, domain, network
 
-    if syncing:
-        blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
-    else:
-        block = str(w3.eth.blockNumber)
-    if ethAddress:
-        weiBalance = w3.eth.getBalance(ethAddress)
-        domain = ns.name(ethAddress)
+    try: 
+        syncing = w3.eth.syncing
+        network = w3.version.network
+
+        if syncing:
+            blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
+        else:
+            block = str(w3.eth.blockNumber)
+        if ethAddress:
+            weiBalance = w3.eth.getBalance(ethAddress)
+            domain = ns.name(ethAddress)
+    except:
+        network = None
+        syncing = {}
+        domain = None
+        pass
 
 
 def heartbeat():
