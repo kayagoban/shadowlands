@@ -74,8 +74,12 @@ def eth_price_poller(interface):
     global price_poller_thread_shutdown
 
     while True:
-        prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
-        interface.update_prices(prices)
+        try:
+            prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
+            interface.update_prices(prices)
+        except:
+            interface.update_prices(None)
+
         # 5 minutes seems responsible.
         for i in range (150):
             time.sleep(2)
@@ -87,16 +91,17 @@ def eth_price_poller(interface):
 try:
     eth_node.connect()
 except:
-    print("Sorry chummer, couldn't connect to an Ethereum node.")
-    sys.exit(1)
+    pass
+    #print("Sorry chummer, couldn't connect to an Ethereum node.")
+    #sys.exit(1)
 
 # This is absurd.  There must be a better way of getting
 # a singleton instance of web3.
 # The problem is: invoking web3.auto gives a different w3 object than web3.auto.infura.
 # I either must use the same switching logic in every module that needs w3, or I must
 # distribute it everywhere.  Annoying but no way around it yet that I can see.
-dapp.w3 = eth_node.web3_obj
-dapp.register_w3_on_contracts()
+dapp.node = eth_node
+dapp.register_node_on_contracts()
 
 # eth node heartbeat thread
 t = threading.Thread(target=eth_node.heartbeat)
@@ -125,6 +130,7 @@ m.start()
 
 
 # Begin interface
+
 interface.load()
 
 
@@ -135,19 +141,15 @@ if credstick != None:
 
 
 credstick_thread_shutdown = True
-sleep(0.65)
 print("Closing credstick poller...")
-sleep(0.5)
 m.join()
 
 
 price_poller_thread_shutdown = True
 print("Waiting for price poller to shut down...")
-sleep(0.2)
 p.join()
 
 eth_node.shutdown = True
-sleep(0.3)
 print("Closing connection to ethereum node...")
 t.join()
 
@@ -182,6 +184,7 @@ def send_tx(rx):
 # import pdb; pdb.set_trace()
 
 
+# dapp.send_ether('0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.000001337)
 #rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
 
 # rx = dapp.ens_finalize_auction('cthomas')

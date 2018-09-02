@@ -16,8 +16,8 @@ class Interface():
         self.credstick = _credstick
         self.node = _eth_node
         self.dapp = _dapp
-        self.prices = None
         self._screen = None
+        self._prices = None
 
     # Callback from the credstick_finder thread.
     # the credstick watcher effect will see this
@@ -25,8 +25,14 @@ class Interface():
     def set_credstick(self, _credstick):
         self.credstick = _credstick
 
+    # make this a pythonic attribute
+    def prices(self):
+        if not self._prices:
+            raise Exception
+        return self._prices
+
     def update_prices(self, _prices):
-        self.prices = _prices
+        self._prices = _prices
         #debug(self._screen._screen); import pdb; pdb.set_trace()
 
         # reset price cursor print effect

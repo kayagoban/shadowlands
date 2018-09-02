@@ -137,6 +137,7 @@ class Cursor(Effect):
 
 class LoadingScreenCursor(Cursor):
 
+    '''
     def __init__(self, screen, renderer, x, y, _interface=None, **kwargs):
         super(LoadingScreenCursor, self).__init__(screen, renderer, x, y, **kwargs)
         self.interface = _interface
@@ -146,9 +147,11 @@ class LoadingScreenCursor(Cursor):
         if self._first_frame:
             self._first_frame = False
             if self.interface.credstick:
-                raise NextScene("Main")
+                pass
+                #raise NextScene("Main")
 
         super(LoadingScreenCursor, self)._update(frame_no)
+'''
 
     #def _update(self, frame_no):
     #    if frame_no % 10  == 0:

@@ -14,10 +14,10 @@ class Ens(Contract):
         if name.endswith(".eth"):
             name = name.replace('.eth', '')
 
-        _namesha3 = cls.w3.sha3(text=name)
-        secret_hash = cls.w3.sha3(text=secret)
+        _namesha3 = cls.node.w3.sha3(text=name)
+        secret_hash = cls.node.w3.sha3(text=secret)
 
-        _value = cls.w3.toWei(bidAmount, 'ether')
+        _value = cls.node.w3.toWei(bidAmount, 'ether')
 
 
         fn = cls._contract.functions.unsealBid(_namesha3, _value, secret_hash)
@@ -37,7 +37,7 @@ class Ens(Contract):
         if name.endswith(".eth"):
             name = name.replace('.eth', '')
 
-        _namesha3 = cls.w3.sha3(text=name)
+        _namesha3 = cls.node.w3.sha3(text=name)
 
         fn = cls._contract.functions.finalizeAuction(_namesha3)
         return fn

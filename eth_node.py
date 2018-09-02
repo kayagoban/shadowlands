@@ -1,13 +1,12 @@
 import sys, time, os
 from web3.exceptions import UnhandledRequest
-from web3.auto import w3
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
 from ens import ENS
 
 
 web3_obj = None
-localNode = True
+localNode = None
 block = ""
 nodeVersion = ""
 network = None
@@ -16,6 +15,7 @@ blocksBehind = None
 weiBalance = None
 ethAddress = None
 domain = None
+client_name = None
 
 
 # Flag to shut down heartbeat thread
@@ -32,7 +32,13 @@ networkDict = {
 def networkName():
     if network is None:
         raise Exception
-    return networkDict[network]
+    networkStr = networkDict[network] +  ' ('
+    if localNode:
+        networkStr += 'local'
+    else:
+        networkStr += 'infura'
+    networkStr += ' ' + client_name + ')'
+    return networkStr 
 
 
 def ethBalanceStr():
@@ -61,7 +67,7 @@ def ens_domain():
 
 
 def connect():
-    global w3, localNode, nodeVersion, network, web3_obj, ns
+    global w3, localNode, nodeVersion, network, web3_obj, ns, client_name
 
     try:
         del(sys.modules['web3.auto'])
@@ -69,22 +75,42 @@ def connect():
     except KeyError:
         pass
 
+    from web3.auto import w3
     connected = w3.isConnected()
+
+    localNode = True
     if connected and w3.version.node.startswith('Parity'):
         enode = w3.parity.enode
+        client_name = 'Parity'
     elif connected and w3.version.node.startswith('Geth'):
         enode = w3.admin.nodeInfo['enode']
+        localNode = True
+        client_name = 'Geth'
     else:
-        localNode = False
         try:
             del sys.modules['web3.auto']
         except KeyError:
             pass
         os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
         from web3.auto.infura import w3
+        if w3.isConnected():
+            localNode = False
+            if w3.version.node.startswith('Parity'):
+                client_name = 'Parity'
+            elif w3.version.node.startswith('Geth'):
+                client_name = 'Geth'
+       
+       #    enode = w3.admin.nodeInfo['enode']
+ 
 
-    if not w3.isConnected():
-        raise Exception
+        #localNode = None
+        #network = None
+        #syncing = {}
+        #domain = None
+        #return
+        #raise Exception
+        #pass
+
 
     nodeVersion = w3.version.node
     network = w3.version.network
@@ -107,6 +133,7 @@ def poll():
             weiBalance = w3.eth.getBalance(ethAddress)
             domain = ns.name(ethAddress)
     except:
+        localNode = None
         network = None
         syncing = {}
         domain = None

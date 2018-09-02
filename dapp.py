@@ -15,11 +15,10 @@ ERC20 = {
 
 credstick = None
 
-w3 = None
+node = None
 
-
-def register_w3_on_contracts():
-    Contract.w3 = w3
+def register_node_on_contracts():
+    Contract.node = node
 
 # import pdb; pdb.set_trace()
 
@@ -79,7 +78,7 @@ def send_erc20(token, destination, amount):
     # If I am able to figure out how to reliably get Decimal conversion working
     # for variable decimal place values on ERC20s, this can change.  So far things
     # are looking murky and I know I can trust the web3 code. (I hope)
-    value = w3.toWei(amount, 'ether')
+    value = node.w3.toWei(amount, 'ether')
 
     return push(
         ERC20[token].transfer(destination, value)
@@ -92,7 +91,7 @@ def send_ether(destination, amount):
     print("Unsigned transaction: ", tx_dict)
     signed_tx = credstick.signTx(tx_dict)
     print("Signed tx: ", signed_tx)
-    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    rx = node.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
     print("tx receipt: ", rx)
 
 
@@ -102,24 +101,24 @@ def push( contract_function ):
 
     # TODO wrap in a try to catch credstick exception if user chooses
     # not to verify transaction on credstick. (CommException on ledger, etc)
-    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    rx = node.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
     
     return rx
 
 def build_send_tx(amt, recipient):
     return  dict(
-        nonce=w3.eth.getTransactionCount(eth_node.ethAddress),
-        gasPrice=w3.eth.gasPrice,
+        nonce=node.w3.eth.getTransactionCount(eth_node.ethAddress),
+        gasPrice=node.w3.eth.gasPrice,
         gas=100000,
         to=decode_hex(recipient),
-        value=w3.toWei(amt, 'ether'),
+        value=node.w3.toWei(amt, 'ether'),
         data=b''
     )
 
 def defaultTxDict():
     _dict = dict(
-        nonce=w3.eth.getTransactionCount(eth_node.ethAddress),
-        gasPrice=int(w3.eth.gasPrice * 1.1),
+        nonce=node.w3.eth.getTransactionCount(eth_node.ethAddress),
+        gasPrice=int(node.w3.eth.gasPrice * 1.1),
         gas=800000,
         value=0
     ) 

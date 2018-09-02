@@ -79,7 +79,7 @@ class EthValueRenderer(DynamicRenderer):
 
     def _render_now(self):
         try:
-            usd = Decimal(self._interface.prices['ETH']['USD'])
+            usd = Decimal(self._interface.prices()['ETH']['USD'])
             eth = Decimal(self._interface.node.ethBalanceStr())
             val = str(round(usd * eth, 2))
             val = 'USD $' + val 
