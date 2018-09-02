@@ -82,11 +82,13 @@ def heartbeat():
         if localNode:
             time.sleep(.5)
         else:
-            time.sleep(13)
+            for i in range(7):
+                time.sleep(2)
+                if shutdown:
+                    return
 
-        if shutdown:
-            break
 
 
+        
 
 

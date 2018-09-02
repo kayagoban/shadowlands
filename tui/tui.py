@@ -3,9 +3,9 @@ from asciimatics.exceptions import NextScene, ResizeScreenError
 #from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from tui.scenes.loading import LoadingScene
+from tui.errors import ExitTuiError
 from tui.scenes.main import MainScene
 from tui.debug import debug
-from tui.errors import ExitTuiError
 import sys
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
@@ -37,7 +37,7 @@ class Interface():
         # them here.
         scenes = [
             LoadingScene(screen, "LoadingScene", self),
-            MainScene(screen, "Main", self.node)
+            MainScene(screen, "Main", self)
         ]
 
         screen.play(scenes, stop_on_resize=True)

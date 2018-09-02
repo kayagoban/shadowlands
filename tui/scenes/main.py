@@ -3,7 +3,8 @@ from asciimatics.scene import Scene
 from tui.effects.materialize import Materialize
 from tui.effects.dynamic_cursor import DynamicSourceCursor
 from tui.effects.listeners import MainMenuListener
-from tui.renderers import BlockStatusRenderer, NetworkStatusRenderer
+from tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer
+from tui.debug import debug
 
 
 #from tui.effects.cursor import LoadingScreenCursor
@@ -22,12 +23,17 @@ class MainScene(Scene):
 
 '''
 
-    def __init__(self, screen, _name, node):
+    def __init__(self, screen, _name, interface):
+        #debug(screen._screen); import pdb; pdb.set_trace()
+
+
+
         effects = [
             MainMenuListener(screen),
-            DynamicSourceCursor(screen, BlockStatusRenderer(node), 0, 0, speed=5, no_blink=True),
-            DynamicSourceCursor(screen, NetworkStatusRenderer(node), 60, 0, speed=5, no_blink=True),
-            Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 2)
+            DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0, speed=4, no_blink=True),
+            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 60, 0, speed=4, no_blink=True),
+            Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 2, signal_acceleration_factor=1.05),
+            DynamicSourceCursor(screen, AddressRenderer(interface.credstick), 3, 6, speed=2, no_blink=True)
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),
             #Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\tv0 . 0 1']), 10, 9, signal_acceleration_factor=1.0005,start_frame=35),

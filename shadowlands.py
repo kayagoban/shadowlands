@@ -10,6 +10,7 @@ import dapp
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
 from tui.tui import Interface
 from asciimatics.exceptions import NextScene
+from time import sleep
 
 # import pdb; pdb.set_trace()
 
@@ -119,16 +120,24 @@ interface.load()
 if credstick != None:
     credstick.close()
 
-credstick_thread_shutdown = True
-m.join()
 
-eth_node.shutdown = True
-t.join()
+credstick_thread_shutdown = True
+sleep(0.65)
+print("Closing credstick poller...")
+sleep(0.5)
+m.join()
 
 
 price_poller_thread_shutdown = True
 print("Waiting for price poller to shut down...")
+sleep(0.2)
 p.join()
+
+eth_node.shutdown = True
+sleep(0.3)
+print("Closing connection to ethereum node...")
+t.join()
+
 
 exit()
 

@@ -1,5 +1,5 @@
 from asciimatics.renderers import DynamicRenderer
-
+from tui.debug import debug
 
 class NetworkStatusRenderer(DynamicRenderer):
     def __init__(self, _node):
@@ -24,5 +24,15 @@ class BlockStatusRenderer(DynamicRenderer):
             images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
         return images, None
 
+
+class AddressRenderer(DynamicRenderer):
+    def __init__(self, _credstick):
+        super(AddressRenderer, self).__init__(1, 32)
+        self.credstick = _credstick 
+
+    def _render_now(self):
+        import pdb; pdb.set_trace()
+        pass
+        return [self.credstick.addressStr], None
 
 
