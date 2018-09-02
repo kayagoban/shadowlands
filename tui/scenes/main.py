@@ -3,7 +3,7 @@ from asciimatics.scene import Scene
 from tui.effects.materialize import Materialize
 from tui.effects.dynamic_cursor import DynamicSourceCursor
 from tui.effects.listeners import MainMenuListener
-from tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer
+from tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, CredstickNameRenderer
 from tui.debug import debug
 
 
@@ -56,8 +56,9 @@ d ║ y ║ e ║ p
             Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05),
             Materialize(screen, StaticRenderer([self.MENU_TOP]), 17, 3, signal_acceleration_factor=1.05),
             Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05),
-            Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=35),
-            DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5, speed=2, no_blink=True, start_frame=40)
+            Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=28),
+            DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5, speed=4, no_blink=True, start_frame=40, refresh_period=200),
+            DynamicSourceCursor(screen, CredstickNameRenderer(interface), 3, 3, no_blink=True)
             #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),

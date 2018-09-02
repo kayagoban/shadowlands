@@ -32,7 +32,13 @@ class AddressRenderer(DynamicRenderer):
 
     def _render_now(self):
         return [self._interface.credstick.addressStr()], None
-        #import pdb; pdb.set_trace()
-        #pass
+
+class CredstickNameRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(CredstickNameRenderer, self).__init__(1, 9)
+        self._interface = interface
+
+    def _render_now(self):
+        return [self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr], None
 
 

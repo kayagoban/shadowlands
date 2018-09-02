@@ -1,10 +1,11 @@
 from tui.effects.cursor import Cursor
 
 class DynamicSourceCursor(Cursor):
-    def __init__(self, screen, renderer, x, y, **kwargs):
+    def __init__(self, screen, renderer, x, y, refresh_period=None, **kwargs):
         super(DynamicSourceCursor, self).__init__(screen, renderer, x, y, **kwargs)
         self._previous_buffer = ['']
         self._current_buffer = ['']
+        self._refresh_period = refresh_period
 
     def need_new_buffer(self):
         return self._current_buffer == None or (self.char >= len(self._current_buffer[self.image_index]) and self._current_buffer != self._renderer.rendered_text[0])
@@ -24,8 +25,9 @@ class DynamicSourceCursor(Cursor):
 
 
     def _update(self, frame_no):
-        #if frame_no % 100 == 0:
-        #    self.reset()
+        if self._refresh_period:
+            if frame_no % self._refresh_period == 0:
+                self.reset()
            
         super(DynamicSourceCursor, self)._update(frame_no)
 
