@@ -17,7 +17,8 @@ class LoadingScene(Scene):
         effects = [
 
             DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0, speed=4, no_blink=True),
-            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 60, 0, speed=4, no_blink=True),
+            Materialize(screen, StaticRenderer(['${7,1}N${2,2}etwork:' ]), 59, 0, signal_acceleration_factor=2),
+            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 69, 0, speed=4),
             Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),
             Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\tv0 . 0 1']), 10, 9, signal_acceleration_factor=1.0005,start_frame=35),
             LoadingScreenCursor(screen, StaticRenderer([PROMPT]), 0, 13, start_frame=95, speed=4, no_blink=False, _interface=interface ,thread=True), 

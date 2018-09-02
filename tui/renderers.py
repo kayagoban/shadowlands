@@ -10,9 +10,9 @@ class NetworkStatusRenderer(DynamicRenderer):
 
     def _render_now(self):
         try:
-            network = 'Network: ' + self.node.networkName()
+            network = self.node.networkName()
         except:
-            network = 'Network unavailable'
+            network = 'unavailable'
 
         return [network], None
 

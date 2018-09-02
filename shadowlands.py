@@ -84,7 +84,11 @@ def eth_price_poller(interface):
 
 
 # Get a connection
-eth_node.connect()
+try:
+    eth_node.connect()
+except:
+    print("Sorry chummer, couldn't connect to an Ethereum node.")
+    sys.exit(1)
 
 # This is absurd.  There must be a better way of getting
 # a singleton instance of web3.

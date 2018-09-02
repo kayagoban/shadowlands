@@ -63,6 +63,12 @@ def ens_domain():
 def connect():
     global w3, localNode, nodeVersion, network, web3_obj, ns
 
+    try:
+        del(sys.modules['web3.auto'])
+        del(sys.modules['web3.auto.infura'])
+    except KeyError:
+        pass
+
     connected = w3.isConnected()
     if connected and w3.version.node.startswith('Parity'):
         enode = w3.parity.enode
@@ -70,13 +76,15 @@ def connect():
         enode = w3.admin.nodeInfo['enode']
     else:
         localNode = False
-        del sys.modules['web3.auto']
+        try:
+            del sys.modules['web3.auto']
+        except KeyError:
+            pass
         os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
         from web3.auto.infura import w3
 
     if not w3.isConnected():
-        print("Sorry chummer, couldn't connect to an Ethereum node.")
-        exit()
+        raise Exception
 
     nodeVersion = w3.version.node
     network = w3.version.network
@@ -102,6 +110,10 @@ def poll():
         network = None
         syncing = {}
         domain = None
+        try:
+            connect()
+        except:
+            pass
         pass
 
 
