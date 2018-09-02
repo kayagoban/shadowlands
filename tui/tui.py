@@ -51,5 +51,6 @@ class Interface():
             except ResizeScreenError:
                 pass
             except ExitTuiError:
+                print("Shutting it all down...")
                 break
 
