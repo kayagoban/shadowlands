@@ -51,8 +51,8 @@ def blastOff():
 
 def credstick_finder(interface):
     global credstick_thread_shutdown
-    #import pdb; pdb.set_trace()
     not_found = True
+    #import pdb; pdb.set_trace()
 
     while not_found:
         try: 
@@ -109,6 +109,16 @@ p.start()
 # credstick finder thread
 m = threading.Thread(target=credstick_finder, args = [interface])
 m.start()
+
+
+
+#m.join()
+#rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
+#rx = dapp.send_ether('0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.0000001337)
+#import pdb; pdb.set_trace()
+
+
+
 
 
 # Begin interface

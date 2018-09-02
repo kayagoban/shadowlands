@@ -26,13 +26,13 @@ class BlockStatusRenderer(DynamicRenderer):
 
 
 class AddressRenderer(DynamicRenderer):
-    def __init__(self, _credstick):
+    def __init__(self, interface):
         super(AddressRenderer, self).__init__(1, 32)
-        self.credstick = _credstick 
+        self._interface = interface
 
     def _render_now(self):
-        import pdb; pdb.set_trace()
-        pass
-        return [self.credstick.addressStr], None
+        return [self._interface.credstick.addressStr()], None
+        #import pdb; pdb.set_trace()
+        #pass
 
 

@@ -129,7 +129,12 @@ class LedgerEthDriver(Credstick):
     def signTx(cls,transaction_dict=EXAMPLE_DICT):
 
         # Strip chainId if it's there...  the ledger doesn't like it.
-        del(transaction_dict['chainId'])
+
+        try:
+            del(transaction_dict['chainId'])
+        except:
+            # Fine, if it isn't there it isn't there. jeez.
+            pass
 
         # if to and data fields are hex strings, turn them into byte arrays
         if (transaction_dict['to']).__class__ == str:

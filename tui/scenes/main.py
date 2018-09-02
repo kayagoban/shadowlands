@@ -20,7 +20,28 @@ class MainScene(Scene):
 ║                                                                      ║ n ║ s
 ║  ${7,1}V${2,2}alue:                             ║  ${7,1}E${2,2}NS:                          ║ s
 ╚═════════════════════════════════════╩════════════════════════════════════════╝
+'''
+    MENU_TOP='''══════════════════════════════════════════════════════════════╗'''
 
+    MENU_FRAME = '''
+╔═
+║
+║  ${7,1}A${2,2}ddress:
+║
+║  Ξth:
+║
+║  ${7,1}V${2,2}alue:
+╚═════════════════════════════════════╩════════════════════════════════════════╝
+'''
+    ENS='''║  ${7,1}E${2,2}NS:'''
+
+    MENU_ITEMS='''
+${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}T${2,2} ║ ${7,1}D${2,2} 
+e ║ o ║ o ║ a
+n ║ p ║ k ║ p
+d ║ y ║ e ║ p
+      ║ n ║ s
+      ║ s
 '''
 
     def __init__(self, screen, _name, interface):
@@ -32,8 +53,12 @@ class MainScene(Scene):
             MainMenuListener(screen),
             DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0, speed=4, no_blink=True),
             DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 60, 0, speed=4, no_blink=True),
-            Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 2, signal_acceleration_factor=1.05),
-            DynamicSourceCursor(screen, AddressRenderer(interface.credstick), 3, 6, speed=2, no_blink=True)
+            Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05),
+            Materialize(screen, StaticRenderer([self.MENU_TOP]), 17, 3, signal_acceleration_factor=1.05),
+            Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05),
+            Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=35),
+            DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5, speed=2, no_blink=True, start_frame=40)
+            #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),
             #Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\tv0 . 0 1']), 10, 9, signal_acceleration_factor=1.0005,start_frame=35),

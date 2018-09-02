@@ -92,7 +92,7 @@ def send_ether(destination, amount):
     print("Unsigned transaction: ", tx_dict)
     signed_tx = credstick.signTx(tx_dict)
     print("Signed tx: ", signed_tx)
-    rx = transact(signed_tx)
+    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
     print("tx receipt: ", rx)
 
 
