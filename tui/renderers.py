@@ -1,5 +1,6 @@
 from asciimatics.renderers import DynamicRenderer
 from tui.debug import debug
+from decimal import Decimal
 
 class NetworkStatusRenderer(DynamicRenderer):
     def __init__(self, _node):
@@ -7,7 +8,12 @@ class NetworkStatusRenderer(DynamicRenderer):
         self.node = _node
 
     def _render_now(self):
-        return ['Network: ' + self.node.networkName()], None
+        try:
+            network = 'Network: ' + self.node.networkName()
+        except:
+            network = 'Network unavailable'
+
+        return [network], None
 
 
 class BlockStatusRenderer(DynamicRenderer):
@@ -17,13 +23,16 @@ class BlockStatusRenderer(DynamicRenderer):
         self.node = _node
 
     def _render_now(self):
-        if not self.node.syncing:
-            images = ['[synced: block ' + self.node.block + ']'
-                     ]
-        else:
-            images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
-        return images, None
+        try:
+            if not self.node.syncing:
+                images = ['[synced: block ' + self.node.block + ']'
+                         ]
+            else:
+                images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
+        except:
+            images = [ 'ethereum connection error' ]
 
+        return images, None
 
 class AddressRenderer(DynamicRenderer):
     def __init__(self, interface):
@@ -31,7 +40,12 @@ class AddressRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        return [self._interface.credstick.addressStr()], None
+        try:
+            addr = self._interface.credstick.addressStr()
+        except:
+            addr = 'Unknown'
+
+        return [addr], None
 
 class CredstickNameRenderer(DynamicRenderer):
     def __init__(self, interface):
@@ -39,6 +53,37 @@ class CredstickNameRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        return [self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr], None
+        try:
+            name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
+        except:
+            name = 'Unknown'
+        return [name], None
 
+class EthBalanceRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(EthBalanceRenderer, self).__init__(1, 30)
+        self._interface = interface
+
+    def _render_now(self):
+        try:
+            bal = self._interface.node.ethBalanceStr()
+        except:
+            bal = 'Unknown'
+        return [bal], None
+
+class EthValueRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(EthValueRenderer, self).__init__(1, 15)
+        self._interface = interface
+
+    def _render_now(self):
+        try:
+            usd = Decimal(self._interface.prices['ETH']['USD'])
+            eth = Decimal(self._interface.node.ethBalanceStr())
+            val = str(round(usd * eth, 2))
+            val = 'USD $' + val 
+        except:
+            val = 'Unknown'
+
+        return [val], None
 

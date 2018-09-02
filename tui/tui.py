@@ -27,6 +27,8 @@ class Interface():
 
     def update_prices(self, _prices):
         self.prices = _prices
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+
         # reset price cursor print effect
 
 
