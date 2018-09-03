@@ -2,9 +2,12 @@ from asciimatics.widgets import Frame, Layout, Text, Button
 from asciimatics.exceptions import NextScene
 from tui.debug import debug
 
+# Make sure the widget frame is_modal or claimed_focus.
+# otherwise the text is not swallowed and our menus are buggered.
+# "return None if claimed_focus or self._is_modal else old_event" - widgets.py:882
 class SendBox(Frame):
     def __init__(self, screen):
-        super(SendBox, self).__init__(screen, 15, 45, has_shadow=True, name="sendbox", title="Send Ether", can_scroll=False)
+        super(SendBox, self).__init__(screen, 15, 53, has_shadow=True, is_modal=True, name="sendbox", title="Send Ether", can_scroll=False)
         self.set_theme('green')
 
         layout = Layout([100], fill_frame=True)
