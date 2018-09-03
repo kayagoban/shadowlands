@@ -15,10 +15,40 @@ from decimal import Decimal
 
 
 
+
+class GasPricePicker(RadioButtons):
+    def __init__(self, on_change=None, interface=None, **kwargs):
+        """
+        :param options: A list of (text, value) tuples for each radio button.
+        :param label: An optional label for the widget.
+        :param name: The internal name for the widget.
+        :param on_change: Optional function to call when text changes.
+
+        Also see the common keyword arguments in :py:obj:`.Widget`.
+        """
+        self._interface = interface
+
+        gas_price_wei = self._interface.node.w3.eth.gasPrice
+        gas_price_minus_20_percent = gas_price_wei - gas_price_wei * Decimal(.2)
+        gas_price_gwei = self._interface.node.w3.fromWei(gas_price_wei, 'gwei')
+        gas_price_gwei_m20 = self._interface.node.w3.fromWei(gas_price_minus_20_percent, 'gwei')
+
+        _options = [
+                (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_wei), 
+                (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_minus_20_percent), 
+                ('Enter custom gas price', 3)
+        ]
+
+        super(GasPricePicker, self).__init__(_options, on_change=on_change, label=' Gas Price:', name='gasoptions', **kwargs)
+   
+
+
 # This has everything you need for a base transaction widget collection
 # most importantly, all the hoopla that takes care of gas prices
 class TransactionFrame(Frame):
 
+
+   
     def __init__(self, screen, x, y, interface, **kwargs):
         super(TransactionFrame, self).__init__(screen, x, y,  can_scroll=False, has_shadow=True, is_modal=True, **kwargs)
         self.set_theme('shadowlands')
@@ -26,64 +56,63 @@ class TransactionFrame(Frame):
         self._screen = screen
         self.gas_cost = None
 
-        gas_price_wei = self._interface.node.w3.eth.gasPrice
-        gas_price_minus_20_percent = gas_price_wei - gas_price_wei * Decimal(.2)
-        gas_price_gwei = self._interface.node.w3.fromWei(gas_price_wei, 'gwei')
-        gas_price_gwei_m20 = self._interface.node.w3.fromWei(gas_price_minus_20_percent, 'gwei')
-
-        layout = Layout([100])
-        #layout = Layout([100], fill_frame=True)
+        layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
- 
-        layout.add_widget(RadioButtons(
-            [
-                (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_wei), 
-                (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_minus_20_percent), 
-                ('Enter custom gas price', 3)
-            ], label=' Gas Price:', name='gasoptions', on_change=self._on_option_change))
 
+        #layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
         custgas = Text("CustGas (gwei):", "custgas")
+        custgas._value = 0
         custgas._is_disabled = True
         layout.add_widget(custgas)
         layout.add_widget(Divider(draw_line=False))
 
-    
-        # normal eth transaction costs 21000.
-        estimated_gas = Decimal(21000)
-        wei_gas_cost = gas_price_wei * estimated_gas
+        layout.add_widget(Label("", name='gas_est_label'))
 
-        # try:
-        eth_price_usd = self._interface.prices()['ETH']['USD']
-        gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-        cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth), 10))
-        # except:
-        #cost_estimate = 'Error estimating cost'
+        # If you don't set the widget... bad things happen
+        #self._on_option_change()
 
-        layout.add_widget(Label("Estimated Tx cost: USD $" + cost_estimate, name='gas_est_label'))
-        #layout.add_widget(Label("Estimated Tx cost: " + str(eth_price_usd)))
         layout.add_widget(Divider(draw_line=False))
 
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
         layout2.add_widget(Button("Sign Tx", self._ok), 0)
         layout2.add_widget(Button("Cancel", self._cancel), 3)
- 
 
+
+    # called when the gas price radiobutton changes.
     def _on_option_change(self):
         gasoptions = self.find_widget('gasoptions')
         custgas = self.find_widget('custgas')
         gastimate_label = self.find_widget('gas_est_label')
 
-        if gasoptions._value == 3:
-            custgas._is_disabled = False
-            self._gas_cost = custgas._value
-            gastimate_label._text = str(self._gas_cost)
+        try:
+            if gasoptions._value == 3:
+                custgas._is_disabled = False
+                #debug(self._screen._screen); import pdb; pdb.set_trace()
+                gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
+                labeltext = self._cost_estimate_string(gas_price_wei)
+            else:
+                custgas._is_disabled = True
+                labeltext = self._cost_estimate_string(gasoptions._value)
+        except:
+            labeltext = ' '
 
-        else:
-            custgas._is_disabled = True
-            self._gas_cost = gasoptions._value
-            gastimate_label._text = str(self._gas_cost)
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+        gastimate_label._text = labeltext
+ 
 
+    def _cost_estimate_string(self, gas_price_wei):
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+        # normal eth transaction costs 21000.
+        estimated_gas = Decimal(21000)
+        wei_gas_cost = gas_price_wei * estimated_gas
+
+        eth_price_usd = self._interface.prices()['ETH']['USD']
+        gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
+        cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth), 10))
+
+        return "Estimated Tx cost: USD $" + cost_estimate
+ 
     def _ok(self):
         debug(self._screen._screen); import pdb; pdb.set_trace()
         self._scene.remove_effect(self)
@@ -108,9 +137,11 @@ class SendBox(TransactionFrame):
     def __init__(self, screen, interface):
         super(SendBox, self).__init__(screen, 17, 59, interface, name="sendbox", title="Send Crypto")
 
-        layout = Layout([100], fill_frame=True)
+        layout = Layout([100])#, fill_frame=True)
         #self.add_layout(layout)
+
         self.prepend_layout(layout)
+
         layout.add_widget(Text("To Address:", "address"))
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(Text("    Amount:", "amount"))
