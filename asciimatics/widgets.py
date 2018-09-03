@@ -55,12 +55,14 @@ _THEMES = {
         lambda: (Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK),
         {
             "invalid": (Screen.COLOUR_BLACK, Screen.A_NORMAL, Screen.COLOUR_RED),
-            "label": (Screen.COLOUR_GREEN, Screen.A_BOLD, Screen.COLOUR_BLACK),
-            "title": (Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK),
+            "label": (Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK),
+            "focus_label": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "title": (Screen.COLOUR_GREEN, Screen.A_BOLD, Screen.COLOUR_BLACK),
             "selected_focus_field": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
             "focus_edit_text": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "edit_text": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
             "focus_button": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
-            "selected_focus_control": (Screen.COLOUR_GREEN, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "selected_focus_control": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
             "disabled": (Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_BLACK),
         }
     ),
@@ -411,7 +413,10 @@ class Frame(Effect):
         for _ in range(2):
             # Pick starting point/height - varies for borders.
             if self._has_border:
-                x = y = start_y = 1
+                #x = y = start_y = 1
+                y = start_y = 1
+                x = 2
+
                 height = self._canvas.height - 2
                 width = self._canvas.width - 2
             else:
@@ -1525,7 +1530,11 @@ class Widget(with_metaclass(ABCMeta, object)):
                     self._label, self._offset, self._h, self._frame.canvas.unicode_aware)
 
             # Draw the  display label.
-            (colour, attr, bg) = self._frame.palette["label"]
+            if self._has_focus:
+                (colour, attr, bg) = self._frame.palette["focus_label"]
+            else:
+                (colour, attr, bg) = self._frame.palette["label"]
+
             for i, text in enumerate(self._display_label):
                 self._frame.canvas.paint(
                     text, self._x, self._y + i, colour, attr, bg)
@@ -2913,7 +2922,11 @@ class Button(Widget):
         """
         super(Button, self).__init__(None, **kwargs)
         # We nly ever draw the button with borders, so calculate that once now.
-        self._text = "< {} >".format(text) if add_box else text
+        #self._text = "< {} >".format(text) if add_box else text
+        '''╞ ╡⦀║╿╒╓╔ ╔'''
+        #self._text = "╿▔ {} ▁╽".format(text) if add_box else text
+        #self._text = "╠ {} ╣".format(text) if add_box else text
+        self._text = "╞ {} ╡".format(text) if add_box else text
         self._add_box = add_box
         self._on_click = on_click
         self._label = label
