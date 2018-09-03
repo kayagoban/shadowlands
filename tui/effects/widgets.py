@@ -10,14 +10,28 @@ from decimal import Decimal
 # Make sure the widget frame is_modal or claimed_focus.
 # otherwise the text is not swallowed and our menus are buggered.
 # "return None if claimed_focus or self._is_modal else old_event" - widgets.py:882
+
+
+
 class SendBox(Frame):
+
+    def _on_option_change(self):
+        gasoptions = self.find_widget('gasoptions')
+        custgas = self.find_widget('custgas')
+        if gasoptions._value == 3:
+            custgas._is_disabled = False
+        else:
+            custgas._is_disabled = True
+
+            
+
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+
     def __init__(self, screen, interface):
-        super(SendBox, self).__init__(screen, 15, 53, has_shadow=True, is_modal=True, name="sendbox", title="Send Crypto", can_scroll=False)
+        super(SendBox, self).__init__(screen, 15, 59, has_shadow=True, is_modal=True, name="sendbox", title="Send Crypto", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
         self._screen = screen
-
-        #self.set_theme('green')
 
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
@@ -34,13 +48,12 @@ class SendBox(Frame):
 
         layout.add_widget(RadioButtons(
             [
-                (str(round(gas_price - gas_price * Decimal(.2), 2)), 0), 
-                (str(gas_price) + ' gwei (<2 min)' , 1), 
-                (str(round(gas_price + gas_price * Decimal(.2), 2)), 2),
+                (str(gas_price) + ' gwei  |from w3.gasPrice()' , 0), 
+                (str(round(gas_price - gas_price * Decimal(.2), 2)) + ' gwei (-20%)', 1), 
                 ('Enter custom gas price', 3)
-            ], label='Gas Price:', name='gasoptions'))
+            ], label=' Gas Price:', name='gasoptions', on_change=self._on_option_change))
 
-        custgas = Text("Custom Gas (gwei):", "custgas")
+        custgas = Text("CustGas (gwei):", "custgas")
         custgas._is_disabled = True
         layout.add_widget(custgas)
  

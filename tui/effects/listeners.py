@@ -4,6 +4,7 @@ from asciimatics.event import KeyboardEvent
 from tui.effects.widgets import SendBox, QuitDialog
 from tui.errors import ExitTuiError
 from tui.debug import debug
+#debug(self._screen._screen); import pdb; pdb.set_trace()
 
 class MainMenuListener(Effect):
     def __init__(self, screen, interface, **kwargs):
