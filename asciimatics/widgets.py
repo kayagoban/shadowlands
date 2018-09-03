@@ -13,6 +13,7 @@ from types import FunctionType
 import re
 import os
 import unicodedata
+from random import random, randrange
 from builtins import chr
 from builtins import range
 from builtins import object
@@ -1518,6 +1519,23 @@ class Widget(with_metaclass(ABCMeta, object)):
         if self._on_blur is not None:
             self._on_blur()
 
+    def _replace_char(self, text, index, replacement):
+        return text[:index] + replacement + text[index + 1:]
+
+    
+    def _snow_text(self, text):
+        if random() > 0.01:
+            return text
+
+        # 2% of the time, wreak some havok.
+        unlucky_char = randrange(0, len(text))
+        #if random() > 0.1:
+        #    static = ' '
+        #else:
+        static = chr(randrange(128, 500))
+        return self._replace_char(text, unlucky_char, static)
+
+
     def _draw_label(self):
         """
         Draw the label for this widget if needed.
@@ -1537,7 +1555,7 @@ class Widget(with_metaclass(ABCMeta, object)):
 
             for i, text in enumerate(self._display_label):
                 self._frame.canvas.paint(
-                    text, self._x, self._y + i, colour, attr, bg)
+                    self._snow_text(text), self._x, self._y + i, colour, attr, bg)
 
     def _draw_cursor(self, char, frame_no, x, y):
         """
