@@ -3,7 +3,9 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from tui.errors import ExitTuiError
 from tui.debug import debug
+from decimal import Decimal
 
+#debug(self._screen._screen); import pdb; pdb.set_trace()
 
 # Make sure the widget frame is_modal or claimed_focus.
 # otherwise the text is not swallowed and our menus are buggered.
@@ -13,6 +15,7 @@ class SendBox(Frame):
         super(SendBox, self).__init__(screen, 15, 53, has_shadow=True, is_modal=True, name="sendbox", title="Send Crypto", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
+        self._screen = screen
 
         #self.set_theme('green')
 
@@ -25,8 +28,22 @@ class SendBox(Frame):
         currency_options = [("ETH", 0), ("WETH", 1), ("DAI", 2)]
         layout.add_widget(ListBox(1, currency_options, label="  Currency:",  name="currency"))
         layout.add_widget(Divider(draw_line=False))
-        layout.add_widget(RadioButtons([('Slow-ish', 0), ('About normal', 1), ('Fast', 2)], label='Desired Speed:' ))
 
+
+        gas_price = self._interface.node.w3.fromWei(self._interface.node.w3.eth.gasPrice, 'gwei')
+
+        layout.add_widget(RadioButtons(
+            [
+                (str(round(gas_price - gas_price * Decimal(.2), 2)), 0), 
+                (str(gas_price) + ' gwei (<2 min)' , 1), 
+                (str(round(gas_price + gas_price * Decimal(.2), 2)), 2),
+                ('Enter custom gas price', 3)
+            ], label='Gas Price:', name='gasoptions'))
+
+        custgas = Text("Custom Gas (gwei):", "custgas")
+        custgas._is_disabled = True
+        layout.add_widget(custgas)
+ 
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
         layout2.add_widget(Button("Sign Tx", self._ok), 0)
@@ -34,6 +51,7 @@ class SendBox(Frame):
         self.fix()
 
     def _ok(self):
+        debug(self._screen._screen); import pdb; pdb.set_trace()
         self._scene.remove_effect(self)
         raise NextScene("Main")
 

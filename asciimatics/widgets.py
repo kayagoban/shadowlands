@@ -1527,11 +1527,8 @@ class Widget(with_metaclass(ABCMeta, object)):
         if random() > 0.01:
             return text
 
-        # 2% of the time, wreak some havok.
+        # 1% of the time, wreak some havok.
         unlucky_char = randrange(0, len(text))
-        #if random() > 0.1:
-        #    static = ' '
-        #else:
         static = chr(randrange(128, 500))
         return self._replace_char(text, unlucky_char, static)
 
@@ -1547,15 +1544,17 @@ class Widget(with_metaclass(ABCMeta, object)):
                 self._display_label = _split_text(
                     self._label, self._offset, self._h, self._frame.canvas.unicode_aware)
 
+               
             # Draw the  display label.
             if self._has_focus:
                 (colour, attr, bg) = self._frame.palette["focus_label"]
             else:
                 (colour, attr, bg) = self._frame.palette["label"]
-
-            for i, text in enumerate(self._display_label):
-                self._frame.canvas.paint(
-                    self._snow_text(text), self._x, self._y + i, colour, attr, bg)
+                
+            if not self._is_disabled:
+                for i, text in enumerate(self._display_label):
+                    self._frame.canvas.paint(
+                        self._snow_text(text), self._x, self._y + i, colour, attr, bg)
 
     def _draw_cursor(self, char, frame_no, x, y):
         """
