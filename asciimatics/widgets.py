@@ -383,6 +383,16 @@ class Frame(Effect):
             pos = int(round(max(0, pos), 0))
             self._canvas.scroll_to(pos)
 
+    def prepend_layout(self, layout):
+        """
+        Prepend a Layout to the other Layouts in the Frame.
+
+        :param layout: The Layout to be prepended.
+        """
+        layout.register_frame(self)
+        self._layouts = [layout] + self._layouts
+
+
     def add_layout(self, layout):
         """
         Add a Layout to the Frame.
