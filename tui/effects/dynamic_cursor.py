@@ -43,5 +43,3 @@ class DynamicSourceCursor(Cursor):
                 if i < size_difference - 1:
                     self._screen.print_at(self.CURSOR, self._x+i+1, self._y, self._colour)
  
-
-

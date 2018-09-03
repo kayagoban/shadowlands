@@ -1,4 +1,5 @@
 from asciimatics.renderers import StaticRenderer
+from asciimatics.widgets import Frame
 from asciimatics.scene import Scene
 from tui.effects.materialize import Materialize
 from tui.effects.dynamic_cursor import DynamicSourceCursor
@@ -8,6 +9,13 @@ from tui.debug import debug
 
 
 #from tui.effects.cursor import LoadingScreenCursor
+
+class SendBox(Frame):
+    def __init__(self, screen):
+        super(SendBox, self).__init__(screen, 10, 15, has_shadow=True, name="Send")
+#        debug(screen._screen); import pdb; pdb.set_trace()
+        self.set_theme('green')
+
 
 class MainScene(Scene):
 
@@ -45,9 +53,8 @@ d ║ y ║ e ║ p
 '''
 
     def __init__(self, screen, _name, interface):
+
         #debug(screen._screen); import pdb; pdb.set_trace()
-
-
 
         effects = [
             MainMenuListener(screen),
@@ -62,7 +69,8 @@ d ║ y ║ e ║ p
             DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5, start_frame=40, refresh_period=200),
             DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 7, start_frame=55, refresh_period=300),
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 9, start_frame=65, refresh_period=340),
-            DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9, start_frame=70, refresh_period=500)
+            DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9, start_frame=70, refresh_period=500),
+            SendBox(screen)
             #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),
