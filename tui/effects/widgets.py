@@ -10,7 +10,7 @@ from tui.debug import debug
 class SendBox(Frame):
     def __init__(self, screen):
         super(SendBox, self).__init__(screen, 15, 53, has_shadow=True, is_modal=True, name="sendbox", title="Send Crypto", can_scroll=False)
-        self.set_theme('green')
+        self.set_theme('shadowlands')
 
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
@@ -42,12 +42,16 @@ class SendBox(Frame):
 class QuitDialog(Frame):
     def __init__(self, screen):
         super(QuitDialog, self).__init__(screen, 3, 30, has_shadow=True, is_modal=True, name="quitbox", title="Really quit?", can_scroll=False)
-        self.set_theme('green')
+        self.set_theme('shadowlands')
 
         layout2 = Layout([1, 1], fill_frame=True)
         self.add_layout(layout2)
-        layout2.add_widget(Button("Quit", self._ok), 1)
-        layout2.add_widget(Button("Cancel", self._cancel), 0)
+
+#        layout2.add_widget(Label("Yes", self._ok), 1)
+#        layout2.add_widget(Label("No", self._cancel), 0)
+ 
+        layout2.add_widget(Button("Yes", self._ok), 1)
+        layout2.add_widget(Button("No", self._cancel), 0)
         self.fix()
 
     def _ok(self):
@@ -56,5 +60,15 @@ class QuitDialog(Frame):
     def _cancel(self):
         self._scene.remove_effect(self)
         raise NextScene("Main")
+
+    def process_event(self, event):
+
+        if event.key_code in [121, 89]:
+            self._ok() 
+        elif event.key_code in [110, 78]:
+            self._cancel()
+
+        super(QuitDialog, self).process_event(event)
+ 
 
 
