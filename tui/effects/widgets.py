@@ -9,9 +9,11 @@ from tui.debug import debug
 # otherwise the text is not swallowed and our menus are buggered.
 # "return None if claimed_focus or self._is_modal else old_event" - widgets.py:882
 class SendBox(Frame):
-    def __init__(self, screen):
+    def __init__(self, screen, interface):
         super(SendBox, self).__init__(screen, 15, 53, has_shadow=True, is_modal=True, name="sendbox", title="Send Crypto", can_scroll=False)
         self.set_theme('shadowlands')
+        self._interface = interface
+
         #self.set_theme('green')
 
         layout = Layout([100], fill_frame=True)

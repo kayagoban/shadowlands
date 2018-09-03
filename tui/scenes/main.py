@@ -88,8 +88,8 @@ d ║ y ║ e ║ p
             DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 7, refresh_period=300),
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 9, refresh_period=340),
             DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9, refresh_period=500),
+            MainMenuListener(screen, interface)
 
-            MainMenuListener(screen)
             #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),

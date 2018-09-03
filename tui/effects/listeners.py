@@ -5,8 +5,9 @@ from tui.effects.widgets import SendBox, QuitDialog
 from tui.errors import ExitTuiError
 
 class MainMenuListener(Effect):
-    def __init__(self, screen, **kwargs):
+    def __init__(self, screen, interface, **kwargs):
         super(MainMenuListener, self).__init__(screen, **kwargs)
+        self._interface = interface
 
     def _update(self, frame_no):
         pass
@@ -32,6 +33,6 @@ class MainMenuListener(Effect):
             self._scene.add_effect(QuitDialog(self._screen))
         # S, s  for send
         elif event.key_code in [115, 83]:
-            self._scene.add_effect(SendBox(self._screen))
+            self._scene.add_effect(SendBox(self._screen, self._interface))
         else:
             return None
