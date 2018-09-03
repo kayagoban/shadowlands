@@ -1,5 +1,6 @@
 from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, ListBox, RadioButtons
 from asciimatics.exceptions import NextScene
+from asciimatics.event import KeyboardEvent
 from tui.errors import ExitTuiError
 from tui.debug import debug
 
@@ -11,6 +12,7 @@ class SendBox(Frame):
     def __init__(self, screen):
         super(SendBox, self).__init__(screen, 15, 53, has_shadow=True, is_modal=True, name="sendbox", title="Send Crypto", can_scroll=False)
         self.set_theme('shadowlands')
+        #self.set_theme('green')
 
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
@@ -19,7 +21,7 @@ class SendBox(Frame):
         layout.add_widget(Text("    Amount:", "amount"))
         layout.add_widget(Divider(draw_line=False))
         currency_options = [("ETH", 0), ("WETH", 1), ("DAI", 2)]
-        layout.add_widget(ListBox(1, currency_options, label="  Currency:",  name="currency", add_scroll_bar=True))
+        layout.add_widget(ListBox(1, currency_options, label="  Currency:",  name="currency"))
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(RadioButtons([('Slow-ish', 0), ('About normal', 1), ('Fast', 2)], label='Desired Speed:' ))
 
@@ -47,9 +49,6 @@ class QuitDialog(Frame):
         layout2 = Layout([1, 1], fill_frame=True)
         self.add_layout(layout2)
 
-#        layout2.add_widget(Label("Yes", self._ok), 1)
-#        layout2.add_widget(Label("No", self._cancel), 0)
- 
         layout2.add_widget(Button("Yes", self._ok), 1)
         layout2.add_widget(Button("No", self._cancel), 0)
         self.fix()
@@ -62,6 +61,9 @@ class QuitDialog(Frame):
         raise NextScene("Main")
 
     def process_event(self, event):
+
+        if type(event) != KeyboardEvent:
+            return event
 
         if event.key_code in [121, 89]:
             self._ok() 
