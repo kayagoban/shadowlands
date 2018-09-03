@@ -1,7 +1,7 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from tui.effects.widgets import SendBox
+from tui.effects.widgets import SendBox, QuitDialog
 from tui.errors import ExitTuiError
 
 class MainMenuListener(Effect):
@@ -25,9 +25,10 @@ class MainMenuListener(Effect):
         if type(event) != KeyboardEvent:
             return event
 
-        # Escape   and q for quit
-        if event.key_code == -1 or event.key_code == 113:
-            raise ExitTuiError
+        # Escape is -1             113 is  q for quit
+        if event.key_code == -1:    # or event.key_code == 113:
+            self._scene.add_effect(QuitDialog(self._screen))
+        # S, s  for send
         elif event.key_code in [115, 83]:
             self._scene.add_effect(SendBox(self._screen))
         else:
