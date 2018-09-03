@@ -25,8 +25,10 @@ class MainMenuListener(Effect):
         if type(event) != KeyboardEvent:
             return event
 
-        # Escape is -1             113 is  q for quit
-        if event.key_code == -1:    # or event.key_code == 113:
+        # if event.key_code == -1:    # esc.  for some reason esc has lag.
+
+        # Q, q for quit
+        if event.key_code in [113, 81]:
             self._scene.add_effect(QuitDialog(self._screen))
         # S, s  for send
         elif event.key_code in [115, 83]:
