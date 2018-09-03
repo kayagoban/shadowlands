@@ -59,18 +59,14 @@ class TransactionFrame(Frame):
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
 
-        #layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
+        layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
         custgas = Text("CustGas (gwei):", "custgas")
-        custgas._value = 0
         custgas._is_disabled = True
         layout.add_widget(custgas)
         layout.add_widget(Divider(draw_line=False))
 
         layout.add_widget(Label("", name='gas_est_label'))
-
-        # If you don't set the widget... bad things happen
         #self._on_option_change()
-
         layout.add_widget(Divider(draw_line=False))
 
         layout2 = Layout([1, 1, 1, 1])
@@ -81,35 +77,33 @@ class TransactionFrame(Frame):
 
     # called when the gas price radiobutton changes.
     def _on_option_change(self):
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
         gasoptions = self.find_widget('gasoptions')
         custgas = self.find_widget('custgas')
         gastimate_label = self.find_widget('gas_est_label')
 
-        try:
-            if gasoptions._value == 3:
-                custgas._is_disabled = False
-                #debug(self._screen._screen); import pdb; pdb.set_trace()
-                gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
-                labeltext = self._cost_estimate_string(gas_price_wei)
-            else:
-                custgas._is_disabled = True
-                labeltext = self._cost_estimate_string(gasoptions._value)
-        except:
-            labeltext = ' '
+        if gasoptions._value == 3:
+            custgas._is_disabled = False
+            gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
+            gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+        else:
+            custgas._is_disabled = True
+            gastimate_label._text = self._cost_estimate_string(gasoptions._value)
 
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
-        gastimate_label._text = labeltext
  
-
     def _cost_estimate_string(self, gas_price_wei):
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
         # normal eth transaction costs 21000.
         estimated_gas = Decimal(21000)
         wei_gas_cost = gas_price_wei * estimated_gas
 
-        eth_price_usd = self._interface.prices()['ETH']['USD']
-        gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-        cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth), 10))
+
+        try:
+            eth_price_usd = self._interface.prices()['ETH']['USD']
+            gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
+            cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth), 10))
+        except:
+            cost_estimate = 'Error estimating cost'
+ 
 
         return "Estimated Tx cost: USD $" + cost_estimate
  
@@ -139,9 +133,7 @@ class SendBox(TransactionFrame):
 
         layout = Layout([100])#, fill_frame=True)
         #self.add_layout(layout)
-
         self.prepend_layout(layout)
-
         layout.add_widget(Text("To Address:", "address"))
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(Text("    Amount:", "amount"))
