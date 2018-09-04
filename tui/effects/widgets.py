@@ -62,10 +62,11 @@ class TransactionFrame(Frame):
         layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
         custgas = Text("CustGas (gwei):", "custgas")
         custgas._is_disabled = True
+        custgas._value = '0'
         layout.add_widget(custgas)
         layout.add_widget(Divider(draw_line=False))
 
-        layout.add_widget(Label("", name='gas_est_label'))
+        layout.add_widget(Label("0", name='gas_est_label'))
         #self._on_option_change()
         layout.add_widget(Divider(draw_line=False))
 
@@ -77,7 +78,6 @@ class TransactionFrame(Frame):
 
     # called when the gas price radiobutton changes.
     def _on_option_change(self):
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
         gasoptions = self.find_widget('gasoptions')
         custgas = self.find_widget('custgas')
         gastimate_label = self.find_widget('gas_est_label')
@@ -96,11 +96,11 @@ class TransactionFrame(Frame):
         estimated_gas = Decimal(21000)
         wei_gas_cost = gas_price_wei * estimated_gas
 
-
         try:
+            #debug(self._screen._screen); import pdb; pdb.set_trace()
             eth_price_usd = self._interface.prices()['ETH']['USD']
             gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-            cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth), 10))
+            cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * estimated_gas), 3))
         except:
             cost_estimate = 'Error estimating cost'
  
