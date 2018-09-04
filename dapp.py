@@ -24,15 +24,15 @@ def register_node_on_contracts():
 
 
 # reveal_bid('ceilingcat', '0.01', 'burly jumper knife')
-def ens_reveal_bid(name, bid_amount, secret):
+def ens_reveal_bid(name, bid_amount, secret, gas_price):
     return push(
-        Ens.unsealBid(name, bid_amount, secret)
+        Ens.unsealBid(name, bid_amount, secret), gas_price
     )
 
 # ens_finalize_auction(name)
-def ens_finalize_auction(name):
+def ens_finalize_auction(name, gas_price):
     return push(
-        Ens.finalizeAuction(name)
+        Ens.finalizeAuction(name), gas_price
     )
 
 # Sets the resolver on your name record.  No idea why we have to do this - there should 
@@ -43,9 +43,9 @@ def ens_finalize_auction(name):
 #
 # register_ens_resolver('ceilingcat')
 # register_ens_resolver('ceilingcat.eth')
-def register_ens_resolver(name):
+def register_ens_resolver(name, gas_price):
     return push( 
-        EnsRegistry.set_resolver(name) 
+        EnsRegistry.set_resolver(name), gas_price
     )
 
 # Sets the address that your name resolves to.  Will fail if your credstick does not
@@ -53,9 +53,9 @@ def register_ens_resolver(name):
 #
 # set_ens_resolver_address('ceilingcat', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5')
 # set_ens_resolver_address('ceilingcat.eth', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5')
-def set_ens_resolver_address(name, address_target):
+def set_ens_resolver_address(name, address_target, gas_price):
     return push(
-        EnsResolver.set_address(name, address_target)
+        EnsResolver.set_address(name, address_target), gas_price
     )
 
 # Sets the reverse record for the name given to the address of your credstick,
@@ -63,14 +63,14 @@ def set_ens_resolver_address(name, address_target):
 # 
 # set_ens_reverse_lookup('ceilingcat')
 # set_ens_reverse_lookup('ceilingcat.eth')
-def set_ens_reverse_lookup(name):
+def set_ens_reverse_lookup(name, gas_price):
     return push(
-        EnsReverseResolver.set_name(name)
+        EnsReverseResolver.set_name(name), gas_price
     )
  
 
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
-def send_erc20(token, destination, amount):
+def send_erc20(token, destination, amount, gas_price):
 
     # NOTE
     # We borrow the web3 toWei method here.  We can do this because we assert 18
@@ -81,22 +81,19 @@ def send_erc20(token, destination, amount):
     value = node.w3.toWei(amount, 'ether')
 
     return push(
-        ERC20[token].transfer(destination, value)
+        ERC20[token].transfer(destination, value), gas_price
     )
 
 
 # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
-def send_ether(destination, amount):
-    tx_dict = build_send_tx(amount, destination)
-    print("Unsigned transaction: ", tx_dict)
+def send_ether(destination, amount, gas_price):
+    tx_dict = build_send_tx(amount, destination, gas_price)
     signed_tx = credstick.signTx(tx_dict)
-    print("Signed tx: ", signed_tx)
     rx = node.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-    print("tx receipt: ", rx)
 
 
-def push( contract_function ):
-    tx = contract_function.buildTransaction(defaultTxDict())
+def push( contract_function, gas_price ):
+    tx = contract_function.buildTransaction(defaultTxDict(gas_price))
     signed_tx = credstick.signTx(tx)
 
     # TODO wrap in a try to catch credstick exception if user chooses
@@ -105,20 +102,20 @@ def push( contract_function ):
     
     return rx
 
-def build_send_tx(amt, recipient):
+def build_send_tx(amt, recipient, gas_price):
     return  dict(
         nonce=node.w3.eth.getTransactionCount(eth_node.ethAddress),
-        gasPrice=node.w3.eth.gasPrice,
+        gasPrice=gas_price,
         gas=100000,
         to=decode_hex(recipient),
         value=node.w3.toWei(amt, 'ether'),
         data=b''
     )
 
-def defaultTxDict():
+def defaultTxDict(gas_price):
     _dict = dict(
         nonce=node.w3.eth.getTransactionCount(eth_node.ethAddress),
-        gasPrice=int(node.w3.eth.gasPrice * 1.1),
+        gasPrice=int(gas_price),
         gas=800000,
         value=0
     ) 

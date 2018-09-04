@@ -12,10 +12,10 @@ import sys
 #debug(screen._screen); import pdb; pdb.set_trace()
 
 class Interface():
-    def __init__(self, _eth_node, _dapp, _credstick=None):
+    def __init__(self, _eth_node, dapp, _credstick=None):
         self.credstick = _credstick
         self.node = _eth_node
-        self.dapp = _dapp
+        self._dapp = dapp
         self._screen = None
         self._prices = None
 

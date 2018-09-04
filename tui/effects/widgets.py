@@ -58,6 +58,7 @@ class TransactionFrame(Frame):
         self.set_theme('shadowlands')
         self._interface = interface
         self._screen = screen
+        self._gas_price_wei = None
 
         # subclass sets this to Decimal(something)
         self.estimated_gas = None
@@ -121,10 +122,11 @@ class TransactionFrame(Frame):
             gastimate_label._text = "" 
             return
         try:
-            gas_price_wei = self._interface.node.w3.toWei(gas_price_gwei, 'gwei')
-            gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+            self._gas_price_wei = self._interface.node.w3.toWei(gas_price_gwei, 'gwei')
+            gastimate_label._text = self._cost_estimate_string(self._gas_price_wei)
         except:
             #debug(self._screen._screen); import pdb; pdb.set_trace()
+            self._gas_price_wei = None
             gastimate_label._text = "" 
 
  
@@ -170,7 +172,17 @@ class SendBox(TransactionFrame):
 
  
     def _ok(self):
-        debug(self._screen._screen); import pdb; pdb.set_trace()
+        if not self._gas_price_wei:
+            # Do something useful
+            return
+
+        address_text = self.find_widget('address')
+        amount_text = self.find_widget('amount')
+
+        self._interface._dapp.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
+
+
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
         self._scene.remove_effect(self)
         raise NextScene("Main")
 
