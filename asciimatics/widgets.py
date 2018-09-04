@@ -1793,6 +1793,9 @@ class Text(Widget):
         self._value = ""
 
     def update(self, frame_no):
+        if self._is_disabled:
+            return
+
         self._draw_label()
 
         # Calculate new visible limits if needed.
