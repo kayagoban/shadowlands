@@ -1,9 +1,11 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from tui.effects.widgets import SendBox, QuitDialog
+from tui.effects.widgets import SendBox, QuitDialog, MessageDialog
 from tui.errors import ExitTuiError
 from tui.debug import debug
+import pyperclip
+
 #debug(self._screen._screen); import pdb; pdb.set_trace()
 
 class MainMenuListener(Effect):
@@ -25,6 +27,8 @@ class MainMenuListener(Effect):
  
     def process_event(self, event):
 
+        #ord('C')
+
         if type(event) != KeyboardEvent:
             return event
 
@@ -36,5 +40,8 @@ class MainMenuListener(Effect):
         # S, s  for send
         elif event.key_code in [115, 83]:
             self._scene.add_effect(SendBox(self._screen, self._interface))
+        elif event.key_code in [67, 99]:
+            pyperclip.copy(self._interface.credstick.addressStr())
+            self._scene.add_effect(MessageDialog(self._screen, "Address copied to clipboard", 3, 35) )
         else:
             return None

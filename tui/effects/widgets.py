@@ -140,12 +140,12 @@ class TransactionFrame(Frame):
 
         try:
             eth_price_usd = self._interface.prices()['ETH']['USD']
-            gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-            cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * self.estimated_gas), 3))
         except Exception:
+            return 'Ether Price Feed offline - No Tx Cost estimate'
+        gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
+        cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * self.estimated_gas), 3))
             #debug(self._screen._screen); import pdb; pdb.set_trace()
 #            debug(self._screen._screen); import pdb; pdb.set_trace()
-            cost_estimate = 'Error estimating cost'
         return "Estimated Tx cost: USD $" + cost_estimate
 
 
@@ -228,8 +228,8 @@ class SendBox(TransactionFrame):
 
 
 class MessageDialog(Frame):
-    def __init__(self, screen, message):
-        super(MessageDialog, self).__init__(screen, 3, 30, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False)
+    def __init__(self, screen, message, height=3, width=30):
+        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False)
         self.set_theme('shadowlands')
 
         layout2 = Layout([100], fill_frame=True)
