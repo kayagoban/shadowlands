@@ -76,6 +76,7 @@ def cleanout_w3():
 
 def connect_w3_public_infura():
     global localNode, w3
+
     from web3 import Web3
     w3 = Web3(Web3.WebsocketProvider("wss://mainnet.infura.io/ws"))
     if w3.isConnected():
@@ -127,7 +128,6 @@ def poll():
 
     try: 
         syncing = w3.eth.syncing
-        network = w3.version.network
 
         if syncing:
             blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
@@ -158,7 +158,7 @@ def heartbeat():
             if shutdown:
                 return
         else:
-            for i in range(7):
+            for i in range(8):
                 time.sleep(2)
                 if shutdown:
                     return
