@@ -75,15 +75,19 @@ class TransactionFrame(Frame):
         layout.add_widget(Label("", name='gas_est_label'))
         layout.add_widget(Divider(draw_line=False))
 
-        # manually call the radiobutton callback
-        # to set the gas estimate label
-        self._on_option_change()
-
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
         layout2.add_widget(Button("Sign Tx", ok_func), 0)
         layout2.add_widget(Button("Cancel", cancel_func), 3)
 
+    def fix(self):
+        # manually call the radiobutton callback
+        # to set the gas estimate label
+        if not self.estimated_gas:
+            raise Exception("Must set self.estimated_gas before calling fix()")
+        self._on_option_change()
+        super(TransactionFrame, self).fix()
+    
 
     # called when custom gas Text value changes
     def _on_text_change(self):
@@ -147,7 +151,6 @@ class SendBox(TransactionFrame):
         super(SendBox, self).__init__(screen, 17, 59, interface, ok_func=self._ok, cancel_func=self._cancel, name="sendbox", title="Send Crypto")
 
         layout = Layout([100])#, fill_frame=True)
-        #self.add_layout(layout)
         self.prepend_layout(layout)
         layout.add_widget(Text("To Address:", "address"))
         layout.add_widget(Divider(draw_line=False))
@@ -156,10 +159,12 @@ class SendBox(TransactionFrame):
 
         #currency_options = [("ETH", 0), ("WETH", 1), ("DAI", 2)]
         currency_options = [("ETH", 0)]
+
         self.estimated_gas = Decimal(21000)
 
         layout.add_widget(ListBox(1, currency_options, label="  Currency:",  name="currency"))
         layout.add_widget(Divider(draw_line=False))
+
 
         self.fix()
 
