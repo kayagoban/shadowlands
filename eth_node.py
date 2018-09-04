@@ -66,51 +66,55 @@ def ens_domain():
     return domain
 
 
-def connect():
-    global w3, localNode, nodeVersion, network, web3_obj, ns, client_name
-
+def cleanout_w3():
     try:
         del(sys.modules['web3.auto'])
         del(sys.modules['web3.auto.infura'])
+        del(sys.modules['web3'])
     except KeyError:
         pass
 
-    from web3.auto import w3
-    connected = w3.isConnected()
+def connect_w3_public_infura():
+    global localNode, w3
+    from web3 import Web3
+    w3 = Web3(Web3.WebsocketProvider("wss://mainnet.infura.io/ws"))
+    if w3.isConnected():
+        localNode = False
+        return True
+    return False
 
-    localNode = True
-    if connected and w3.version.node.startswith('Parity'):
-        enode = w3.parity.enode
-        client_name = 'Parity'
-    elif connected and w3.version.node.startswith('Geth'):
-        enode = w3.admin.nodeInfo['enode']
+def connect_w3_custom_infura():
+    global localNode, w3
+
+    os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
+    from web3.auto.infura import w3
+    if w3.isConnected():
+        localNode = False
+        return True
+    return False
+
+def connect_w3_local():
+    global localNode, w3
+
+    from web3.auto import w3
+    if w3.isConnected():
         localNode = True
-        client_name = 'Geth'
-    else:
-        try:
-            del sys.modules['web3.auto']
-        except KeyError:
-            pass
-        os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
-        from web3.auto.infura import w3
-        if w3.isConnected():
-            localNode = False
-            if w3.version.node.startswith('Parity'):
-                client_name = 'Parity'
-            elif w3.version.node.startswith('Geth'):
-                client_name = 'Geth'
-       
-       #    enode = w3.admin.nodeInfo['enode']
+        return True
+    return False
  
 
-        #localNode = None
-        #network = None
-        #syncing = {}
-        #domain = None
-        #return
-        #raise Exception
-        #pass
+def connect():
+    global w3, nodeVersion, network, web3_obj, ns, client_name
 
+    for connect_w3 in [ connect_w3_local, connect_w3_public_infura ]:
+        cleanout_w3()
+        if connect_w3():
+            break
+
+    if w3.version.node.startswith('Parity'):
+        client_name = 'Parity'
+    elif w3.version.node.startswith('Geth'):
+        client_name = 'Geth'
 
     nodeVersion = w3.version.node
     network = w3.version.network
@@ -147,7 +151,6 @@ def poll():
 def heartbeat():
     global shutdown
     while True:
-        #       assert w3.isConnected()
         poll()
 
         if localNode:
@@ -159,9 +162,4 @@ def heartbeat():
                 time.sleep(2)
                 if shutdown:
                     return
-
-
-
-        
-
 
