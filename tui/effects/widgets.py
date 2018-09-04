@@ -180,7 +180,7 @@ class SendBox(TransactionFrame):
         errors = []
 
         if self._gas_price_wei == None:
-            errors.append("No gas price set")
+            errors.append("No Gas Price set")
 
         try:
             chaddr =  self._interface.node.w3.toChecksumAddress(address)
@@ -190,7 +190,7 @@ class SendBox(TransactionFrame):
         try:
             Decimal(value)
         except:
-            errors.append("Invalid send value")
+            errors.append("Invalid send Amount")
 
         if len(errors) == 0:
             return True
