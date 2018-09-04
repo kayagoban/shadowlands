@@ -46,11 +46,9 @@ class GasPricePicker(RadioButtons):
 # This has everything you need for a base transaction widget collection
 # most importantly, all the hoopla that takes care of gas prices
 class TransactionFrame(Frame):
-
-
    
-    def __init__(self, screen, x, y, interface, **kwargs):
-        super(TransactionFrame, self).__init__(screen, x, y,  can_scroll=False, has_shadow=True, is_modal=True, **kwargs)
+    def __init__(self, screen, x, y, interface, ok_func=None, cancel_func=None, **kwargs):
+        super(TransactionFrame, self).__init__(screen, x, y, can_scroll=False, has_shadow=True, is_modal=True, **kwargs)
         self.set_theme('shadowlands')
         self._interface = interface
         self._screen = screen
@@ -62,20 +60,17 @@ class TransactionFrame(Frame):
         layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
         custgas = Text("CustGas:", "custgas", on_change=self._on_text_change)
         custgas._is_disabled = True
-        #gas_price_wei = self._interface.node.w3.eth.gasPrice
-        #custgas._value = str(self._interface.node.w3.fromWei(gas_price_wei, 'gwei'))
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(custgas)
         layout.add_widget(Divider(draw_line=False))
 
         layout.add_widget(Label("", name='gas_est_label'))
-        #self._on_option_change()
         layout.add_widget(Divider(draw_line=False))
 
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
-        layout2.add_widget(Button("Sign Tx", self._ok), 0)
-        layout2.add_widget(Button("Cancel", self._cancel), 3)
+        layout2.add_widget(Button("Sign Tx", ok_func), 0)
+        layout2.add_widget(Button("Cancel", cancel_func), 3)
 
     def _on_text_change(self):
         custgas = self.find_widget('custgas')
@@ -117,20 +112,7 @@ class TransactionFrame(Frame):
             cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * estimated_gas), 3))
         except:
             cost_estimate = 'Error estimating cost'
- 
-
         return "Estimated Tx cost: USD $" + cost_estimate
- 
-    def _ok(self):
-        debug(self._screen._screen); import pdb; pdb.set_trace()
-        self._scene.remove_effect(self)
-        raise NextScene("Main")
-
-    def _cancel(self):
-        self._scene.remove_effect(self)
-        raise NextScene("Main")
-
-
 
 
 
@@ -143,7 +125,7 @@ class SendBox(TransactionFrame):
         #debug(self._screen._screen); import pdb; pdb.set_trace()
 
     def __init__(self, screen, interface):
-        super(SendBox, self).__init__(screen, 17, 59, interface, name="sendbox", title="Send Crypto")
+        super(SendBox, self).__init__(screen, 17, 59, interface, ok_func=self._ok, cancel_func=self._cancel, name="sendbox", title="Send Crypto")
 
         layout = Layout([100])#, fill_frame=True)
         #self.add_layout(layout)
@@ -158,6 +140,17 @@ class SendBox(TransactionFrame):
         layout.add_widget(Divider(draw_line=False))
 
         self.fix()
+
+ 
+    def _ok(self):
+        debug(self._screen._screen); import pdb; pdb.set_trace()
+        self._scene.remove_effect(self)
+        raise NextScene("Main")
+
+    def _cancel(self):
+        self._scene.remove_effect(self)
+        raise NextScene("Main")
+
 
 
 
