@@ -60,14 +60,14 @@ class TransactionFrame(Frame):
         self.add_layout(layout)
 
         layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
-        custgas = Text("CustGas (gwei):", "custgas")
+        custgas = Text("CustGas (gwei):", "custgas", on_change=self._on_text_change)
         custgas._is_disabled = True
-        gas_price_wei = self._interface.node.w3.eth.gasPrice
-        custgas._value = str(self._interface.node.w3.fromWei(gas_price_wei, 'gwei'))
+        #gas_price_wei = self._interface.node.w3.eth.gasPrice
+        #custgas._value = str(self._interface.node.w3.fromWei(gas_price_wei, 'gwei'))
         layout.add_widget(custgas)
         layout.add_widget(Divider(draw_line=False))
 
-        layout.add_widget(Label("0", name='gas_est_label'))
+        layout.add_widget(Label("", name='gas_est_label'))
         #self._on_option_change()
         layout.add_widget(Divider(draw_line=False))
 
@@ -75,6 +75,15 @@ class TransactionFrame(Frame):
         self.add_layout(layout2)
         layout2.add_widget(Button("Sign Tx", self._ok), 0)
         layout2.add_widget(Button("Cancel", self._cancel), 3)
+
+    def _on_text_change(self):
+        custgas = self.find_widget('custgas')
+        gastimate_label = self.find_widget('gas_est_label')
+        try:
+            gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
+            gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+        except:
+            gastimate_label._text = "" 
 
 
     # called when the gas price radiobutton changes.
@@ -85,8 +94,11 @@ class TransactionFrame(Frame):
 
         if gasoptions._value == 3:
             custgas._is_disabled = False
-            gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
-            gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+            try:
+                gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
+                gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+            except:
+                gastimate_label._text = ''
         else:
             custgas._is_disabled = True
             gastimate_label._text = self._cost_estimate_string(gasoptions._value)
