@@ -4,7 +4,10 @@ from asciimatics.event import KeyboardEvent
 from tui.errors import ExitTuiError
 from tui.debug import debug
 from decimal import Decimal
+import logging
 
+
+logging.basicConfig(filename='error.log', filemode='w', level=logging.DEBUG)
 
 # Make sure the widget frame is_modal or claimed_focus.
 # otherwise the text is not swallowed and our menus are buggered.
@@ -34,12 +37,15 @@ class GasPricePicker(RadioButtons):
         gas_price_gwei_m20 = self._interface.node.w3.fromWei(gas_price_minus_20_percent, 'gwei')
 
         _options = [
-                (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_wei), 
-                (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_minus_20_percent), 
+                (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_gwei), 
+                (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_gwei_m20), 
                 ('Enter custom gas price', 3)
         ]
 
         super(GasPricePicker, self).__init__(_options, on_change=on_change, label=' Gas Price:', name='gasoptions', **kwargs)
+
+        # preset the value to the first option value
+        self._value = self._options[0][1]
    
 
 
@@ -52,13 +58,15 @@ class TransactionFrame(Frame):
         self.set_theme('shadowlands')
         self._interface = interface
         self._screen = screen
-        self.gas_cost = None
+
+        # subclass sets this to Decimal(something)
+        self.estimated_gas = None
 
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
 
         layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
-        custgas = Text("CustGas:", "custgas", on_change=self._on_text_change)
+        custgas = Text("   CustGas:", "custgas", on_change=self._on_text_change)
         custgas._is_disabled = True
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(custgas)
@@ -67,55 +75,66 @@ class TransactionFrame(Frame):
         layout.add_widget(Label("", name='gas_est_label'))
         layout.add_widget(Divider(draw_line=False))
 
+        # manually call the radiobutton callback
+        # to set the gas estimate label
+        self._on_option_change()
+
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
         layout2.add_widget(Button("Sign Tx", ok_func), 0)
         layout2.add_widget(Button("Cancel", cancel_func), 3)
 
+
+    # called when custom gas Text value changes
     def _on_text_change(self):
+        gas_price_gwei = None
         custgas = self.find_widget('custgas')
-        gastimate_label = self.find_widget('gas_est_label')
         try:
-            gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
-            gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+            gas_price_gwei = Decimal(custgas._value)
         except:
-            gastimate_label._text = "" 
+            pass
+            #debug(self._screen._screen); import pdb; pdb.set_trace()
+
+        self._update_gastimate_label(gas_price_gwei)
 
 
     # called when the gas price radiobutton changes.
     def _on_option_change(self):
         gasoptions = self.find_widget('gasoptions')
         custgas = self.find_widget('custgas')
-        gastimate_label = self.find_widget('gas_est_label')
-
         if gasoptions._value == 3:
             custgas._is_disabled = False
-            try:
-                gas_price_wei = self._interface.node.w3.toWei(Decimal(custgas._value), 'gwei')
-                gastimate_label._text = self._cost_estimate_string(gas_price_wei)
-            except:
-                gastimate_label._text = ''
+            self._update_gastimate_label(custgas._value)
         else:
             custgas._is_disabled = True
-            gastimate_label._text = self._cost_estimate_string(gasoptions._value)
+            self._update_gastimate_label(gasoptions._value)
+
+
+    def _update_gastimate_label(self, gas_price_gwei):
+        gastimate_label = self.find_widget('gas_est_label')
+ 
+        if not gas_price_gwei:
+            gastimate_label._text = "" 
+            return
+        try:
+            gas_price_wei = self._interface.node.w3.toWei(gas_price_gwei, 'gwei')
+            gastimate_label._text = self._cost_estimate_string(gas_price_wei)
+        except:
+            #debug(self._screen._screen); import pdb; pdb.set_trace()
+            gastimate_label._text = "" 
 
  
     def _cost_estimate_string(self, gas_price_wei):
-        # normal eth transaction costs 21000.
-        estimated_gas = Decimal(21000)
-        wei_gas_cost = gas_price_wei * estimated_gas
 
         try:
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
             eth_price_usd = self._interface.prices()['ETH']['USD']
             gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-            cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * estimated_gas), 3))
-        except:
+            cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * self.estimated_gas), 3))
+        except Exception:
+            #debug(self._screen._screen); import pdb; pdb.set_trace()
+#            debug(self._screen._screen); import pdb; pdb.set_trace()
             cost_estimate = 'Error estimating cost'
         return "Estimated Tx cost: USD $" + cost_estimate
-
-
-
 
 
 
@@ -134,8 +153,11 @@ class SendBox(TransactionFrame):
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(Text("    Amount:", "amount"))
         layout.add_widget(Divider(draw_line=False))
+
         #currency_options = [("ETH", 0), ("WETH", 1), ("DAI", 2)]
         currency_options = [("ETH", 0)]
+        self.estimated_gas = Decimal(21000)
+
         layout.add_widget(ListBox(1, currency_options, label="  Currency:",  name="currency"))
         layout.add_widget(Divider(draw_line=False))
 
