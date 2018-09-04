@@ -62,7 +62,8 @@ class TransactionFrame(Frame):
         layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
         custgas = Text("CustGas (gwei):", "custgas")
         custgas._is_disabled = True
-        custgas._value = '0'
+        gas_price_wei = self._interface.node.w3.eth.gasPrice
+        custgas._value = str(self._interface.node.w3.fromWei(gas_price_wei, 'gwei'))
         layout.add_widget(custgas)
         layout.add_widget(Divider(draw_line=False))
 
