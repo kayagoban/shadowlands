@@ -5,7 +5,7 @@ from contract.ens_registry import EnsRegistry
 from contract.ens_resolver import EnsResolver
 from contract.ens_reverse_resolver import EnsReverseResolver
 from eth_utils import decode_hex, encode_hex
-from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
+from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 import eth_node 
 
 

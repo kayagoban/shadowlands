@@ -5,6 +5,8 @@ from tui.errors import ExitTuiError
 from tui.debug import debug
 from decimal import Decimal
 import logging
+from credstick import SignTxError
+from binascii import Error
 
 
 logging.basicConfig(filename='error.log', filemode='w', level=logging.DEBUG)
@@ -109,6 +111,7 @@ class TransactionFrame(Frame):
         custgas = self.find_widget('custgas')
         if gasoptions._value == 3:
             custgas._is_disabled = False
+            self._gas_price_wei = None
             self._update_gastimate_label(custgas._value)
         else:
             custgas._is_disabled = True
@@ -118,9 +121,12 @@ class TransactionFrame(Frame):
     def _update_gastimate_label(self, gas_price_gwei):
         gastimate_label = self.find_widget('gas_est_label')
  
-        if not gas_price_gwei:
-            gastimate_label._text = "" 
-            return
+        #if not gas_price_gwei or gas_price_gwei == ''
+        #    gastimate_label._text = "" 
+        #elif gas_price_gwei == ''
+        #    gastimate_label._text = "" 
+        #    return
+
         try:
             self._gas_price_wei = self._interface.node.w3.toWei(gas_price_gwei, 'gwei')
             gastimate_label._text = self._cost_estimate_string(self._gas_price_wei)
@@ -170,17 +176,47 @@ class SendBox(TransactionFrame):
 
         self.fix()
 
+    def _validations(self, address, value):
+        errors = []
+
+        if self._gas_price_wei == None:
+            errors.append("No gas price set")
+
+        try:
+            chaddr =  self._interface.node.w3.toChecksumAddress(address)
+        except:
+            errors.append("Invalid send-to Address")
+
+        try:
+            Decimal(value)
+        except:
+            errors.append("Invalid send value")
+
+        if len(errors) == 0:
+            return True
+        else:
+            for i in errors:
+                self._scene.add_effect( MessageDialog(self._screen, i))
+            return False
+            
+
  
     def _ok(self):
-        if not self._gas_price_wei:
-            # Do something useful
-            return
 
         address_text = self.find_widget('address')
         amount_text = self.find_widget('amount')
 
-        self._interface._dapp.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
+        if not self._validations(address_text._value, amount_text._value):
+            return
 
+        try:
+            self._interface._dapp.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
+        except SignTxError:
+            #self._scene.remove_effect(self)
+            self._scene.add_effect( MessageDialog(self._screen,"Credstick refused to sign Tx"))
+            # blank everything and return
+            return
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
         self._scene.remove_effect(self)
@@ -190,6 +226,35 @@ class SendBox(TransactionFrame):
         self._scene.remove_effect(self)
         raise NextScene("Main")
 
+
+class MessageDialog(Frame):
+    def __init__(self, screen, message):
+        super(MessageDialog, self).__init__(screen, 3, 30, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False)
+        self.set_theme('shadowlands')
+
+        layout2 = Layout([100], fill_frame=True)
+        self.add_layout(layout2)
+
+        layout2.add_widget(Divider(draw_line=False))
+        layout2.add_widget(Button("Ok", self._cancel), 0)
+        self.fix()
+
+    def _cancel(self):
+        self._scene.remove_effect(self)
+        raise NextScene("Main")
+
+#    def process_event(self, event):
+
+        '''if type(event) != KeyboardEvent:
+            return event
+
+        if event.key_code in [121, 89]:
+            self._ok() 
+        elif event.key_code in [110, 78]:
+            self._cancel()
+        '''
+#        super(QuitDialog, self).process_event(event)
+ 
 
 
 

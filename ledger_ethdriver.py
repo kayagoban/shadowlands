@@ -1,6 +1,6 @@
 import rlp, struct
 from hexbytes import HexBytes
-from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError
+from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
 from rlp import encode, decode
@@ -127,59 +127,65 @@ class LedgerEthDriver(Credstick):
 
     @classmethod
     def signTx(cls,transaction_dict=EXAMPLE_DICT):
-
-        # Strip chainId if it's there...  the ledger doesn't like it.
-
         try:
-            del(transaction_dict['chainId'])
-        except:
-            # Fine, if it isn't there it isn't there. jeez.
-            pass
 
-        # if to and data fields are hex strings, turn them into byte arrays
-        if (transaction_dict['to']).__class__ == str:
-            transaction_dict['to'] = decode_hex(transaction_dict['to'])
+            # Strip chainId if it's there...  the ledger doesn't like it.
 
-        if (transaction_dict['data']).__class__ == str:
-            transaction_dict['data'] = decode_hex(transaction_dict['data'])
+            try:
+                del(transaction_dict['chainId'])
+            except:
+                # Fine, if it isn't there it isn't there. jeez.
+                pass
 
-        '''
-        tx = UnsignedTransaction.from_dict({
-            'nonce': 80,
-            'gasPrice': 21000,
-            'gas': 4000000,
-            'value': int(0.00001),
-            'to': decode_hex('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5'),
-            'data': b''
-        })
-        '''
-        tx = UnsignedTransaction.from_dict(transaction_dict)
+            # if to and data fields are hex strings, turn them into byte arrays
+            if (transaction_dict['to']).__class__ == str:
+                transaction_dict['to'] = decode_hex(transaction_dict['to'])
 
-        encodedTx = rlp.encode(tx, UnsignedTransaction)
+            if (transaction_dict['data']).__class__ == str:
+                transaction_dict['data'] = decode_hex(transaction_dict['data'])
 
-        encodedPath = hd_path()
-        # Each path element is 4 bytes.  How many path elements are we sending?
-        derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
-        # Prepend the byte representing the count of path elements to the path encoding itself.
-        encodedPath = derivationPathCount + encodedPath 
-        dataPayloadSize = (len(encodedPath) + len(encodedTx)).to_bytes(1, 'big')
-        dataPayload = dataPayloadSize + encodedPath + encodedTx
-        apdu = CLA + INS_OPCODE_SIGN_TRANS + P1_FIRST_TRANS_DATA_BLOCK + P2_UNUSED_PARAMETER + dataPayloadSize + encodedPath + encodedTx
-        result = cls._driver.exchange(apdu)
-        v = result[0]
-        r = int((result[1:1 + 32]).hex(), 16)
-        s = int((result[1 + 32: 1 + 32 + 32]).hex(), 16)
-        
-        trx = Transaction(tx.nonce, tx.gasPrice, tx.gas, tx.to, tx.value, tx.data, v, r, s)
-        enctx = rlp.encode(trx)
-        transaction_hash = keccak(enctx)
+            '''
+            tx = UnsignedTransaction.from_dict({
+                'nonce': 80,
+                'gasPrice': 21000,
+                'gas': 4000000,
+                'value': int(0.00001),
+                'to': decode_hex('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5'),
+                'data': b''
+            })
+            '''
+            tx = UnsignedTransaction.from_dict(transaction_dict)
 
-        attr_dict =  AttributeDict({
-            'rawTransaction': HexBytes(enctx),
-            'hash': HexBytes(transaction_hash),
-            'r': r,
-            's': s,
-            'v': v,
-        })
+            encodedTx = rlp.encode(tx, UnsignedTransaction)
+
+            encodedPath = hd_path()
+            # Each path element is 4 bytes.  How many path elements are we sending?
+            derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
+            # Prepend the byte representing the count of path elements to the path encoding itself.
+            encodedPath = derivationPathCount + encodedPath 
+            dataPayloadSize = (len(encodedPath) + len(encodedTx)).to_bytes(1, 'big')
+            dataPayload = dataPayloadSize + encodedPath + encodedTx
+            apdu = CLA + INS_OPCODE_SIGN_TRANS + P1_FIRST_TRANS_DATA_BLOCK + P2_UNUSED_PARAMETER + dataPayloadSize + encodedPath + encodedTx
+            result = cls._driver.exchange(apdu)
+            v = result[0]
+            r = int((result[1:1 + 32]).hex(), 16)
+            s = int((result[1 + 32: 1 + 32 + 32]).hex(), 16)
+            
+            trx = Transaction(tx.nonce, tx.gasPrice, tx.gas, tx.to, tx.value, tx.data, v, r, s)
+            enctx = rlp.encode(trx)
+            transaction_hash = keccak(enctx)
+
+            attr_dict =  AttributeDict({
+                'rawTransaction': HexBytes(enctx),
+                'hash': HexBytes(transaction_hash),
+                'r': r,
+                's': s,
+                'v': v,
+            })
+
+        except CommException:
+            raise SignTxError("Error while attempting SignTx")
+
         return attr_dict
+
 

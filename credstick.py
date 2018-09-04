@@ -16,6 +16,10 @@ class OpenCredstickError(Exception):
 class CloseCredstickError(Exception):
     pass
 
+class SignTxError(Exception):
+    pass
+
+
 
 class Credstick(object):
 
