@@ -211,9 +211,7 @@ class SendBox(TransactionFrame):
         try:
             self._interface._dapp.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
         except SignTxError:
-            #self._scene.remove_effect(self)
             self._scene.add_effect( MessageDialog(self._screen,"Credstick refused to sign Tx"))
-            # blank everything and return
             return
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
@@ -226,9 +224,10 @@ class SendBox(TransactionFrame):
 
 
 class MessageDialog(Frame):
-    def __init__(self, screen, message, height=3, width=30):
+    def __init__(self, screen, message, height=3, width=30, destroy_window=None):
         super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False)
         self.set_theme('shadowlands')
+        self._destroy_window = destroy_window
 
         layout2 = Layout([100], fill_frame=True)
         self.add_layout(layout2)
@@ -238,6 +237,8 @@ class MessageDialog(Frame):
         self.fix()
 
     def _cancel(self):
+        if self._destroy_window:
+            self._scene.remove_effect(self._destroy_window)
         self._scene.remove_effect(self)
         raise NextScene("Main")
 
@@ -310,32 +311,13 @@ class NetworkOptions(Frame):
     def _ok(self):
         address_text = self.find_widget('netpicker')
         connect_fn = address_text._value
-        #if connect_fn():
-        #    success_str = f"{self._interface.node.network_name} connected"
-        #    self._scene.add_effect( MessageDialog(self._screen, success_str))
-        #else:
-        #    self._scene.add_effect( MessageDialog(self._screen,"Connection failure"))
-        
-
-
-        pass
+        if connect_fn():
+            self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=self))
+        else:
+            self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=self))
 
     def _cancel(self):
         self._scene.remove_effect(self)
         raise NextScene("Main")
 
-
-    '''def process_event(self, event):
-
-        if type(event) != KeyboardEvent:
-            return event
-
-        if event.key_code in [121, 89]:
-            self._ok() 
-        elif event.key_code in [110, 78]:
-            self._cancel()
-
-        super(QuitDialog, self).process_event(event)
-        '''
- 
 

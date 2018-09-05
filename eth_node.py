@@ -68,6 +68,7 @@ def cleanout_w3():
     try:
         del(sys.modules['web3.auto'])
         del(sys.modules['web3.auto.infura'])
+        del(sys.modules['web3.auto.gethdev'])
         del(sys.modules['web3'])
     except KeyError:
         pass
@@ -75,8 +76,6 @@ def cleanout_w3():
 
 def is_connected_with(_w3, name, _heart_rate):
     global w3, network_name, nodeVersion, network, web3_obj, ns, localNode, heart_rate
-
-    #pdb.set_trace()
 
     if _w3.isConnected():
         network_name = name
@@ -90,6 +89,10 @@ def is_connected_with(_w3, name, _heart_rate):
         return True
     return False
 
+def connect_w3_local():
+    cleanout_w3()
+    from web3.auto import w3
+    return is_connected_with(w3, 'Local node', 1)
 
 def w3_websocket(uri=None):
     from web3 import Web3
@@ -100,35 +103,28 @@ def connect_w3_public_infura():
     _w3 = w3_websocket("wss://mainnet.infura.io/ws")
     return is_connected_with(_w3, 'Public infura', 18)
 
-def connect_w3_custom_websocket():
-    cleanout_w3()
-    _w3 = w3_websocket("wss://mainnet.infura.io/ws")
-    return is_connected_with(_w3, 'Custom websocket', 18)
-
-
 def connect_w3_custom_infura():
     cleanout_w3()
     os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
     from web3.auto.infura import w3
-    #pdb.set_trace()
     return is_connected_with(w3, 'Custom infura', 18)
 
-def connect_w3_local():
+def connect_w3_custom_ipc():
     cleanout_w3()
-    from web3.auto import w3
-    return is_connected_with(w3, 'Local node', 1.5)
+    from web3 import Web3
+    w3 = Web3(Web3.IPCProvider("/tmp/test.ipc"))
+    return is_connected_with(w3, 'Custom IPC', 1)
+
+def connect_w3_custom_websocket():
+    cleanout_w3()
+    _w3 = w3_websocket("wss://railjumper.com")
+    return is_connected_with(_w3, 'Custom websocket', 18)
 
 def connect_w3_custom_http():
     cleanout_w3()
     from web3 import Web3
     w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"), 3)
     return is_connected_with(w3, 'Custom HTTP')
-
-def connect_w3_custom_ipc():
-    cleanout_w3()
-    from web3 import Web3
-    w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
-    return is_connected_with(w3, 'Custom IPC', 1)
 
 def connect_w3_gethdev_poa():
     cleanout_w3()
