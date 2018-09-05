@@ -286,13 +286,16 @@ class NetworkOptions(Frame):
         self.add_layout(layout)
         layout.add_widget(Divider(draw_line=False))
 
+        node = self._interface.node
+
         options = [
-            ('Auto - Local node or public Infura', 'auto'), 
-            ('Custom http', 'custhttp'), 
-            ('Custom websocket', 'custwebsocket'),
-            ('Custom IPC', 'custipc'),
-            ('Custom Infura API Key', 'custinfura'),
-            ('Geth dev PoA', 'gethdevpoa')
+            ('Local node', node.connect_w3_local), 
+            ('Public infura', node.connect_w3_public_infura),
+            ('Custom http', node.connect_w3_custom_http), 
+            ('Custom websocket', node.connect_w3_custom_websocket),
+            ('Custom IPC', node.connect_w3_custom_ipc),
+            ('Custom Infura API Key', node.connect_w3_custom_infura),
+            ('Geth dev PoA', 'gethdevpoa', node.connect_w3_gethdev_poa)
         ]
         layout.add_widget(RadioButtons(options,name='netpicker'))
 
@@ -305,6 +308,12 @@ class NetworkOptions(Frame):
 
     def _ok(self):
         address_text = self.find_widget('netpicker')
+        choice = address_text._value
+        switch(choice) {
+            case 'auto':  monthString = "January";
+            break
+                
+
 
         pass
 

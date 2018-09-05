@@ -73,10 +73,15 @@ def cleanout_w3():
 
 
 def is_connected_with(w3obj, name):
-    global w3, network_name
+    global w3, network_name, nodeVersion, network, web3_obj, ns
     if w3obj.isConnected():
-        w3 = w3obj
         network_name = name
+        w3 = w3obj
+        nodeVersion = w3.version.node
+        network = w3.version.network
+        web3_obj = w3
+        ns = ENS.fromWeb3(w3)
+
         return True
     return False
 
