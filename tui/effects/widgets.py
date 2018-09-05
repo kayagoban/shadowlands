@@ -278,7 +278,7 @@ class QuitDialog(Frame):
 
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
-        super(NetworkOptions, self).__init__(screen, 10, 45, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
+        super(NetworkOptions, self).__init__(screen, 13, 34, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
 
@@ -295,25 +295,26 @@ class NetworkOptions(Frame):
             ('Custom websocket', node.connect_w3_custom_websocket),
             ('Custom IPC', node.connect_w3_custom_ipc),
             ('Custom Infura API Key', node.connect_w3_custom_infura),
-            ('Geth dev PoA', 'gethdevpoa', node.connect_w3_gethdev_poa)
+            ('Geth dev PoA', node.connect_w3_gethdev_poa)
         ]
         layout.add_widget(RadioButtons(options,name='netpicker'))
 
-        layout2 = Layout([1, 1, 1, 1])
+        layout2 = Layout([1, 1])
         self.add_layout(layout2)
 
         layout2.add_widget(Button("Cancel", self._cancel), 0)
-        layout2.add_widget(Button("Select", self._ok), 3)
+        layout2.add_widget(Button("Select", self._ok), 1)
         self.fix()
+
 
     def _ok(self):
         address_text = self.find_widget('netpicker')
         connect_fn = address_text._value
-        if connect_fn():
-            success_str = f"{self._interface.node.network_name} connected"
-            self._scene.add_effect( MessageDialog(self._screen, success_str))
-        else:
-            self._scene.add_effect( MessageDialog(self._screen,"Connection failure"))
+        #if connect_fn():
+        #    success_str = f"{self._interface.node.network_name} connected"
+        #    self._scene.add_effect( MessageDialog(self._screen, success_str))
+        #else:
+        #    self._scene.add_effect( MessageDialog(self._screen,"Connection failure"))
         
 
 

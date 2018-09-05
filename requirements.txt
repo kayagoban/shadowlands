@@ -9,5 +9,6 @@ eth_keys==0.2.0b3
 eth_utils==1.2.0
 web3==4.5.0
 hidapi==0.7.99.post21
-cryptocompy==0.1.1.dev
+cryptocompy==0.1.1.dev1
 pyperclip==1.6.4
+git+https://github.com/kayagoban/asciimatics.git

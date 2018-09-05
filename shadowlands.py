@@ -95,14 +95,15 @@ def eth_price_poller(interface):
 
 # Initial connect attempt.
 #eth_node.connect_w3_local()
-eth_node.connect_w3_public_infura()
+#eth_node.connect_w3_public_infura()
 #eth_node.connect_w3_custom_infura()
 
 # eth node heartbeat thread
 
-#t = threading.Thread(target=eth_node.heartbeat)
-#t.start()
+eth_node.connect_w3_local()
 
+t = threading.Thread(target=eth_node.heartbeat)
+t.start()
 
 dapp.node = eth_node
 dapp.register_node_on_contracts()
@@ -117,7 +118,6 @@ p.start()
 # credstick finder thread
 m = threading.Thread(target=credstick_finder, args = [interface])
 m.start()
-
 
 
 #m.join()

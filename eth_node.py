@@ -130,6 +130,11 @@ def connect_w3_custom_ipc():
     w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
     return is_connected_with(w3, 'Custom IPC', 1)
 
+def connect_w3_gethdev_poa():
+    cleanout_w3()
+    from web3.auto.gethdev import w3
+    return is_connected_with(w3, 'Gethdev PoA', 1)
+
 
 def connect():
     global w3, nodeVersion, network, web3_obj, ns, client_name
