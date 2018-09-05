@@ -1534,7 +1534,7 @@ class Widget(with_metaclass(ABCMeta, object)):
 
     
     def _snow_text(self, text):
-        if random() > 0.01:
+        if len(text) == 0 or random() > 0.01:
             return text
 
         # 1% of the time, wreak some havok.

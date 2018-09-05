@@ -198,8 +198,6 @@ class SendBox(TransactionFrame):
             for i in errors:
                 self._scene.add_effect( MessageDialog(self._screen, i))
             return False
-            
-
  
     def _ok(self):
 
@@ -243,22 +241,6 @@ class MessageDialog(Frame):
         self._scene.remove_effect(self)
         raise NextScene("Main")
 
-#    def process_event(self, event):
-
-        '''if type(event) != KeyboardEvent:
-            return event
-
-        if event.key_code in [121, 89]:
-            self._ok() 
-        elif event.key_code in [110, 78]:
-            self._cancel()
-        '''
-#        super(QuitDialog, self).process_event(event)
- 
-
-
-
-
 
 class QuitDialog(Frame):
     def __init__(self, screen):
@@ -292,4 +274,56 @@ class QuitDialog(Frame):
         super(QuitDialog, self).process_event(event)
  
 
+ 
+
+class NetworkOptions(Frame):
+    def __init__(self, screen, interface):
+        super(NetworkOptions, self).__init__(screen, 10, 45, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
+        self.set_theme('shadowlands')
+        self._interface = interface
+
+        layout = Layout([100], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Divider(draw_line=False))
+
+        options = [
+            ('Auto - Local node or public Infura', 'auto'), 
+            ('Custom http', 'custhttp'), 
+            ('Custom websocket', 'custwebsocket'),
+            ('Custom IPC', 'custipc'),
+            ('Custom Infura API Key', 'custinfura'),
+            ('Geth dev PoA', 'gethdevpoa')
+        ]
+        layout.add_widget(RadioButtons(options,name='netpicker'))
+
+        layout2 = Layout([1, 1, 1, 1])
+        self.add_layout(layout2)
+
+        layout2.add_widget(Button("Cancel", self._cancel), 0)
+        layout2.add_widget(Button("Select", self._ok), 3)
+        self.fix()
+
+    def _ok(self):
+        address_text = self.find_widget('netpicker')
+
+        pass
+
+    def _cancel(self):
+        self._scene.remove_effect(self)
+        raise NextScene("Main")
+
+
+    '''def process_event(self, event):
+
+        if type(event) != KeyboardEvent:
+            return event
+
+        if event.key_code in [121, 89]:
+            self._ok() 
+        elif event.key_code in [110, 78]:
+            self._cancel()
+
+        super(QuitDialog, self).process_event(event)
+        '''
+ 
 

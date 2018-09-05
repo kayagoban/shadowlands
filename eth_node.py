@@ -17,6 +17,10 @@ ethAddress = None
 domain = None
 client_name = None
 
+custom_http_uri = None
+custom_websocket_uri = None
+
+network_name = None
 
 # Flag to shut down heartbeat thread
 shutdown = False
@@ -32,14 +36,7 @@ networkDict = {
 def networkName():
     if network is None:
         raise Exception
-    networkStr = networkDict[network] +  ' ('
-    if localNode:
-        networkStr += 'local'
-    else:
-        networkStr += 'infura'
-    networkStr += ' ' + client_name + ')'
-    return networkStr 
-
+    return network_name
 
 def ethBalanceStr():
     if network is None:
@@ -74,35 +71,43 @@ def cleanout_w3():
     except KeyError:
         pass
 
-def connect_w3_public_infura():
-    global localNode, w3
 
-    from web3 import Web3
-    w3 = Web3(Web3.WebsocketProvider("wss://mainnet.infura.io/ws"))
-    if w3.isConnected():
-        localNode = False
+def is_connected_with(w3obj, name):
+    global w3, network_name
+    if w3obj.isConnected():
+        w3 = w3obj
+        network_name = name
         return True
     return False
+
+
+def w3_websocket(uri=None):
+    from web3 import Web3
+    w3 = Web3(Web3.WebsocketProvider(uri))
+
+def connect_w3_public_infura():
+    w3 = w3_websocket("wss://mainnet.infura.io/ws")
+    return is_connected_with(w3, '(public infura)')
 
 def connect_w3_custom_infura():
-    global localNode, w3
-
     os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
     from web3.auto.infura import w3
-    if w3.isConnected():
-        localNode = False
-        return True
-    return False
+    return is_connected_with(w3, '(custom infura')
 
 def connect_w3_local():
-    global localNode, w3
-
     from web3.auto import w3
-    if w3.isConnected():
-        localNode = True
-        return True
-    return False
- 
+    return is_connected_with(w3, '(local node)')
+
+def connect_w3_custom_http():
+    from web3 import Web3
+    w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
+    return is_connected_with(w3, '(custom HTTP)')
+
+def connect_w3_custom_ipc():
+    from web3 import Web3
+    w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
+    return is_connected_with(w3, '(custom IPC)')
+
 
 def connect():
     global w3, nodeVersion, network, web3_obj, ns, client_name
