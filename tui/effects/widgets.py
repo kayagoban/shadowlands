@@ -47,7 +47,7 @@ class GasPricePicker(RadioButtons):
         super(GasPricePicker, self).__init__(_options, on_change=on_change, label=' Gas Price:', name='gasoptions', **kwargs)
 
         # preset the value to the first option value
-        self._value = self._options[0][1]
+        #self._value = self._options[0][1]
    
 
 
@@ -224,10 +224,9 @@ class SendBox(TransactionFrame):
 
 
 class MessageDialog(Frame):
-    def __init__(self, screen, message, height=3, width=30, destroy_window=None):
-        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False)
+    def __init__(self, screen, message, height=3, width=30, **kwargs):
+        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False, **kwargs)
         self.set_theme('shadowlands')
-        self._destroy_window = destroy_window
 
         layout2 = Layout([100], fill_frame=True)
         self.add_layout(layout2)
@@ -237,9 +236,7 @@ class MessageDialog(Frame):
         self.fix()
 
     def _cancel(self):
-        if self._destroy_window:
-            self._scene.remove_effect(self._destroy_window)
-        self._scene.remove_effect(self)
+        self._destroy_window_stack()
         raise NextScene("Main")
 
 
@@ -292,11 +289,11 @@ class NetworkOptions(Frame):
         options = [
             ('Local node', node.connect_w3_local), 
             ('Public infura', node.connect_w3_public_infura),
-            ('Custom http', node.connect_w3_custom_http), 
-            ('Custom websocket', node.connect_w3_custom_websocket),
             ('Custom IPC', node.connect_w3_custom_ipc),
             ('Custom Infura API Key', node.connect_w3_custom_infura),
-            ('Geth dev PoA', node.connect_w3_gethdev_poa)
+            ('Custom websocket', node.connect_w3_custom_websocket),
+            ('Geth dev PoA', node.connect_w3_gethdev_poa),
+            ('Custom http', node.connect_w3_custom_http), 
         ]
         layout.add_widget(RadioButtons(options,name='netpicker'))
 
@@ -306,7 +303,6 @@ class NetworkOptions(Frame):
         layout2.add_widget(Button("Cancel", self._cancel), 0)
         layout2.add_widget(Button("Select", self._ok), 1)
         self.fix()
-
 
     def _ok(self):
         address_text = self.find_widget('netpicker')
