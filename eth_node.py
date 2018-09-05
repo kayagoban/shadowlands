@@ -4,8 +4,8 @@ from enum import Enum
 from eth_utils import decode_hex, encode_hex
 from ens import ENS
 
+import pdb
 
-web3_obj = None
 localNode = None
 block = ""
 nodeVersion = ""
@@ -16,6 +16,7 @@ weiBalance = None
 ethAddress = None
 domain = None
 client_name = None
+heart_rate = 1
 
 custom_http_uri = None
 custom_websocket_uri = None
@@ -72,15 +73,19 @@ def cleanout_w3():
         pass
 
 
-def is_connected_with(w3obj, name):
-    global w3, network_name, nodeVersion, network, web3_obj, ns
-    if w3obj.isConnected():
+def is_connected_with(_w3, name, _heart_rate):
+    global w3, network_name, nodeVersion, network, web3_obj, ns, localNode, heart_rate
+
+    #pdb.set_trace()
+
+    if _w3.isConnected():
         network_name = name
-        w3 = w3obj
+        w3 = _w3
         nodeVersion = w3.version.node
         network = w3.version.network
         web3_obj = w3
         ns = ENS.fromWeb3(w3)
+        heart_rate = _heart_rate
 
         return True
     return False
@@ -88,30 +93,42 @@ def is_connected_with(w3obj, name):
 
 def w3_websocket(uri=None):
     from web3 import Web3
-    w3 = Web3(Web3.WebsocketProvider(uri))
+    return Web3(Web3.WebsocketProvider(uri))
 
 def connect_w3_public_infura():
-    w3 = w3_websocket("wss://mainnet.infura.io/ws")
-    return is_connected_with(w3, '(public infura)')
+    cleanout_w3()
+    _w3 = w3_websocket("wss://mainnet.infura.io/ws")
+    return is_connected_with(_w3, 'Public infura', 18)
+
+def connect_w3_custom_websocket():
+    cleanout_w3()
+    _w3 = w3_websocket("wss://mainnet.infura.io/ws")
+    return is_connected_with(_w3, 'Custom websocket', 18)
+
 
 def connect_w3_custom_infura():
+    cleanout_w3()
     os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
     from web3.auto.infura import w3
-    return is_connected_with(w3, '(custom infura')
+    #pdb.set_trace()
+    return is_connected_with(w3, 'Custom infura', 18)
 
 def connect_w3_local():
+    cleanout_w3()
     from web3.auto import w3
-    return is_connected_with(w3, '(local node)')
+    return is_connected_with(w3, 'Local node', 1.5)
 
 def connect_w3_custom_http():
+    cleanout_w3()
     from web3 import Web3
-    w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
-    return is_connected_with(w3, '(custom HTTP)')
+    w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"), 3)
+    return is_connected_with(w3, 'Custom HTTP')
 
 def connect_w3_custom_ipc():
+    cleanout_w3()
     from web3 import Web3
     w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
-    return is_connected_with(w3, '(custom IPC)')
+    return is_connected_with(w3, 'Custom IPC', 1)
 
 
 def connect():
@@ -152,7 +169,7 @@ def poll():
         syncing = {}
         domain = None
         try:
-            connect()
+            connect_w3_local() or connect_w3_public_infura()
         except:
             pass
         pass
@@ -163,13 +180,8 @@ def heartbeat():
     while True:
         poll()
 
-        if localNode:
-            time.sleep(.5)
+        for i in range(heart_rate):
+            time.sleep(1)
             if shutdown:
                 return
-        else:
-            for i in range(8):
-                time.sleep(2)
-                if shutdown:
-                    return
 

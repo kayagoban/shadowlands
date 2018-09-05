@@ -308,11 +308,13 @@ class NetworkOptions(Frame):
 
     def _ok(self):
         address_text = self.find_widget('netpicker')
-        choice = address_text._value
-        switch(choice) {
-            case 'auto':  monthString = "January";
-            break
-                
+        connect_fn = address_text._value
+        if connect_fn():
+            success_str = f"{self._interface.node.network_name} connected"
+            self._scene.add_effect( MessageDialog(self._screen, success_str))
+        else:
+            self._scene.add_effect( MessageDialog(self._screen,"Connection failure"))
+        
 
 
         pass

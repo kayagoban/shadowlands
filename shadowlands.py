@@ -87,25 +87,25 @@ def eth_price_poller(interface):
                return
 
 
-# Get a connection
-try:
-    eth_node.connect()
-except:
-    pass
-    #print("Sorry chummer, couldn't connect to an Ethereum node.")
-    #sys.exit(1)
+#try:
+#    eth_node.connect()
+#except:
+#    pass
 
-# This is absurd.  There must be a better way of getting
-# a singleton instance of web3.
-# The problem is: invoking web3.auto gives a different w3 object than web3.auto.infura.
-# I either must use the same switching logic in every module that needs w3, or I must
-# distribute it everywhere.  Annoying but no way around it yet that I can see.
-dapp.node = eth_node
-dapp.register_node_on_contracts()
+
+# Initial connect attempt.
+#eth_node.connect_w3_local()
+eth_node.connect_w3_public_infura()
+#eth_node.connect_w3_custom_infura()
 
 # eth node heartbeat thread
-t = threading.Thread(target=eth_node.heartbeat)
-t.start()
+
+#t = threading.Thread(target=eth_node.heartbeat)
+#t.start()
+
+
+dapp.node = eth_node
+dapp.register_node_on_contracts()
 
 # create interface 
 interface = Interface(eth_node, dapp)
