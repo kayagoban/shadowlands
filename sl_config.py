@@ -1,0 +1,94 @@
+from pathlib import Path
+import yaml
+import pdb
+
+class SLConfig():
+    def __init__(self, config_file_path=None):
+        self._http_uri = ''
+        self._websocket_uri = ''
+        self._ipc_path = ''
+        self._default_method = None
+
+        if config_file_path:
+            self._config_file_path = config_file_path
+        else:
+            self._config_file_path = Path.home().joinpath(".shadowlands.cfg")
+
+        if not self._config_file_path.exists():
+            self._write_config_file()
+
+        self._read_yaml()
+
+        try:
+            self._load_properties()
+        except KeyError:
+
+            # formatting error, possibly an incompatible cfg file.  We overwrite to fix this problem, better to lose some configs than die with an exception.
+            self._write_config_file()
+            self._read_yaml()
+            self._load_properties()
+ 
+    def _read_yaml(self):
+        f = open(self._config_file_path, 'r')
+        self._options_dict = yaml.load(f.read())
+        f.close()
+
+    def _load_properties(self):
+            self._default_method = self._options_dict['network_options']['default_method']
+            self._http_uri = self._options_dict['network_options']['http_uri']
+            self._websocket_uri = self._options_dict['network_options']['websocket_uri']
+            self._ipc_path = self._options_dict['network_options']['ipc_path']
+           
+    def _write_config_file(self):
+        f = open(self._config_file_path, 'w')
+        f.write(yaml.dump(self._config_dict()))
+        f.close()
+
+    def _config_dict(self):
+        return {
+            "network_options": {
+                "default_method": self._default_method,
+                "http_uri": self._http_uri,
+                "websocket_uri": self._websocket_uri,
+                "ipc_path": self._ipc_path
+            }
+        }
+
+    @property
+    def default_method(self):
+        return self._default_method
+
+    @default_method.setter
+    def default_method(self, new_value):
+        #pdb.set_trace()
+        self._default_method = new_value
+        self._write_config_file()
+
+    @property
+    def http_uri(self):
+        return self._http_uri
+
+    @http_uri.setter
+    def http_uri(self, new_value):
+        self._http_uri = new_value
+        self._write_config_file()
+
+    @property
+    def websocket_uri(self):
+        return self._websocket_uri
+
+    @websocket_uri.setter
+    def websocket_uri(self, new_value):
+        self._websocket_uri = new_value
+        self._write_config_file()
+
+    @property
+    def ipc_path(self):
+        return self._http_uri
+
+    @ipc_path.setter
+    def ipc_path(self, new_value):
+        self._ipc_path = new_value
+        self._write_config_file()
+
+

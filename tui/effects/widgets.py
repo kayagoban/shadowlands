@@ -2,14 +2,12 @@ from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, 
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from tui.errors import ExitTuiError
-from tui.debug import debug
 from decimal import Decimal
-import logging
 from credstick import SignTxError
 from binascii import Error
 
-
-logging.basicConfig(filename='error.log', filemode='w', level=logging.DEBUG)
+from tui.debug import debug
+import pdb
 
 # Make sure the widget frame is_modal or claimed_focus.
 # otherwise the text is not swallowed and our menus are buggered.
@@ -19,6 +17,7 @@ logging.basicConfig(filename='error.log', filemode='w', level=logging.DEBUG)
 #debug(self._screen._screen); import pdb; pdb.set_trace()
 
 
+#debug(); pdb.set_trace()
 
 
 class GasPricePicker(RadioButtons):
@@ -279,6 +278,8 @@ class NetworkOptions(Frame):
         self.set_theme('shadowlands')
         self._interface = interface
 
+        #debug(); pdb.set_trace()
+    
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
         layout.add_widget(Divider(draw_line=False))
@@ -288,13 +289,19 @@ class NetworkOptions(Frame):
         options = [
             ('Local node', self._node.connect_w3_local), 
             ('Public infura', self._node.connect_w3_public_infura),
-            ('Custom IPC', self._node.connect_w3_custom_ipc),
-            ('Custom Infura API Key', self._node.connect_w3_custom_infura),
-            ('Custom websocket', self._node.connect_w3_custom_websocket),
             ('Custom http', self._node.connect_w3_custom_http), 
+            ('Custom websocket', self._node.connect_w3_custom_websocket),
+            ('Custom ipc', self._node.connect_w3_custom_ipc),
+            ('Custom Infura API Key', self._node.connect_w3_custom_infura),
             ('Geth dev PoA', self._node.connect_w3_gethdev_poa),
         ]
-        layout.add_widget(RadioButtons(options,name='netpicker'))
+        radiobuttons = RadioButtons(options,name='netpicker')
+        for i, option in enumerate(options):
+            if option[1] == self._interface._config.default_method:
+                radiobuttons._value = option[1]
+                radiobuttons._selection = i
+
+        layout.add_widget(radiobuttons)
 
         layout2 = Layout([1, 1])
         self.add_layout(layout2)
@@ -326,7 +333,7 @@ class NetworkOptions(Frame):
             name="dialog_custom_http_uri", 
             title="Custom HTTP URI", 
             text_label="URI",
-            text_default_value=self._node.custom_http_uri,
+            text_default_value=self._interface._config.http_uri,
             destroy_window=self,
             continue_function=self._custom_http_continue_function,
             next_scene="Main"

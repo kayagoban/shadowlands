@@ -6,6 +6,17 @@ from ens import ENS
 
 import pdb
 
+networkDict = {
+    '1': 'MainNet',
+    '2': 'Morden',
+    '3': 'Ropsten',
+    '4': 'Rinkeby',
+    '42': 'Kovan'
+}
+
+
+sl_config = None
+
 localNode = None
 block = ""
 nodeVersion = ""
@@ -17,26 +28,14 @@ ethAddress = None
 domain = None
 client_name = None
 heart_rate = 1
-
-custom_http_uri = ''
-custom_websocket_uri = ''
-custom_ipc_path = ''
-
 network_name = None
 
 # Flag to shut down heartbeat thread
 shutdown = False
 
-networkDict = {
-    '1': 'MainNet',
-    '2': 'Morden',
-    '3': 'Ropsten',
-    '4': 'Rinkeby',
-    '42': 'Kovan'
-}
 
-
-
+def register_config(sl_config):
+    _sl_config = sl_config
 
 def networkName():
     if network is None:
@@ -53,7 +52,6 @@ def ethBalanceStr():
 
 def syncingHash():
     global syncing
-
     if syncing == {}:
         raise Exception
 
@@ -93,52 +91,100 @@ def is_connected_with(_w3, name, _heart_rate):
         return True
     return False
 
+
+def connect_default():
+    global sl_config
+    fn = sl_config.default_method()
+    return fn()
+
+
 def connect_w3_local():
+    global sl_config
     cleanout_w3()
     from web3.auto import w3
-    return is_connected_with(w3, 'Local node', 1)
+    if is_connected_with(w3, 'Local node', 1):
+        sl_config.default_method = connect_w3_local
+        return True
+    return False
+
 
 def w3_websocket(uri=None):
     from web3 import Web3
     return Web3(Web3.WebsocketProvider(uri))
 
+
 def connect_w3_public_infura():
+    global sl_config
     cleanout_w3()
     _w3 = w3_websocket("wss://mainnet.infura.io/ws")
-    return is_connected_with(_w3, 'Public infura', 18)
-
-def connect_w3_custom_infura():
-    cleanout_w3()
-    os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
-    from web3.auto.infura import w3
-    return is_connected_with(w3, 'Custom infura', 18)
-
-def connect_w3_custom_ipc():
-    cleanout_w3()
-    from web3 import Web3
-    w3 = Web3(Web3.IPCProvider("/tmp/test.ipc"))
-    return is_connected_with(w3, 'Custom IPC', 1)
-
-def connect_w3_custom_websocket():
-    cleanout_w3()
-    _w3 = w3_websocket("wss://railjumper.com")
-    return is_connected_with(_w3, 'Custom websocket', 18)
-
-def connect_w3_custom_http(custom_uri="http://127.0.0.1:8545"):
-    global custom_http_uri
-
-    cleanout_w3()
-    from web3 import Web3
-    w3 = Web3(Web3.HTTPProvider(custom_uri))
-    if is_connected_with(w3, 'Custom HTTP', 1):
-        custom_http_uri = custom_uri
+    if is_connected_with(_w3, 'Public infura', 18):
+        sl_config.default_method = connect_w3_public_infura
         return True
     return False
 
+
+def connect_w3_custom_websocket(custom_uri=None):
+    global sl_config
+    cleanout_w3()
+    if not custom_uri:
+        custom_uri = sl_config.websocket_uri
+    _w3 = w3_websocket(custom_uri)
+    if is_connected_with(_w3, 'Custom websocket', 18):
+        sl_config.websocket_uri = custom_uri
+        sl_config.default_method = connect_w3_custom_websocket
+        return True
+    return False
+
+
+def connect_w3_custom_infura():
+    global sl_config
+    cleanout_w3()
+    os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
+    from web3.auto.infura import w3
+    if is_connected_with(w3, 'Custom infura', 18):
+        sl_config.default_method = connect_w3_custom_infura
+        return True
+    return False
+
+
+def connect_w3_custom_ipc(path=None):
+    global sl_config
+    cleanout_w3()
+    from web3 import Web3
+    if not path:
+        path = sl_config.ipc_path
+    w3 = Web3(Web3.IPCProvider(path))
+    if is_connected_with(w3, 'Custom IPC', 1):
+        sl_config.ipc_path = path
+        sl_config.default_method = connect_w3_custom_ipc
+        return True
+    return False
+
+
+def connect_w3_custom_http(custom_uri=None):
+    global sl_config 
+
+    cleanout_w3()
+    from web3 import Web3
+    if not custom_uri:
+        custom_uri = sl_config.http_uri
+    w3 = Web3(Web3.HTTPProvider(custom_uri))
+    if is_connected_with(w3, 'Custom HTTP', 1):
+        sl_config.http_uri = custom_uri
+        sl_config.default_method = connect_w3_custom_http
+        return True
+    return False
+
+
 def connect_w3_gethdev_poa():
+    global sl_config
     cleanout_w3()
     from web3.auto.gethdev import w3
-    return is_connected_with(w3, 'Gethdev PoA', 1)
+    if is_connected_with(w3, 'Gethdev PoA', 1):
+        sl_config.default_method = connect_w3_gethdev_poa
+        return True
+    return False
+
 
 
 def connect():

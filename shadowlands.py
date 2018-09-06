@@ -11,10 +11,8 @@ from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError
 from tui.tui import Interface
 from asciimatics.exceptions import NextScene
 from time import sleep
-from pathlib import Path
-import yaml
-
 import pdb
+from sl_config import SLConfig
 
 #pdb.set_trace()
 
@@ -24,43 +22,6 @@ credstick = None
 # Flags to halt threads
 credstick_thread_shutdown = False
 price_poller_thread_shutdown = False
-
-# Create or Read personal config files that contains
-# network preferences, etc
-
-#pdb.set_trace()
-#config_file = str(Path.home("shadowlands.cfg"))
-#with open(home, 'r') as ymlfile:
-#    cfg = yaml.load(ymlfile)
-
-
-'''
-boxDictionary = {
-        '\\' : b'\xe2\x95\x9a',
-        '-'  : b'\xe2\x95\x90',
-        '/'  : b'\xe2\x95\x9d',
-        '|'  : b'\xe2\x95\x91',
-        '+'  : b'\xe2\x95\x94',
-        '$'  : b'\xe2\x95\x97',
-        }
-
-
-def boxDecode(x):
-    return ("".join(boxDictionary.get(i, i.encode('utf-8')).decode('utf-8') for i in x))
-
-
-def blastOff():
-    sys.stdout.write("\033[F")
-    timeout = 0.11
-    for x in range(70):
-      time.sleep(timeout)
-      sys.stdout.write(".")
-      sys.stdout.flush()
-      timeout = timeout * 0.93
-    return
-
-'''
-
 
 def credstick_finder(interface):
     global credstick_thread_shutdown
@@ -100,20 +61,26 @@ def eth_price_poller(interface):
                return
 
 
-#try:
-#    eth_node.connect()
-#except:
-#    pass
 
 
-# Initial connect attempt.
+# Create or Read personal config files that contains
+# network preferences, etc
+
+#pdb.set_trace()
+sl_config = SLConfig()
+
+eth_node.sl_config = sl_config
+
+
+
+
+#Begin
+###############
+
 #eth_node.connect_w3_local()
-#eth_node.connect_w3_public_infura()
-#eth_node.connect_w3_custom_infura()
 
-# eth node heartbeat thread
-
-eth_node.connect_w3_local()
+if sl_config.default_method:
+    sl_config.default_method()
 
 t = threading.Thread(target=eth_node.heartbeat)
 t.start()
@@ -122,7 +89,7 @@ dapp.node = eth_node
 dapp.register_node_on_contracts()
 
 # create interface 
-interface = Interface(eth_node, dapp)
+interface = Interface(eth_node, dapp, sl_config)
 
 # price import thread
 p = threading.Thread(target=eth_price_poller, args=[interface])
@@ -165,6 +132,7 @@ p.join()
 eth_node.shutdown = True
 print("Closing connection to ethereum node...")
 t.join()
+
 
 sys.exit(0)
 
