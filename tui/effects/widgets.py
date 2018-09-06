@@ -273,7 +273,6 @@ class QuitDialog(Frame):
  
 
  
-
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
         super(NetworkOptions, self).__init__(screen, 13, 34, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
@@ -284,30 +283,33 @@ class NetworkOptions(Frame):
         self.add_layout(layout)
         layout.add_widget(Divider(draw_line=False))
 
-        node = self._interface.node
+        self._node = self._interface.node
 
         options = [
-            ('Local node', node.connect_w3_local), 
-            ('Public infura', node.connect_w3_public_infura),
-            ('Custom IPC', node.connect_w3_custom_ipc),
-            ('Custom Infura API Key', node.connect_w3_custom_infura),
-            ('Custom websocket', node.connect_w3_custom_websocket),
-            ('Geth dev PoA', node.connect_w3_gethdev_poa),
-            ('Custom http', node.connect_w3_custom_http), 
+            ('Local node', self._node.connect_w3_local), 
+            ('Public infura', self._node.connect_w3_public_infura),
+            ('Custom IPC', self._node.connect_w3_custom_ipc),
+            ('Custom Infura API Key', self._node.connect_w3_custom_infura),
+            ('Custom websocket', self._node.connect_w3_custom_websocket),
+            ('Custom http', self._node.connect_w3_custom_http), 
+            ('Geth dev PoA', self._node.connect_w3_gethdev_poa),
         ]
         layout.add_widget(RadioButtons(options,name='netpicker'))
 
         layout2 = Layout([1, 1])
         self.add_layout(layout2)
 
-        layout2.add_widget(Button("Cancel", self._cancel), 0)
-        layout2.add_widget(Button("Select", self._ok), 1)
+        layout2.add_widget(Button("Cancel", self._cancel), 1)
+        layout2.add_widget(Button("Connect", self._ok), 0)
         self.fix()
 
     def _ok(self):
-        address_text = self.find_widget('netpicker')
-        connect_fn = address_text._value
-        if connect_fn():
+        network_option = self.find_widget('netpicker')
+        connect_fn = network_option._value
+
+        if connect_fn == self._node.connect_w3_custom_http:
+            self._prompt_custom_http_uri()
+        elif connect_fn():
             self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=self))
         else:
             self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=self))
@@ -316,4 +318,64 @@ class NetworkOptions(Frame):
         self._scene.remove_effect(self)
         raise NextScene("Main")
 
+    def _prompt_custom_http_uri(self):
+        dialog = TextRequestDialog(
+            self._screen, 
+            label_prompt_text="Ex: http://127.0.0.1:8023", 
+            continue_button_text="Connect", 
+            name="dialog_custom_http_uri", 
+            title="Custom HTTP URI", 
+            text_label="URI",
+            text_default_value=self._node.custom_http_uri,
+            destroy_window=self,
+            continue_function=self._custom_http_continue_function,
+            next_scene="Main"
+        )
+        self._scene.add_effect(dialog)
+
+    def _custom_http_continue_function(self, text, calling_frame):
+        network_option = self.find_widget('netpicker')
+        connect_fn = network_option._value
+        if connect_fn(text):
+            self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=calling_frame))
+        else:
+            self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))
+
+
+# This is a reusable dialog with a text field.
+# continue function will be passed the string argument with the value
+# of the text field, and this frame object so that it can be referenced
+# for later removal.
+# like so:
+# continue_function(returned_text, text_request_dialog_object)
+class TextRequestDialog(Frame):
+    def __init__(self, screen, label_prompt_text=None, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, **kwargs):
+        super(TextRequestDialog, self).__init__(screen, 10, 46, has_shadow=True, is_modal=True, can_scroll=False, **kwargs)
+        self.set_theme('shadowlands')
+        self._continue_function = continue_function
+        self._next_scene = next_scene
+
+        layout = Layout([100], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Divider(draw_line=False))
+        layout.add_widget(Label(label_prompt_text, 2, align=label_align))
+        layout.add_widget(Divider(draw_line=False))
+        layout.add_widget(Text(text_label, "text_field", default_value=text_default_value))
+ 
+
+        layout2 = Layout([1, 1], fill_frame=False)
+        self.add_layout(layout2)
+        layout2.add_widget(Button(continue_button_text, self._ok), 0)
+        layout2.add_widget(Button("Cancel", self._cancel), 1)
+        self.fix()
+
+    def _ok(self):
+        text = self.find_widget('text_field')
+        self._continue_function(text._value, self)
+        #self._destroy_window_stack()
+        raise NextScene(self._next_scene)
+
+    def _cancel(self):
+        self._destroy_window_stack()
+        raise NextScene(self._next_scene)
 

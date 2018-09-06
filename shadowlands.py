@@ -11,8 +11,12 @@ from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError
 from tui.tui import Interface
 from asciimatics.exceptions import NextScene
 from time import sleep
+from pathlib import Path
+import yaml
 
-# import pdb; pdb.set_trace()
+import pdb
+
+#pdb.set_trace()
 
 menuSelection = None
 credstick = None
@@ -20,6 +24,15 @@ credstick = None
 # Flags to halt threads
 credstick_thread_shutdown = False
 price_poller_thread_shutdown = False
+
+# Create or Read personal config files that contains
+# network preferences, etc
+
+#pdb.set_trace()
+#config_file = str(Path.home("shadowlands.cfg"))
+#with open(home, 'r') as ymlfile:
+#    cfg = yaml.load(ymlfile)
+
 
 '''
 boxDictionary = {

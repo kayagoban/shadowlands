@@ -12,3 +12,4 @@ hidapi==0.7.99.post21
 cryptocompy==0.1.1.dev1
 pyperclip==1.6.4
 git+https://github.com/kayagoban/asciimatics.git
+pathlib==1.0.1

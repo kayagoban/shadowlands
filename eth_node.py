@@ -18,8 +18,9 @@ domain = None
 client_name = None
 heart_rate = 1
 
-custom_http_uri = None
-custom_websocket_uri = None
+custom_http_uri = ''
+custom_websocket_uri = ''
+custom_ipc_path = ''
 
 network_name = None
 
@@ -33,6 +34,9 @@ networkDict = {
     '4': 'Rinkeby',
     '42': 'Kovan'
 }
+
+
+
 
 def networkName():
     if network is None:
@@ -120,11 +124,16 @@ def connect_w3_custom_websocket():
     _w3 = w3_websocket("wss://railjumper.com")
     return is_connected_with(_w3, 'Custom websocket', 18)
 
-def connect_w3_custom_http():
+def connect_w3_custom_http(custom_uri="http://127.0.0.1:8545"):
+    global custom_http_uri
+
     cleanout_w3()
     from web3 import Web3
-    w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"), 3)
-    return is_connected_with(w3, 'Custom HTTP')
+    w3 = Web3(Web3.HTTPProvider(custom_uri))
+    if is_connected_with(w3, 'Custom HTTP', 1):
+        custom_http_uri = custom_uri
+        return True
+    return False
 
 def connect_w3_gethdev_poa():
     cleanout_w3()
