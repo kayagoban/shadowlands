@@ -62,33 +62,30 @@ def eth_price_poller(interface):
 
 
 
-
-# Create or Read personal config files that contains
-# network preferences, etc
-
 #pdb.set_trace()
+
+
+
+
+# Read from config file
 sl_config = SLConfig()
 
+
+# Start network subsystem
 eth_node.sl_config = sl_config
 
-
-
-#Begin
-###############
-
-#eth_node.connect_w3_local()
-
-if sl_config.default_method:
-    sl_config.default_method()
-
+# Eth node heartbeat
 t = threading.Thread(target=eth_node.heartbeat)
 t.start()
+
 
 dapp.node = eth_node
 dapp.register_node_on_contracts()
 
-# create interface 
+
+# create user interface 
 interface = Interface(eth_node, dapp, sl_config)
+
 
 # price import thread
 p = threading.Thread(target=eth_price_poller, args=[interface])
@@ -97,6 +94,7 @@ p.start()
 # credstick finder thread
 m = threading.Thread(target=credstick_finder, args = [interface])
 m.start()
+
 
 
 #m.join()

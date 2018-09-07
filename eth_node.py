@@ -94,7 +94,10 @@ def is_connected_with(_w3, name, _heart_rate):
 
 def connect_default():
     global sl_config
-    fn = sl_config.default_method()
+    try:
+        fn = sl_config.default_method()
+    except (AttributeError, TypeError):
+        return False
     return fn()
 
 
@@ -187,25 +190,6 @@ def connect_w3_gethdev_poa():
 
 
 
-def connect():
-    global w3, nodeVersion, network, web3_obj, ns, client_name
-
-    for connect_w3 in [ connect_w3_local, connect_w3_public_infura ]:
-        cleanout_w3()
-        if connect_w3():
-            break
-
-    if w3.version.node.startswith('Parity'):
-        client_name = 'Parity'
-    elif w3.version.node.startswith('Geth'):
-        client_name = 'Geth'
-
-    nodeVersion = w3.version.node
-    network = w3.version.network
-    web3_obj = w3
-    ns = ENS.fromWeb3(w3)
-
-
 def poll():
     global block, blocksBehind, syncing, weiBalance, domain, network
 
@@ -225,7 +209,7 @@ def poll():
         syncing = {}
         domain = None
         try:
-            connect_w3_local() or connect_w3_public_infura()
+            connect_default() or connect_w3_local() or connect_w3_public_infura()
         except:
             pass
         pass
