@@ -3,8 +3,40 @@ from web3.exceptions import UnhandledRequest
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
 from ens import ENS
+from web3.txpool import TxPool
+
 
 import pdb
+
+
+'''
+txpool info
+
+infura complains:
+requests.exceptions.HTTPError: 405 Client Error: Method Not Allowed for url: https://mainnet.infura.io/
+
+parity complains:
+    ValueError: {'code': -32601, 'message': 'Method not found'}
+
+possible we can handle parity.  public infura connections not so.
+'''
+
+'''
+{"method":"parity_localTransactions","params":[],"id":1,"jsonrpc":"2.0"}'
+"method":"parity_futureTransactions","params":[],"id":1,"jsonrpc":"2.0"}
+"method":"parity_allTransactions","params":[],"id":1,"jsonrpc":"2.0"}
+'''
+
+class ParityCompatibleTxPool(TxPool):
+    @property
+    def parity_local_transactions(self):
+        return self.web3.manager.request_blocking("parity_localTransactions", [])
+
+    @property
+    def parity_all_transactions(self):
+        return self.web3.manager.request_blocking("parity_allTransactions", [])
+
+
 
 networkDict = {
     '1': 'MainNet',
@@ -77,16 +109,17 @@ def cleanout_w3():
 
 
 def is_connected_with(_w3, name, _heart_rate):
-    global w3, network_name, nodeVersion, network, web3_obj, ns, localNode, heart_rate
+    global w3, network_name, nodeVersion, network, ns, localNode, heart_rate
 
     if _w3.isConnected():
         network_name = name
         w3 = _w3
         nodeVersion = w3.version.node
         network = w3.version.network
-        web3_obj = w3
         ns = ENS.fromWeb3(w3)
         heart_rate = _heart_rate
+        # Monkey patch the txpool object so we can get parity txPool info
+        w3.txpool = ParityCompatibleTxPool(w3)
 
         return True
     return False
@@ -142,7 +175,6 @@ def connect_w3_custom_websocket(custom_uri=None):
 def connect_w3_custom_infura():
     global sl_config
     cleanout_w3()
-    os.environ['INFURA_API_KEY'] = '3404d141198b45b191c7af24311cd9ea'
     from web3.auto.infura import w3
     if is_connected_with(w3, 'Custom infura', 18):
         sl_config.default_method = connect_w3_custom_infura
