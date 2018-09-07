@@ -8,7 +8,7 @@ class SLConfig():
         self._websocket_uri = ''
         self._ipc_path = ''
         self._default_method = None
-        self._displayed_currency = None
+        self._displayed_currency = 'USD' 
 
         if config_file_path:
             self._config_file_path = config_file_path

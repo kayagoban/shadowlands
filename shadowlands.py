@@ -11,8 +11,9 @@ from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError
 from tui.tui import Interface
 from asciimatics.exceptions import NextScene
 from time import sleep
-import pdb
 from sl_config import SLConfig
+from tui.debug import debug
+import pdb
 
 #pdb.set_trace()
 
@@ -47,13 +48,13 @@ def credstick_finder(interface):
 def eth_price_poller(interface):
     global price_poller_thread_shutdown
 
-    while True:
-        try:
-            prices = price.get_current_price("ETH", ["USD", "GBP", "EUR", 'BTC'])
-            interface.update_prices(prices)
-        except:
-            interface.update_prices(None)
+    currencies = ["USD", "GBP", "EUR", 'BTC', 'AUD', 'CHF', 'JPY', 'RUB', 'CNY', 'SGD']
 
+    while True:
+        #debug(); 
+        #pdb.set_trace()
+        prices = price.get_current_price("ETH", currencies) 
+        interface.update_prices(prices)
         # 5 minutes seems responsible.
         for i in range (150):
             time.sleep(2)
@@ -86,6 +87,8 @@ dapp.register_node_on_contracts()
 # create user interface 
 interface = Interface(eth_node, dapp, sl_config)
 
+
+#eth_price_poller(interface)
 
 # price import thread
 p = threading.Thread(target=eth_price_poller, args=[interface])

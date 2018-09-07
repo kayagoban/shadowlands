@@ -17,7 +17,14 @@ class Interface():
         'USD': '$',
         'GBP': '£',
         'EUR': '€',
-        'BTC': 'Ƀ'
+        'BTC': 'Ƀ',
+        'CHF': '',
+        'AUD': '$',
+        'RUB': '₽',
+        'JPY': '¥',
+        'CNY': '¥',
+        'SGD': '$'
+
     }
 
 
@@ -39,7 +46,10 @@ class Interface():
 
     # make this a pythonic attribute
     def price(self):
-        return self._prices['ETH'][self._config.displayed_currency]
+        try:
+            return self._prices['ETH'][self._config.displayed_currency]
+        except TypeError:
+            raise PriceError
 
     def curr_symbol(self):
         return self.CURR_SYMBOLS[self._config.displayed_currency]
