@@ -1,6 +1,9 @@
 from asciimatics.renderers import DynamicRenderer
-from tui.debug import debug
 from decimal import Decimal
+from tui.errors import PriceError
+from tui.debug import debug
+import pdb
+
 
 
 class NetworkStatusRenderer(DynamicRenderer):
@@ -72,19 +75,27 @@ class EthBalanceRenderer(DynamicRenderer):
             bal = 'Unknown'
         return [bal], None
 
+        #debug(); pdb.set_trace()
 class EthValueRenderer(DynamicRenderer):
     def __init__(self, interface):
         super(EthValueRenderer, self).__init__(1, 15)
         self._interface = interface
 
     def _render_now(self):
+        curr = self._interface._config.displayed_currency
         try:
-            usd = Decimal(self._interface.prices()['ETH']['USD'])
-            eth = Decimal(self._interface.node.ethBalanceStr())
-            val = str(round(usd * eth, 2))
-            val = 'USD $' + val 
-        except:
-            val = 'Unknown'
+            currency_val = Decimal(self._interface.price())
+        except (TypeError, KeyError, PriceError):
+            return ['Unavailable'], None
+
+        eth = Decimal(self._interface.node.ethBalanceStr())
+        if curr == 'BTC':
+            decimal_places = 6
+        else:
+            decimal_places = 2
+
+        val = str(round(currency_val * eth, decimal_places))
+        val = f"{curr} {self._interface.CURR_SYMBOLS[curr]} {val}"
 
         return [val], None
 

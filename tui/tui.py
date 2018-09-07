@@ -3,7 +3,7 @@ from asciimatics.exceptions import NextScene, ResizeScreenError
 #from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from tui.scenes.loading import LoadingScene
-from tui.errors import ExitTuiError
+from tui.errors import ExitTuiError, PriceError
 from tui.scenes.main import MainScene
 from tui.debug import debug
 import sys
@@ -12,13 +12,24 @@ import sys
 #debug(screen._screen); import pdb; pdb.set_trace()
 
 class Interface():
+    
+    CURR_SYMBOLS = {
+        'USD': '$',
+        'GBP': '£',
+        'EUR': '€',
+        'BTC': 'Ƀ'
+    }
+
+
     def __init__(self, _eth_node, dapp, config, _credstick=None):
         self.credstick = _credstick
         self.node = _eth_node
         self._dapp = dapp
         self._config = config
         self._screen = None
+        self._price = None
         self._prices = None
+        #self._displayed_currency = None
 
     # Callback from the credstick_finder thread.
     # the credstick watcher effect will see this
@@ -27,10 +38,11 @@ class Interface():
         self.credstick = _credstick
 
     # make this a pythonic attribute
-    def prices(self):
-        if not self._prices:
-            raise Exception
-        return self._prices
+    def price(self):
+        return self._prices['ETH'][self._config.displayed_currency]
+
+    def curr_symbol(self):
+        return self.CURR_SYMBOLS[self._config.displayed_currency]
 
     def update_prices(self, _prices):
         self._prices = _prices

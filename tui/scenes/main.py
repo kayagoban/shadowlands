@@ -10,32 +10,6 @@ from tui.debug import debug
 
 #debug(screen._screen); import pdb; pdb.set_trace()
 #from tui.effects.cursor import LoadingScreenCursor
-
-'''
-class SendBox(Frame):
-    def __init__(self, screen):
-        super(SendBox, self).__init__(screen, 15, 50, can_scroll=False, has_shadow=True, name="Send")
-        self.set_theme('green')
-        layout = Layout([100], fill_frame=True)
-        self.add_layout(layout)
-        layout.add_widget(Text("To Address:", "address"))
-
-        layout2 = Layout([1, 1, 1, 1])
-        self.add_layout(layout2)
-        layout2.add_widget(Button("Sign Tx", self._ok), 0)
-        layout2.add_widget(Button("Cancel", self._cancel), 3)
-        self.fix()
- 
-    def _ok(self):
-        #self.save()
-        #raise NextScene("Main")
-        self._scene.remove_effect(self)
-
-    def _cancel(self):
-        #raise NextScene("Main")
-        self._scene.remove_effect(self)
-'''
-
 class MainScene(Scene):
 
     CREDSTICK_DISPLAY = '''

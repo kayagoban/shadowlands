@@ -96,11 +96,7 @@ class TransactionFrame(Frame):
     def _on_text_change(self):
         gas_price_gwei = None
         custgas = self.find_widget('custgas')
-        try:
-            gas_price_gwei = Decimal(custgas._value)
-        except:
-            pass
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
+        gas_price_gwei = Decimal(custgas._value)
 
         self._update_gastimate_label(gas_price_gwei)
 
@@ -137,16 +133,21 @@ class TransactionFrame(Frame):
 
  
     def _cost_estimate_string(self, gas_price_wei):
+        #debug(); import pdb; pdb.set_trace()
 
+        curr = self._interface._config.displayed_currency
         try:
-            eth_price_usd = self._interface.prices()['ETH']['USD']
-        except Exception:
+            eth_price_curr = self._interface.price()
+        except KeyError:
             return 'Ether Price Feed offline - No Tx Cost estimate'
         gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-        cost_estimate = str(round((Decimal(eth_price_usd) * gas_price_eth * self.estimated_gas), 3))
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
-#            debug(self._screen._screen); import pdb; pdb.set_trace()
-        return "Estimated Tx cost: USD $" + cost_estimate
+        if curr == 'BTC':
+            decimal_places = 7
+        else:
+            decimal_places = 3
+
+        cost_estimate = str(round((Decimal(eth_price_curr) * gas_price_eth * self.estimated_gas), decimal_places))
+        return f"Estimated Tx cost: {curr} {self._interface.curr_symbol()} {cost_estimate}"
 
 
 
@@ -432,4 +433,54 @@ class TextRequestDialog(Frame):
     def _cancel(self):
         self._destroy_window_stack()
         raise NextScene(self._next_scene)
+
+class ValueOptions(Frame):
+    def __init__(self, screen, interface):
+        super(ValueOptions, self).__init__(screen, 13, 34, y=2, has_shadow=True, is_modal=True, name="valueopts", title="Value display options", can_scroll=False)
+        self.set_theme('shadowlands')
+        self._interface = interface
+
+    
+        layout = Layout([100], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Divider(draw_line=False))
+
+        self._node = self._interface.node
+
+        options = []
+        currencies = self._interface._prices['ETH']
+        for k in currencies.keys():
+            options.append( (k, k) )
+
+        #debug(); pdb.set_trace()
+
+        radiobuttons = RadioButtons(options,name='valuepicker')
+
+        # Set radiobox to match stored options
+        for i, option in enumerate(options):
+            if option[1] == self._interface._config.displayed_currency:
+                radiobuttons._value = option[1]
+                radiobuttons._selection = i
+
+        layout.add_widget(radiobuttons)
+
+        layout2 = Layout([1, 1])
+        self.add_layout(layout2)
+
+        layout2.add_widget(Button("Cancel", self._cancel), 1)
+        layout2.add_widget(Button("Select", self._ok), 0)
+        self.fix()
+
+    def _ok(self):
+        options = self.find_widget('valuepicker')
+        self._interface._displayed_currency = options._value
+        self._interface._config.displayed_currency = options._value
+        self._destroy_window_stack()
+        raise NextScene('Main')
+
+    def _cancel(self):
+        self._destroy_window_stack()
+        raise NextScene('Main')
+
+
 

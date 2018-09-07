@@ -1,7 +1,7 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions
+from tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
 from tui.errors import ExitTuiError
 from tui.debug import debug
 import pyperclip
@@ -47,5 +47,12 @@ class MainMenuListener(Effect):
         # N, n for network
         elif event.key_code in [78, 110]:
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
+        # V, v for value
+        elif event.key_code in [86, 118]:
+            if self._interface.price():
+                self._scene.add_effect(ValueOptions(self._screen, self._interface))
+            else:
+                self._scene.add_effect(MessageDialog(self._screen, "Price feed unavailable, try later", 3, 44) )
+
         else:
             return None

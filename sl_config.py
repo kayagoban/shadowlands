@@ -8,6 +8,7 @@ class SLConfig():
         self._websocket_uri = ''
         self._ipc_path = ''
         self._default_method = None
+        self._displayed_currency = None
 
         if config_file_path:
             self._config_file_path = config_file_path
@@ -37,6 +38,7 @@ class SLConfig():
             self._http_uri = self._options_dict['network_options']['http_uri']
             self._websocket_uri = self._options_dict['network_options']['websocket_uri']
             self._ipc_path = self._options_dict['network_options']['ipc_path']
+            self._displayed_currency = self._options_dict['displayed_currency']
            
     def _write_config_file(self):
         f = open(self._config_file_path, 'w')
@@ -45,6 +47,7 @@ class SLConfig():
 
     def _config_dict(self):
         return {
+            "displayed_currency": self._displayed_currency,
             "network_options": {
                 "default_method": self._default_method,
                 "http_uri": self._http_uri,
@@ -88,6 +91,15 @@ class SLConfig():
     @ipc_path.setter
     def ipc_path(self, new_value):
         self._ipc_path = new_value
+        self._write_config_file()
+
+    @property
+    def displayed_currency(self):
+        return self._displayed_currency
+
+    @displayed_currency.setter
+    def displayed_currency(self, new_value):
+        self._displayed_currency = new_value
         self._write_config_file()
 
 
