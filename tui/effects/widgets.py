@@ -5,6 +5,7 @@ from tui.errors import ExitTuiError
 from decimal import Decimal
 from credstick import SignTxError
 from binascii import Error
+import os
 
 from tui.debug import debug
 import pdb
@@ -296,6 +297,8 @@ class NetworkOptions(Frame):
             ('Geth dev PoA', self._node.connect_w3_gethdev_poa),
         ]
         radiobuttons = RadioButtons(options,name='netpicker')
+
+        # Set radiobox to match stored options
         for i, option in enumerate(options):
             if option[1] == self._interface._config.default_method:
                 radiobuttons._value = option[1]
@@ -314,8 +317,20 @@ class NetworkOptions(Frame):
         network_option = self.find_widget('netpicker')
         connect_fn = network_option._value
 
+        try:
+            os.environ['INFURA_API_KEY']
+            no_infura_key = False
+        except KeyError:
+            no_infura_key = True 
+
         if connect_fn == self._node.connect_w3_custom_http:
             self._prompt_custom_http_uri()
+        elif connect_fn == self._node.connect_w3_custom_ipc:
+            self._prompt_custom_ipc_path()
+        elif connect_fn == self._node.connect_w3_custom_websocket:
+            self._prompt_custom_websocket_uri()
+        elif connect_fn == self._node.connect_w3_custom_infura and no_infura_key:
+            self._scene.add_effect( MessageDialog(self._screen, "Set INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
         elif connect_fn():
             self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=self))
         else:
@@ -328,19 +343,51 @@ class NetworkOptions(Frame):
     def _prompt_custom_http_uri(self):
         dialog = TextRequestDialog(
             self._screen, 
-            label_prompt_text="Ex: http://127.0.0.1:8023", 
+            label_prompt_text="Ex: http://127.0.0.1:8545", 
             continue_button_text="Connect", 
             name="dialog_custom_http_uri", 
             title="Custom HTTP URI", 
             text_label="URI",
             text_default_value=self._interface._config.http_uri,
             destroy_window=self,
-            continue_function=self._custom_http_continue_function,
+            continue_function=self._continue_function,
             next_scene="Main"
         )
         self._scene.add_effect(dialog)
 
-    def _custom_http_continue_function(self, text, calling_frame):
+    def _prompt_custom_websocket_uri(self):
+        dialog = TextRequestDialog(
+            self._screen, 
+            label_prompt_text="Ex: wss://127.0.0.1:8546", 
+            continue_button_text="Connect", 
+            name="dialog_custom_websocket_uri", 
+            title="Custom Websockets URI", 
+            text_label="URI",
+            text_default_value=self._interface._config.websocket_uri,
+            destroy_window=self,
+            continue_function=self._continue_function,
+            next_scene="Main"
+        )
+        self._scene.add_effect(dialog)
+
+
+    def _prompt_custom_ipc_path(self):
+        dialog = TextRequestDialog(
+            self._screen, 
+            label_prompt_text="Ex: /path/to/your/node.ipc", 
+            continue_button_text="Connect", 
+            name="dialog_custom_ipc_path", 
+            title="Custom IPC Path", 
+            text_label="Path",
+            text_default_value=self._interface._config.ipc_path,
+            destroy_window=self,
+            continue_function=self._continue_function,
+            next_scene="Main"
+        )
+        self._scene.add_effect(dialog)
+
+
+    def _continue_function(self, text, calling_frame):
         network_option = self.find_widget('netpicker')
         connect_fn = network_option._value
         if connect_fn(text):

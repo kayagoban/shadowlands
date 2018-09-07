@@ -40,7 +40,7 @@ def register_config(sl_config):
 def networkName():
     if network is None:
         raise Exception
-    return network_name
+    return f"{network_name}, {networkDict[network]}"
 
 def ethBalanceStr():
     if network is None:
@@ -129,7 +129,7 @@ def connect_w3_custom_websocket(custom_uri=None):
     if not custom_uri:
         custom_uri = sl_config.websocket_uri
     _w3 = w3_websocket(custom_uri)
-    if is_connected_with(_w3, 'Custom websocket', 18):
+    if is_connected_with(_w3, 'Custom websocket', 2):
         sl_config.websocket_uri = custom_uri
         sl_config.default_method = connect_w3_custom_websocket
         return True

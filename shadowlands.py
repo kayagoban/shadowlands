@@ -73,7 +73,6 @@ eth_node.sl_config = sl_config
 
 
 
-
 #Begin
 ###############
 

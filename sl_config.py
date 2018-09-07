@@ -22,7 +22,6 @@ class SLConfig():
         try:
             self._load_properties()
         except KeyError:
-
             # formatting error, possibly an incompatible cfg file.  We overwrite to fix this problem, better to lose some configs than die with an exception.
             self._write_config_file()
             self._read_yaml()
@@ -84,7 +83,7 @@ class SLConfig():
 
     @property
     def ipc_path(self):
-        return self._http_uri
+        return self._ipc_path
 
     @ipc_path.setter
     def ipc_path(self, new_value):
