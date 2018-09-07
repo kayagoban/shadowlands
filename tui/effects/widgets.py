@@ -436,7 +436,7 @@ class TextRequestDialog(Frame):
 
 class ValueOptions(Frame):
     def __init__(self, screen, interface):
-        super(ValueOptions, self).__init__(screen, 15, 32, y=2, has_shadow=True, is_modal=True, name="valueopts", title="Value display options", can_scroll=False)
+        super(ValueOptions, self).__init__(screen, 15, 24, y=2, has_shadow=True, is_modal=True, name="valueopts", title="Value display", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
 
