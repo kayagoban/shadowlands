@@ -37,6 +37,11 @@ class ParityCompatibleTxPool(TxPool):
         return self.web3.manager.request_blocking("parity_allTransactions", [])
 
 
+def find_parity_tx(tx_hash):
+    for txdata in w3.txpool.parity_all_transactions:
+        if txdata['hash'] == mytx:
+            return txdata
+
 
 networkDict = {
     '1': 'MainNet',
@@ -65,27 +70,32 @@ network_name = None
 # Flag to shut down heartbeat thread
 shutdown = False
 
+class NodeConnectionError(Exception):
+    pass
+
+class ENSNotSetError(Exception):
+    pass
 
 def register_config(sl_config):
     _sl_config = sl_config
 
 def networkName():
     if network is None:
-        raise Exception
+        raise NodeConnectionError
     return f"{network_name}, {networkDict[network]}"
 
 def ethBalanceStr():
     if network is None:
-        raise Exception
+        raise NodeConnectionError
     if weiBalance:
         return str(w3.fromWei(weiBalance, 'ether'))
     else:
-        return 'Unknown'
+        raise NodeConnectionError
 
 def syncingHash():
     global syncing
     if syncing == {}:
-        raise Exception
+        raise NodeConnectionError
 
     return syncing
 
@@ -93,7 +103,7 @@ def ens_domain():
     global domain
     
     if not domain:
-        raise Exception
+        raise ENSNotSetError
 
     return domain
 

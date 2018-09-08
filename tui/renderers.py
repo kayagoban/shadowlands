@@ -1,10 +1,13 @@
 from asciimatics.renderers import DynamicRenderer
 from decimal import Decimal
 from tui.errors import PriceError
+from eth_node import NodeConnectionError
+
 from tui.debug import debug
 import pdb
 
 
+ #debug(); pdb.set_trace()
 
 class NetworkStatusRenderer(DynamicRenderer):
     def __init__(self, _node):
@@ -14,7 +17,7 @@ class NetworkStatusRenderer(DynamicRenderer):
     def _render_now(self):
         try:
             network = self.node.networkName()
-        except:
+        except NodeConnectionError:
             network = 'unavailable'
 
         return [network], None
@@ -33,8 +36,9 @@ class BlockStatusRenderer(DynamicRenderer):
                          ]
             else:
                 images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
-        except:
+        except NodeConnectionError:
             images = [ '[No blocks available]' ]
+
 
         return images, None
 
@@ -75,7 +79,6 @@ class EthBalanceRenderer(DynamicRenderer):
             bal = 'Unknown'
         return [bal], None
 
-        #debug(); pdb.set_trace()
 class EthValueRenderer(DynamicRenderer):
     def __init__(self, interface):
         super(EthValueRenderer, self).__init__(1, 15)
@@ -88,7 +91,10 @@ class EthValueRenderer(DynamicRenderer):
         except (TypeError, KeyError, PriceError):
             return ['Unavailable'], None
 
-        eth = Decimal(self._interface.node.ethBalanceStr())
+        try:
+            eth = Decimal(self._interface.node.ethBalanceStr())
+        except NodeConnectionError:
+            return ['Unavailable'], None
         if curr == 'BTC':
             decimal_places = 6
         else:
