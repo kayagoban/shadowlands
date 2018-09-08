@@ -213,6 +213,8 @@ class SendBox(TransactionFrame):
             self._interface._dapp.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
         except SignTxError:
             self._scene.add_effect( MessageDialog(self._screen,"Credstick refused to sign Tx"))
+        except ValueError:
+            self._scene.add_effect( MessageDialog(self._screen,"GasPrice too low to replace pending Tx", width = 45))
             return
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
