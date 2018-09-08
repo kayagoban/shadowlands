@@ -1,4 +1,4 @@
-from contract.contract import Contract
+from contract import Contract
 from namehash import namehash
 from hexbytes import HexBytes
 

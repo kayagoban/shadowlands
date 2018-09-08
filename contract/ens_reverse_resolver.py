@@ -1,4 +1,4 @@
-from contract.contract import Contract
+from contract import Contract
 from hexbytes import HexBytes
 
 class EnsReverseResolver(Contract):

@@ -1,4 +1,4 @@
-from contract.contract import Contract
+from contract import Contract
 from contract.weth import Weth
 from contract.ens import Ens
 from contract.ens_registry import EnsRegistry
