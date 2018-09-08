@@ -69,6 +69,7 @@ def set_ens_reverse_lookup(name, gas_price):
     )
  
 
+# TODO almost certainly in a Dapp
 # send_erc20('WETH', '0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_erc20(token, destination, amount, gas_price):
 
@@ -84,7 +85,8 @@ def send_erc20(token, destination, amount, gas_price):
         ERC20[token].transfer(destination, value), gas_price
     )
 
-
+# TODO may be an EtherSend dapp, or possibly 
+#  in eth_node
 # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_ether(destination, amount, gas_price):
     tx_dict = build_send_tx(amount, destination, gas_price)
@@ -92,6 +94,7 @@ def send_ether(destination, amount, gas_price):
     rx = node.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
 
+# TODO belongs to eth_node
 def push( contract_function, gas_price ):
     tx = contract_function.buildTransaction(defaultTxDict(gas_price))
     signed_tx = credstick.signTx(tx)
@@ -102,6 +105,7 @@ def push( contract_function, gas_price ):
     
     return rx
 
+# TODO belongs to eth_node
 def build_send_tx(amt, recipient, gas_price):
     return  dict(
         nonce=node.w3.eth.getTransactionCount(eth_node.ethAddress),
@@ -112,6 +116,7 @@ def build_send_tx(amt, recipient, gas_price):
         data=b''
     )
 
+# TODO belongs to eth_node
 def defaultTxDict(gas_price):
     _dict = dict(
         nonce=node.w3.eth.getTransactionCount(eth_node.ethAddress),
