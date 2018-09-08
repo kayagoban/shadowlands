@@ -46,7 +46,7 @@ class Credstick(object):
                 if ('interface_number' in hidDevice and hidDevice['interface_number'] == 0) or ('usage_page' in hidDevice and hidDevice['usage_page'] == 0xffa0):
                     hidDevicePath = hidDevice['path']
                     if hidDevicePath is not None:
-                        from ledger_ethdriver import LedgerEthDriver
+                        from credstick.ledger_ethdriver import LedgerEthDriver
                         return LedgerEthDriver
 
         raise NoCredstickFoundError("Could not identify any supported credstick")
