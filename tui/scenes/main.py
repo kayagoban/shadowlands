@@ -45,6 +45,17 @@ d ║ y ║ e ║ p
       ║ s
 '''
 
+
+    TXDISPLAY='''
+T${7,1}x${2,2}
+─╖
+${7,1}0${2,2}║  0x80fbe87fc0221221644987b1d67837be4a30b1c3cc3461554c314b8a72d47ba0
+─╢
+${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b2e00
+'''
+
+
+
     def __init__(self, screen, _name, interface):
 
         #debug(screen._screen); import pdb; pdb.set_trace()

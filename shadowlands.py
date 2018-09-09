@@ -6,7 +6,7 @@ from namehash import namehash
 from pyfiglet import Figlet
 from cryptocompy import price
 import eth_node
-import dapp
+#import dapp
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
 from tui.tui import Interface
 from asciimatics.exceptions import NextScene
@@ -33,7 +33,8 @@ def credstick_finder(interface):
             credstick = Credstick.detect()
             credstick.open()
             eth_node.ethAddress = credstick.derive()
-            dapp.credstick = credstick
+            # TODO remove
+            #dapp.credstick = credstick
             eth_node.poll()
             not_found = False
             interface.set_credstick(credstick)
@@ -80,12 +81,13 @@ t = threading.Thread(target=eth_node.heartbeat)
 t.start()
 
 
-dapp.node = eth_node
-dapp.register_node_on_contracts()
+#dapp.node = eth_node
+#dapp.register_node_on_contracts()
 
 
 # create user interface 
-interface = Interface(eth_node, dapp, sl_config)
+interface = Interface(eth_node, None, sl_config)
+#interface = Interface(eth_node, dapp, sl_config)
 
 
 #eth_price_poller(interface)

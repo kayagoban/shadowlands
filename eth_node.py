@@ -267,3 +267,42 @@ def heartbeat():
             if shutdown:
                 return
 
+
+def push( contract_function, gas_price ):
+    global w3
+
+    tx = contract_function.buildTransaction(defaultTxDict(gas_price))
+    signed_tx = credstick.signTx(tx)
+    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    return rx
+
+
+# send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
+def send_ether(destination, amount, gas_price):
+    global w3
+
+    tx_dict = build_send_tx(amount, destination, gas_price)
+    signed_tx = credstick.signTx(tx_dict)
+    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+
+
+def build_send_tx(amt, recipient, gas_price):
+    global w3, ethAddress
+    return  dict(
+        nonce=w3.eth.getTransactionCount(ethAddress),
+        gasPrice=gas_price,
+        gas=100000,
+        to=decode_hex(recipient),
+        value=w3.toWei(amt, 'ether'),
+        data=b''
+    )
+
+def defaultTxDict(gas_price):
+    global w3, ethAddress
+    return dict(
+        nonce=w3.eth.getTransactionCount(ethAddress),
+        gasPrice=int(gas_price),
+        gas=800000,
+        value=0
+    ) 
+
