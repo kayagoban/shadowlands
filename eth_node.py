@@ -62,6 +62,7 @@ syncing = {}
 blocksBehind = None
 weiBalance = None
 ethAddress = None
+credstick = None
 domain = None
 client_name = None
 heart_rate = 1
@@ -269,7 +270,7 @@ def heartbeat():
 
 
 def push( contract_function, gas_price ):
-    global w3
+    global w3, credstick
 
     tx = contract_function.buildTransaction(defaultTxDict(gas_price))
     signed_tx = credstick.signTx(tx)
@@ -279,7 +280,7 @@ def push( contract_function, gas_price ):
 
 # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
 def send_ether(destination, amount, gas_price):
-    global w3
+    global w3, credstick
 
     tx_dict = build_send_tx(amount, destination, gas_price)
     signed_tx = credstick.signTx(tx_dict)

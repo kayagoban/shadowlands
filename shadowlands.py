@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 
-import sys, os, hashlib, argparse, struct, time, locale, qrcode_terminal, threading
-import tty, termios
-from namehash import namehash
-from pyfiglet import Figlet
+import threading, time
 from cryptocompy import price
 import eth_node
-#import dapp
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
 from tui.tui import Interface
-from asciimatics.exceptions import NextScene
 from time import sleep
 from sl_config import SLConfig
 from tui.debug import debug
@@ -32,10 +27,9 @@ def credstick_finder(interface):
         try: 
             credstick = Credstick.detect()
             credstick.open()
+            eth_node.credstick = credstick
             eth_node.ethAddress = credstick.derive()
-            # TODO remove
-            #dapp.credstick = credstick
-            eth_node.poll()
+            #eth_node.poll()
             not_found = False
             interface.set_credstick(credstick)
         except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):

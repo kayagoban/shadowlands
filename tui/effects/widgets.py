@@ -210,7 +210,7 @@ class SendBox(TransactionFrame):
             return
 
         try:
-            self._interface._dapp.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
+            self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
         except SignTxError:
             self._scene.add_effect( MessageDialog(self._screen,"Credstick refused to sign Tx"))
         except ValueError:

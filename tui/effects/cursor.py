@@ -11,9 +11,6 @@ import threading
 import curses
 import sys
 
-
-logging.basicConfig(filename='shadow.log', filemode='w', level=logging.INFO)
-
 #debug(self._screen._screen); import pdb; pdb.set_trace()
 class Cursor(Effect):
 
