@@ -1,5 +1,6 @@
 from pathlib import Path
 import yaml
+from yaml.constructor import ConstructorError
 import pdb
 
 class SLConfig():
@@ -22,15 +23,22 @@ class SLConfig():
 
         try:
             self._load_properties()
-        except KeyError:
+        except (KeyError, TypeError):
+            self._clobber_bad_file()
             # formatting error, possibly an incompatible cfg file.  We overwrite to fix this problem, better to lose some configs than die with an exception.
-            self._write_config_file()
-            self._read_yaml()
-            self._load_properties()
+    def _clobber_bad_file(self):
+        self._write_config_file()
+        self._read_yaml()
+        self._load_properties()
+
  
     def _read_yaml(self):
         f = open(self._config_file_path, 'r')
-        self._options_dict = yaml.load(f.read())
+        try:
+            self._options_dict = yaml.load(f.read())
+        except ConstructorError:
+            self._clobber_bad_file()
+            
         f.close()
 
     def _load_properties(self):

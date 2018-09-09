@@ -1,6 +1,4 @@
 from asciimatics.exceptions import NextScene, ResizeScreenError
-#from asciimatics.effects import Print
-#from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from tui.scenes.loading import LoadingScene
 from tui.errors import ExitTuiError, PriceError
@@ -28,21 +26,21 @@ class Interface():
     }
 
 
-    def __init__(self, _eth_node, dapp, config, _credstick=None):
-        self.credstick = _credstick
+    def __init__(self, _eth_node, config):
         self.node = _eth_node
-        self._dapp = dapp
         self._config = config
         self._screen = None
         self._price = None
         self._prices = None
-        #self._displayed_currency = None
+        self._credstick = None
 
-    # Callback from the credstick_finder thread.
-    # the credstick watcher effect will see this
-    # and switch to the main scene.
-    def set_credstick(self, _credstick):
-        self.credstick = _credstick
+    @property
+    def credstick(self):
+        return self._credstick
+
+    @credstick.setter
+    def credstick(self, credstick):
+        self._credstick = credstick
 
     # make this a pythonic attribute
     def price(self):

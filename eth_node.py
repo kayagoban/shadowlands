@@ -37,273 +37,278 @@ class ParityCompatibleTxPool(TxPool):
         return self.web3.manager.request_blocking("parity_allTransactions", [])
 
 
-def find_parity_tx(tx_hash):
-    for txdata in w3.txpool.parity_all_transactions:
-        if txdata['hash'] == mytx:
-            return txdata
-
-
-networkDict = {
-    '1': 'MainNet',
-    '2': 'Morden',
-    '3': 'Ropsten',
-    '4': 'Rinkeby',
-    '42': 'Kovan'
-}
-
-
-sl_config = None
-
-localNode = None
-block = ""
-nodeVersion = ""
-network = None
-syncing = {}
-blocksBehind = None
-weiBalance = None
-ethAddress = None
-credstick = None
-domain = None
-client_name = None
-heart_rate = 1
-network_name = None
-
-# Flag to shut down heartbeat thread
-shutdown = False
-
 class NodeConnectionError(Exception):
     pass
 
 class ENSNotSetError(Exception):
     pass
 
-def register_config(sl_config):
-    _sl_config = sl_config
 
-def networkName():
-    if network is None:
-        raise NodeConnectionError
-    return f"{network_name}, {networkDict[network]}"
+class Node():
 
-def ethBalanceStr():
-    if network is None:
-        raise NodeConnectionError
-    if weiBalance:
-        return str(w3.fromWei(weiBalance, 'ether'))
-    else:
-        raise NodeConnectionError
-
-def syncingHash():
-    global syncing
-    if syncing == {}:
-        raise NodeConnectionError
-
-    return syncing
-
-def ens_domain():
-    global domain
-    
-    if not domain:
-        raise ENSNotSetError
-
-    return domain
+    NETWORKDICT = {
+        '1': 'MainNet',
+        '2': 'Morden',
+        '3': 'Ropsten',
+        '4': 'Rinkeby',
+        '42': 'Kovan'
+    }
 
 
-def cleanout_w3():
-    try:
-        del(sys.modules['web3.auto'])
-        del(sys.modules['web3.auto.infura'])
-        del(sys.modules['web3.auto.gethdev'])
-        del(sys.modules['web3'])
-    except KeyError:
-        pass
+    def __init__(self, sl_config=None):
 
+        self._sl_config = sl_config
 
-def is_connected_with(_w3, name, _heart_rate):
-    global w3, network_name, nodeVersion, network, ns, localNode, heart_rate
+        self._w3 = None
+        self._block = ""
+        self._nodeVersion = ""
+        self._network = None
+        self._syncing = {}
+        self._blocksBehind = None
+        self._weiBalance = None
+        self._ethAddress = None
+        self._credstick = None
+        self._domain = None
+        self._client_name = None
+        self._heart_rate = 1
+        self._network_name = None
 
-    if _w3.isConnected():
-        network_name = name
-        w3 = _w3
-        nodeVersion = w3.version.node
-        network = w3.version.network
-        ns = ENS.fromWeb3(w3)
-        heart_rate = _heart_rate
-        # Monkey patch the txpool object so we can get parity txPool info
-        w3.txpool = ParityCompatibleTxPool(w3)
+        self._localNode = None
+        # Flag to shut down heartbeat thread
+        self._shutdown = False
 
-        return True
-    return False
+    @property
+    def w3(self):
+        return self._w3
 
+    @property
+    def block(self):
+        return self._block
 
-def connect_default():
-    global sl_config
-    try:
-        fn = sl_config.default_method()
-    except (AttributeError, TypeError):
-        return False
-    return fn()
+    @property
+    def credstick(self):
+        return self._credstick
 
+    @credstick.setter
+    def credstick(self, credstick):
+        self._credstick = credstick
 
-def connect_w3_local():
-    global sl_config
-    cleanout_w3()
-    from web3.auto import w3
-    if is_connected_with(w3, 'Local node', 1):
-        sl_config.default_method = connect_w3_local
-        return True
-    return False
+    @property
+    def networkName(self):
+        if self._network is None:
+            raise NodeConnectionError
+        return f"{network_name}, {networkDict[network]}"
 
-
-def w3_websocket(uri=None):
-    from web3 import Web3
-    return Web3(Web3.WebsocketProvider(uri))
-
-
-def connect_w3_public_infura():
-    global sl_config
-    cleanout_w3()
-    _w3 = w3_websocket("wss://mainnet.infura.io/ws")
-    if is_connected_with(_w3, 'Public infura', 18):
-        sl_config.default_method = connect_w3_public_infura
-        return True
-    return False
-
-
-def connect_w3_custom_websocket(custom_uri=None):
-    global sl_config
-    cleanout_w3()
-    if not custom_uri:
-        custom_uri = sl_config.websocket_uri
-    _w3 = w3_websocket(custom_uri)
-    if is_connected_with(_w3, 'Custom websocket', 2):
-        sl_config.websocket_uri = custom_uri
-        sl_config.default_method = connect_w3_custom_websocket
-        return True
-    return False
-
-
-def connect_w3_custom_infura():
-    global sl_config
-    cleanout_w3()
-    from web3.auto.infura import w3
-    if is_connected_with(w3, 'Custom infura', 18):
-        sl_config.default_method = connect_w3_custom_infura
-        return True
-    return False
-
-
-def connect_w3_custom_ipc(path=None):
-    global sl_config
-    cleanout_w3()
-    from web3 import Web3
-    if not path:
-        path = sl_config.ipc_path
-    w3 = Web3(Web3.IPCProvider(path))
-    if is_connected_with(w3, 'Custom IPC', 1):
-        sl_config.ipc_path = path
-        sl_config.default_method = connect_w3_custom_ipc
-        return True
-    return False
-
-
-def connect_w3_custom_http(custom_uri=None):
-    global sl_config 
-
-    cleanout_w3()
-    from web3 import Web3
-    if not custom_uri:
-        custom_uri = sl_config.http_uri
-    w3 = Web3(Web3.HTTPProvider(custom_uri))
-    if is_connected_with(w3, 'Custom HTTP', 1):
-        sl_config.http_uri = custom_uri
-        sl_config.default_method = connect_w3_custom_http
-        return True
-    return False
-
-
-def connect_w3_gethdev_poa():
-    global sl_config
-    cleanout_w3()
-    from web3.auto.gethdev import w3
-    if is_connected_with(w3, 'Gethdev PoA', 1):
-        sl_config.default_method = connect_w3_gethdev_poa
-        return True
-    return False
-
-
-
-def poll():
-    global block, blocksBehind, syncing, weiBalance, domain, network
-
-    try: 
-        syncing = w3.eth.syncing
-
-        if syncing:
-            blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
+    @property
+    def ethBalanceStr(self):
+        if self._network is None:
+            raise NodeConnectionError
+        if self._weiBalance:
+            return str(self.w3.fromWei(self._weiBalance, 'ether'))
         else:
-            block = str(w3.eth.blockNumber)
-        if ethAddress:
-            weiBalance = w3.eth.getBalance(ethAddress)
-            domain = ns.name(ethAddress)
-    except:
-        localNode = None
-        network = None
-        syncing = {}
-        domain = None
+            raise NodeConnectionError
+
+    @property
+    def syncingHash(self):
+        if self._syncing == {}:
+            raise NodeConnectionError
+        return self._syncing
+
+    @property
+    def ens_domain(self):
+        if not self._domain:
+            raise ENSNotSetError
+        return self._domain
+
+
+    def cleanout_w3(self):
         try:
-            connect_default() or connect_w3_local() or connect_w3_public_infura()
-        except:
+            del(sys.modules['web3.auto'])
+            del(sys.modules['web3.auto.infura'])
+            del(sys.modules['web3.auto.gethdev'])
+            del(sys.modules['web3'])
+        except KeyError:
             pass
-        pass
+
+    def find_parity_tx(self, tx_hash):
+        for txdata in self.w3.txpool.parity_all_transactions:
+            if txdata['hash'] == mytx:
+                return txdata
 
 
-def heartbeat():
-    global shutdown
-    while True:
-        poll()
+    def is_connected_with(self, _w3, name, _heart_rate):
 
-        for i in range(heart_rate):
-            time.sleep(1)
-            if shutdown:
-                return
+        if _w3.isConnected():
+            self._network_name = name
+            self._w3 = _w3
+            self._nodeVersion = self.w3.version.node
+            self._network = self.w3.version.network
+            self._ns = ENS.fromWeb3(self.w3)
+            self._heart_rate = _heart_rate
+            # Monkey patch the txpool object so we can get parity txPool info
+            self.w3.txpool = ParityCompatibleTxPool(self.w3)
+
+            return True
+        return False
 
 
-def push( contract_function, gas_price ):
-    global w3, credstick
+    def connect_default(self):
+        try:
+            fn = self._sl_config.default_method()
+        except (AttributeError, TypeError):
+            return False
+        return fn()
 
-    tx = contract_function.buildTransaction(defaultTxDict(gas_price))
-    signed_tx = credstick.signTx(tx)
-    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-    return rx
+
+    def connect_w3_local(self):
+
+        pdb.set_trace()
+        self.cleanout_w3()
+        from web3.auto import w3
+        if self.is_connected_with(w3, 'Local node', 1):
+            self._sl_config.default_method = self.connect_w3_local
+            return True
+        return False
+
+
+    def w3_websocket(self, uri=None):
+        from web3 import Web3
+        return Web3(Web3.WebsocketProvider(uri))
+
+
+    def connect_w3_public_infura(self):
+        self.cleanout_w3()
+        _w3 = w3_websocket("wss://mainnet.infura.io/ws")
+        if self.is_connected_with(_w3, 'Public infura', 18):
+            self._sl_config.default_method = self.connect_w3_public_infura
+            return True
+        return False
+
+
+    def connect_w3_custom_websocket(self, custom_uri=None):
+        self.cleanout_w3()
+        if not custom_uri:
+            custom_uri = sl_config.websocket_uri
+        _w3 = w3_websocket(custom_uri)
+        if self.is_connected_with(_w3, 'Custom websocket', 2):
+            self._sl_config.websocket_uri = custom_uri
+            self._sl_config.default_method = self.connect_w3_custom_websocket
+            return True
+        return False
+
+
+    def connect_w3_custom_infura(self):
+        self.cleanout_w3()
+        from web3.auto.infura import w3
+        if self.is_connected_with(w3, 'Custom infura', 18):
+            self._sl_config.default_method = self.connect_w3_custom_infura
+            return True
+        return False
+
+
+    def connect_w3_custom_ipc(self, path=None):
+        self.cleanout_w3()
+        from web3 import Web3
+        if not path:
+            path = sl_config.ipc_path
+        w3 = Web3(Web3.IPCProvider(path))
+        if self.is_connected_with(w3, 'Custom IPC', 1):
+            self._sl_config.ipc_path = path
+            self._sl_config.default_method = self.connect_w3_custom_ipc
+            return True
+        return False
+
+
+    def connect_w3_custom_http(self, custom_uri=None):
+        self.cleanout_w3()
+        from web3 import Web3
+        if not custom_uri:
+            custom_uri = sl_config.http_uri
+        w3 = Web3(Web3.HTTPProvider(custom_uri))
+        if self.is_connected_with(w3, 'Custom HTTP', 1):
+            self._sl_config.http_uri = custom_uri
+            self._sl_config.default_method = self.connect_w3_custom_http
+            return True
+        return False
+
+
+    def connect_w3_gethdev_poa(self):
+        self.cleanout_w3()
+        from web3.auto.gethdev import w3
+        if self.is_connected_with(w3, 'Gethdev PoA', 1):
+            self._sl_config.default_method = self.connect_w3_gethdev_poa
+            return True
+        return False
+
+
+
+    def poll(self):
+        try: 
+            self._syncing = self.w3.eth.syncing
+
+            if self._syncing:
+                self._blocksBehind = syncing['highestBlock'] - syncing['currentBlock']
+            else:
+                self._block = str(self.w3.eth.blockNumber)
+            if ethAddress:
+                self._weiBalance = self.w3.eth.getBalance(ethAddress)
+                self._domain = ns.name(ethAddress)
+        except:
+            #import traceback
+            #print(traceback.print_exc())
+            self._localNode = None
+            self._network = None
+            self._syncing = {}
+            self._domain = None
+            try:
+                self.connect_default() or self.connect_w3_local() or self.connect_w3_public_infura()
+            except:
+                import traceback
+                print(traceback.print_exc())
+            pass
+
+
+    def heartbeat(self):
+        while True:
+            self.poll()
+
+            for i in range(heart_rate):
+                time.sleep(1)
+                if self._shutdown:
+                    return
+
+
+    def push(self, contract_function, gas_price ):
+
+        tx = contract_function.buildTransaction(defaultTxDict(gas_price))
+        signed_tx = self._credstick.signTx(tx)
+        rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        return rx
 
 
 # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
-def send_ether(destination, amount, gas_price):
-    global w3, credstick
+    def send_ether(self,destination, amount, gas_price):
 
-    tx_dict = build_send_tx(amount, destination, gas_price)
-    signed_tx = credstick.signTx(tx_dict)
-    rx = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        tx_dict = build_send_tx(amount, destination, gas_price)
+        signed_tx = self._credstick.signTx(tx_dict)
+        rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
 
-def build_send_tx(amt, recipient, gas_price):
-    global w3, ethAddress
-    return  dict(
-        nonce=w3.eth.getTransactionCount(ethAddress),
-        gasPrice=gas_price,
-        gas=100000,
-        to=decode_hex(recipient),
-        value=w3.toWei(amt, 'ether'),
-        data=b''
-    )
+    def build_send_tx(self,amt, recipient, gas_price):
+        return  dict(
+            nonce=self.w3.eth.getTransactionCount(self._ethAddress),
+            gasPrice=gas_price,
+            gas=100000,
+            to=decode_hex(recipient),
+            value=self.w3.toWei(amt, 'ether'),
+            data=b''
+        )
 
-def defaultTxDict(gas_price):
-    global w3, ethAddress
-    return dict(
-        nonce=w3.eth.getTransactionCount(ethAddress),
-        gasPrice=int(gas_price),
-        gas=800000,
-        value=0
-    ) 
+    def defaultTxDict(self,gas_price):
+        return dict(
+            nonce=self.w3.eth.getTransactionCount(self._ethAddress),
+            gasPrice=int(gas_price),
+            gas=800000,
+            value=0
+        ) 
 

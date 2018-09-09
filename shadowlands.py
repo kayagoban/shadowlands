@@ -2,14 +2,15 @@
 
 import threading, time
 from cryptocompy import price
-import eth_node
-from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
-from tui.tui import Interface
 from time import sleep
-from sl_config import SLConfig
-from tui.debug import debug
-import pdb
 
+from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
+from sl_config import SLConfig
+from eth_node import Node
+from tui.tui import Interface
+
+import pdb
+from tui.debug import debug
 #pdb.set_trace()
 
 menuSelection = None
@@ -31,7 +32,7 @@ def credstick_finder(interface):
             eth_node.ethAddress = credstick.derive()
             #eth_node.poll()
             not_found = False
-            interface.set_credstick(credstick)
+            interface.credstick = credstick
         except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
             time.sleep(0.25)
 
@@ -68,7 +69,7 @@ sl_config = SLConfig()
 
 
 # Start network subsystem
-eth_node.sl_config = sl_config
+eth_node = Node(sl_config)
 
 # Eth node heartbeat
 t = threading.Thread(target=eth_node.heartbeat)
@@ -80,7 +81,7 @@ t.start()
 
 
 # create user interface 
-interface = Interface(eth_node, None, sl_config)
+interface = Interface(eth_node, sl_config)
 #interface = Interface(eth_node, dapp, sl_config)
 
 
