@@ -102,6 +102,7 @@ class LedgerEthDriver(Credstick):
             cls._driver = getDongle(False)
             cls.manufacturerStr = cls._driver.device.get_manufacturer_string()
             cls.productStr = cls._driver.device.get_product_string()
+            cls.address = cls.derive()
         except OSError:
             raise OpenCredstickError
 

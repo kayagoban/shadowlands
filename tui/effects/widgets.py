@@ -291,13 +291,13 @@ class NetworkOptions(Frame):
         self._node = self._interface.node
 
         options = [
-            ('Local node', self._node.connect_w3_local), 
-            ('Public infura', self._node.connect_w3_public_infura),
-            ('Custom http', self._node.connect_w3_custom_http), 
-            ('Custom websocket', self._node.connect_w3_custom_websocket),
-            ('Custom ipc', self._node.connect_w3_custom_ipc),
-            ('Custom Infura API Key', self._node.connect_w3_custom_infura),
-            ('Geth dev PoA', self._node.connect_w3_gethdev_poa),
+            ('Local node', 'connect_w3_local'), 
+            ('Public infura', 'connect_w3_public_infura'),
+            ('Custom http', 'connect_w3_custom_http'), 
+            ('Custom websocket', 'connect_w3_custom_websocket'),
+            ('Custom ipc', 'connect_w3_custom_ipc'),
+            ('Custom Infura API Key', 'connect_w3_custom_infura'),
+            ('Geth dev PoA', 'connect_w3_gethdev_poa'),
         ]
         radiobuttons = RadioButtons(options,name='netpicker')
 
@@ -326,18 +326,33 @@ class NetworkOptions(Frame):
         except KeyError:
             no_infura_key = True 
 
-        if connect_fn == self._node.connect_w3_custom_http:
+
+        if connect_fn == 'connect_w3_custom_http':
             self._prompt_custom_http_uri()
-        elif connect_fn == self._node.connect_w3_custom_ipc:
+        elif connect_fn == 'connect_w3_custom_ipc':
             self._prompt_custom_ipc_path()
-        elif connect_fn == self._node.connect_w3_custom_websocket:
+        elif connect_fn == 'connect_w3_custom_websocket':
             self._prompt_custom_websocket_uri()
-        elif connect_fn == self._node.connect_w3_custom_infura and no_infura_key:
+        elif connect_fn == 'connect_w3_custom_infura' and no_infura_key:
             self._scene.add_effect( MessageDialog(self._screen, "Set INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
-        elif connect_fn():
-            self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=self))
+        elif self._attempt_connection(connect_fn):
+            connect_str = f"{self._interface.node.network_name} connected via {self._interface.node.connection_type}"
+            self._scene.add_effect( MessageDialog(self._screen, connect_str, destroy_window=self, width=(len(connect_str)+6) ) )
         else:
             self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=self))
+
+
+    def _attempt_connection(self, fn_name, arg=None):
+        fn = self._interface.node.__getattribute__(fn_name)
+        self._interface.node.thread_shutdown = True
+        self._interface.node.heartbeat_thread.join()
+        self._interface.node.thread_shutdown = False
+        if arg:
+            return fn(arg)
+        else:
+            return fn()
+        self._interface.node.start_heartbeat_thread()
+
 
     def _cancel(self):
         self._scene.remove_effect(self)
@@ -393,7 +408,7 @@ class NetworkOptions(Frame):
     def _continue_function(self, text, calling_frame):
         network_option = self.find_widget('netpicker')
         connect_fn = network_option._value
-        if connect_fn(text):
+        if self._attempt_connection(connect_fn, text):
             self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=calling_frame))
         else:
             self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))

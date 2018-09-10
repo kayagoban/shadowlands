@@ -7,7 +7,7 @@ from tui.debug import debug
 import pdb
 
 
- #debug(); pdb.set_trace()
+#debug(); pdb.set_trace()
 
 class NetworkStatusRenderer(DynamicRenderer):
     def __init__(self, _node):
@@ -15,12 +15,10 @@ class NetworkStatusRenderer(DynamicRenderer):
         self.node = _node
 
     def _render_now(self):
-        try:
-            network = self.node.networkName()
-        except NodeConnectionError:
-            network = 'unavailable'
+        if self.node.connection_type and self.node.network_name:
+            return [f'{self.node.connection_type},  {self.node.network_name}'], None
 
-        return [network], None
+        return ['No ethereum connection'], None
 
 
 class BlockStatusRenderer(DynamicRenderer):
@@ -30,14 +28,18 @@ class BlockStatusRenderer(DynamicRenderer):
         self.node = _node
 
     def _render_now(self):
-        try:
-            if not self.node.syncingHash():
-                images = ['[synced: block ' + self.node.block + ']'
-                         ]
-            else:
-                images = [ '[syncing:  ' + str(self.node.blocksBehind) + ' blocks to ' + str(self.node.syncing['highestBlock']) + ']' ]
-        except NodeConnectionError:
-            images = [ '[No blocks available]' ]
+        syncing = self.node.syncing_hash
+        if not ( syncing or self.node.best_block):
+            return [ '[No blocks available]' ], None
+
+
+        if syncing == None:
+            return [ '[No blocks available]' ], None
+        elif syncing.__class__ == bool and syncing == False:
+            images = ['[synced: block ' + str(self.node.best_block) + ']'
+                     ]
+        else:
+            images = [ '[syncing:  ' + str(self.node.blocks_behind) + ' blocks to ' + str(self.node.syncing_hash['highestBlock']) + ']' ]
 
 
         return images, None
@@ -48,11 +50,10 @@ class AddressRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        try:
-            addr = self._interface.credstick.addressStr()
-        except:
-            addr = 'Unknown'
+        if not self._interface.credstick:
+            return ['Unknown'], None
 
+        addr = self._interface.credstick.addressStr()
         return [addr], None
 
 class CredstickNameRenderer(DynamicRenderer):
@@ -61,10 +62,10 @@ class CredstickNameRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        try:
-            name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
-        except:
+        if not self._interface.credstick:
             name = 'Unknown'
+        else:
+            name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
         return [name], None
 
 class EthBalanceRenderer(DynamicRenderer):
@@ -73,11 +74,12 @@ class EthBalanceRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        try:
-            bal = self._interface.node.ethBalanceStr()
-        except:
-            bal = 'Unknown'
-        return [bal], None
+        bal = self._interface.node.eth_balance
+        if bal:
+            bal_str = str( bal )
+        else:
+            bal_str = 'Unknown'
+        return [bal_str], None
 
 class EthValueRenderer(DynamicRenderer):
     def __init__(self, interface):
@@ -91,9 +93,8 @@ class EthValueRenderer(DynamicRenderer):
         except (TypeError, KeyError, PriceError):
             return ['Unavailable'], None
 
-        try:
-            eth = Decimal(self._interface.node.ethBalanceStr())
-        except NodeConnectionError:
+        eth = self._interface.node.eth_balance
+        if not eth:
             return ['Unavailable'], None
         if curr == 'BTC':
             decimal_places = 6
@@ -112,9 +113,8 @@ class ENSRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        try:
-            domain = self._interface.node.ens_domain()
-        except:
+        domain = self._interface.node.ens_domain
+        if not domain:
             domain = 'Service unavailable'
 
         return [domain], None

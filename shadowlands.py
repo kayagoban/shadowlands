@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import threading, time
+import threading, time, sys
 from cryptocompy import price
 from time import sleep
 
@@ -72,9 +72,10 @@ sl_config = SLConfig()
 eth_node = Node(sl_config)
 
 # Eth node heartbeat
-t = threading.Thread(target=eth_node.heartbeat)
-t.start()
 
+eth_node.connect_config_default()
+
+eth_node.start_heartbeat_thread()
 
 #dapp.node = eth_node
 #dapp.register_node_on_contracts()
@@ -126,10 +127,9 @@ price_poller_thread_shutdown = True
 print("Waiting for price poller to shut down...")
 p.join()
 
-eth_node.shutdown = True
+eth_node.thread_shutdown = True
 print("Closing connection to ethereum node...")
-t.join()
-
+eth_node._heartbeat_thread.join()
 
 sys.exit(0)
 

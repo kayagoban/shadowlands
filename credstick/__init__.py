@@ -22,7 +22,6 @@ class SignTxError(Exception):
 
 
 class Credstick(object):
-
     _driver = None
     manufacturerStr = None
     productStr = None
