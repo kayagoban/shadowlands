@@ -83,18 +83,20 @@ class Interface():
 
         while True:
             try:
+                raise RunDapp
                 Screen.wrapper(self.tui)
                 break
             except ResizeScreenError:
                 pass
             except RunDapp:
+                print("switching to dapp...")
                 # load dapp from wherever it is
                 from dapp import Dapp
                 current_dapp = Dapp(self.node)         
-                Screen.wrapper(current_dapp.tui)
-                break
-            except ExitDapp:
-                del(sys.modules['dapp'])
+                try:
+                    Screen.wrapper(current_dapp.tui)
+                except ExitDapp:
+                    del(sys.modules['dapp'])
             except ExitTuiError:
                 print("Shutting it all down...")
                 break

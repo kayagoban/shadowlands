@@ -3,13 +3,19 @@ from contract import Contract
 class Ens(Contract):
     MAINNET='0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef'
 
+    def name_status(self, name):
+        status = self._contract.functions.entries(self.sha3(text=name)).call()
+
+        
+
+
     def unsealBid(self, name, bidAmount, secret):
         # here we actually remove the .eth if it is there.
         if name.endswith(".eth"):
             name = name.replace('.eth', '')
 
-        _namesha3 = self.node.w3.sha3(text=name)
-        secret_hash = self.node.w3.sha3(text=secret)
+        _namesha3 = self.sha3(text=name)
+        secret_hash = self.sha3(text=secret)
 
         _value = self.node.w3.toWei(bidAmount, 'ether')
 
@@ -27,7 +33,7 @@ class Ens(Contract):
         if name.endswith(".eth"):
             name = name.replace('.eth', '')
 
-        _namesha3 = self.node.w3.sha3(text=name)
+        _namesha3 = self.sha3(text=name)
 
         fn = self._contract.functions.finalizeAuction(_namesha3)
         return fn

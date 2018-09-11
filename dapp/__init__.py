@@ -1,6 +1,5 @@
-from sl_dapp import SLDapp
+from sl_dapp import SLDapp, SLFrame
 from asciimatics.scene import Scene
-from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button
 from asciimatics.exceptions import NextScene
 #from asciimatics.renderers import StaticRenderer, FigletText
 from tui.errors import ExitDapp
@@ -10,45 +9,53 @@ from dapp.contracts.ens_registry import EnsRegistry
 from dapp.contracts.ens_resolver import EnsResolver
 from dapp.contracts.ens_reverse_resolver import EnsReverseResolver
 
+from tui.debug import debug
+import pdb
+
 class Dapp(SLDapp):
-    # You get self._node and self._screen for free.
-    # Most of the useful things you do are through self._node.
-    
     def initialize(self):
+        self._ns = self.node._ns
         self._ens = Ens(self._node)
         self._ens_registry = EnsRegistry(self._node)
         self._ens_resolver = EnsResolver(self._node)
         self._ens_reverse_resolver = EnsReverseResolver(self._node)
 
-    
-
     @property
     def scenes(self):
         return [
-            Scene([ContactView(self._screen)], -1, name="ENSQuery"),
+            Scene([ENSSearchFrame(self, 6, 45, title="Enter the name to manage or acquire")], -1, name="ENSQuery"),
         ]
 
 
-class ContactView(Frame):
-    def __init__(self, screen):
-        super(ContactView, self).__init__(screen,
-                                          screen.height * 2 // 3,
-                                          screen.width * 2 // 3,
-                                          hover_focus=True,
-                                          title="ENS",
-                                          reduce_cpu=True)
+class ENSSearchFrame(SLFrame):
+    def initialize(self):
+        self.add_textbox('ens_name', "ENS name:")
 
-        layout = Layout([100], fill_frame=True)
-        self.add_layout(layout)
-        layout.add_widget(Text("Name:", "name"))
-        layout = Layout([1, 1, 1, 1])
-        self.add_layout(layout)
-        layout.add_widget(Button("OK", self._ok), 0)
-        layout.add_widget(Button("Cancel", self._cancel), 3)
- 
-        self.fix()
- 
     def _ok(self):
+        debug()
+        pdb.set_trace()
+        ens_name = self.find_widget('ens_name')
+        """
+        ethRegistrar.entries(web3.sha3('name'))[0];
+        This will return a single integer between 0 and 5. The full 
+        solidity data structure for this can be viewed here in the 
+        Registrar contract. The numbers represent different ‘states’ 
+        a name is currently in.
+
+        0 - Name is available and the auction hasn’t started
+        1 - Name is available and the auction has been started
+        2 - Name is taken and currently owned by someone
+        3 - Name is forbidden
+        4 - Name is currently in the ‘reveal’ stage of the auction
+        5 - Name is not yet available due to the ‘soft launch’ of names.
+        """
+        result = self._dapp._ens.name_status(ens_name._value)
+
+
+
+        result = self._dapp._ns.owner(ens_name._value)
+        
+
         #self.save()
         #self._model.update_current_contact(self.data)
         raise NextScene("Main")
