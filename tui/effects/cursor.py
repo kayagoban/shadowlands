@@ -92,10 +92,12 @@ class Cursor(Effect):
         self._blink_state = not self._blink_state
 
     def wrap_if_needed(self):
+
         # If the nex char is going to go off the screen, wrap to next line.
         if self._x >= self._screen.width:
             self._x = self.origin_x
             self._y += 1
+        #debug(); import pdb; pdb.set_trace()
 
 
     def get_buffer(self):
