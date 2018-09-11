@@ -13,7 +13,7 @@ class Contract():
 
     def __init__(self, node):
         self._contract = None
-        self._w3 = node.w3
+        self._node = node
 
         if not _w3.isConnected():
             raise InvalidW3Error('w3 is not connected in the node you passed in to the Contract constructor')
@@ -29,4 +29,7 @@ class Contract():
         #except:
         #    raise OpenContractError('Could not open the Dapp contract with the given address and ABI.')
 
+    @property
+    def w3(self):
+        return self._node.w3
 

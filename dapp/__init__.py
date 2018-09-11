@@ -5,12 +5,21 @@ from tui.effects.materialize import Materialize
 from asciimatics.renderers import StaticRenderer, FigletText
 from tui.errors import ExitDapp
 
+from dapp.ens.contracts.ens import ENS
+
 class Dapp(SLDapp):
+    # You get self._node and self._screen for free.
+    # Most of the useful things you do are through self._node.
+    
+    def initialize(self):
+        self._ens_contract = ENS(self._node)
+
+    
 
     @property
     def scenes(self):
         return [
-            Scene([ContactView(self._screen)], -1, name="Main")
+            Scene([ContactView(self._screen)], -1, name="ENSQuery"),
         ]
 
 
@@ -22,8 +31,25 @@ class ContactView(Frame):
                                           hover_focus=True,
                                           title="ENS",
                                           reduce_cpu=True)
+        layout = Layout([100], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Text("Name:", "name"))
+        layout = Layout([1, 1, 1, 1])
+        self.add_layout(layout)
+        layout.add_widget(Button("OK", self._ok), 0)
+        layout.add_widget(Button("Cancel", self._cancel), 3)
+ 
         self.fix()
  
+    def _ok(self):
+        self.save()
+        self._model.update_current_contact(self.data)
+        raise NextScene("Main")
+
+    @staticmethod
+    def _cancel():
+        raise ExitDapp
+
 
 
 # NOTE it occurs to me that there is no real need for these helper functions.
