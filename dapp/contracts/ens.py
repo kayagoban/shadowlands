@@ -1,26 +1,20 @@
 from contract import Contract
-from namehash import namehash
 
 class Ens(Contract):
     MAINNET='0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef'
 
-    @classmethod
-    def unsealBid(cls, name, bidAmount, secret):
-
-        if cls._contract == None:
-           cls.load()
-
+    def unsealBid(self, name, bidAmount, secret):
         # here we actually remove the .eth if it is there.
         if name.endswith(".eth"):
             name = name.replace('.eth', '')
 
-        _namesha3 = cls.node.w3.sha3(text=name)
-        secret_hash = cls.node.w3.sha3(text=secret)
+        _namesha3 = self.node.w3.sha3(text=name)
+        secret_hash = self.node.w3.sha3(text=secret)
 
-        _value = cls.node.w3.toWei(bidAmount, 'ether')
+        _value = self.node.w3.toWei(bidAmount, 'ether')
 
 
-        fn = cls._contract.functions.unsealBid(_namesha3, _value, secret_hash)
+        fn = self._contract.functions.unsealBid(_namesha3, _value, secret_hash)
         return fn
 
 # Check for the winning bidder
@@ -28,18 +22,14 @@ class Ens(Contract):
 # Check for the winning bid
 # ethRegistrar.entries(web3.sha3('name'))[4], 'ether');
  
-    @classmethod
-    def finalizeAuction(cls, name):
-        if cls._contract == None:
-           cls.load()
-
+    def finalizeAuction(self, name):
         # here we actually remove the .eth if it is there.
         if name.endswith(".eth"):
             name = name.replace('.eth', '')
 
-        _namesha3 = cls.node.w3.sha3(text=name)
+        _namesha3 = self.node.w3.sha3(text=name)
 
-        fn = cls._contract.functions.finalizeAuction(_namesha3)
+        fn = self._contract.functions.finalizeAuction(_namesha3)
         return fn
 
 

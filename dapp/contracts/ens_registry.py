@@ -1,5 +1,5 @@
 from contract import Contract
-from namehash import namehash
+from dapp.namehash import namehash
 from hexbytes import HexBytes
 
 class EnsRegistry(Contract):
@@ -8,19 +8,14 @@ class EnsRegistry(Contract):
     PUBLIC_ENS_RESOLVER=HexBytes('0x5FfC014343cd971B7eb70732021E26C35B744cc4')
 
 
-    @classmethod
-    def set_resolver(cls, name):
-        if cls._contract == None:
-           cls.load()
-
+    def set_resolver(self, name):
         if not name.endswith(".eth"):
             name += '.eth'
 
         _namehash = namehash(name)
 
-        fn = cls._contract.functions.setResolver(_namehash, cls.PUBLIC_ENS_RESOLVER)
+        fn = self._contract.functions.setResolver(_namehash, self.PUBLIC_ENS_RESOLVER)
         return fn
  
-
 
 

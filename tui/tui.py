@@ -89,13 +89,11 @@ class Interface():
                 pass
             except RunDapp:
                 # load dapp from wherever it is
-                from dapp.ens import Dapp
+                from dapp import Dapp
                 current_dapp = Dapp(self.node)         
                 Screen.wrapper(current_dapp.tui)
                 break
             except ExitDapp:
-                # remove dapp scenes
-                # unload dapp
                 del(sys.modules['dapp'])
             except ExitTuiError:
                 print("Shutting it all down...")

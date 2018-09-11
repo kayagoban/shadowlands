@@ -1,18 +1,24 @@
 from sl_dapp import SLDapp
-from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text
 from asciimatics.scene import Scene
-from tui.effects.materialize import Materialize
-from asciimatics.renderers import StaticRenderer, FigletText
+from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button
+from asciimatics.exceptions import NextScene
+#from asciimatics.renderers import StaticRenderer, FigletText
 from tui.errors import ExitDapp
 
-from dapp.ens.contracts.ens import ENS
+from dapp.contracts.ens import Ens
+from dapp.contracts.ens_registry import EnsRegistry
+from dapp.contracts.ens_resolver import EnsResolver
+from dapp.contracts.ens_reverse_resolver import EnsReverseResolver
 
 class Dapp(SLDapp):
     # You get self._node and self._screen for free.
     # Most of the useful things you do are through self._node.
     
     def initialize(self):
-        self._ens_contract = ENS(self._node)
+        self._ens = Ens(self._node)
+        self._ens_registry = EnsRegistry(self._node)
+        self._ens_resolver = EnsResolver(self._node)
+        self._ens_reverse_resolver = EnsReverseResolver(self._node)
 
     
 
@@ -31,6 +37,7 @@ class ContactView(Frame):
                                           hover_focus=True,
                                           title="ENS",
                                           reduce_cpu=True)
+
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
         layout.add_widget(Text("Name:", "name"))
@@ -42,8 +49,8 @@ class ContactView(Frame):
         self.fix()
  
     def _ok(self):
-        self.save()
-        self._model.update_current_contact(self.data)
+        #self.save()
+        #self._model.update_current_contact(self.data)
         raise NextScene("Main")
 
     @staticmethod
