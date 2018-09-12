@@ -1,5 +1,4 @@
 from contract import Contract
-
 from tui.debug import debug
 import pdb
 #debug(); pdb.set_trace()
@@ -8,8 +7,19 @@ class Ens(Contract):
     MAINNET='0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef'
 
     def auction_status(self, name):
-        status = self._contract.functions.entries(self.sha3(text=name)).call()
+        status = self.functions.entries(self.sha3(text=name)).call()
         return status[0]
+
+    def start_auction(self, name):
+        fn = self.functions.startAuction(self.sha3('name'))
+        return fn
+
+    def place_bid(self, name, bidding_address, bid_amt_ether, secret):
+        bid = self.functions.shaBid(
+            self.sha3(name), bidding_address, web3.toWei(bid_amt_ether, 'ether'), self.sha3(secret)
+        )
+        fn = self.functions.newBid(bid)
+        return fn
 
     def unsealBid(self, name, bidAmount, secret):
         # here we actually remove the .eth if it is there.
@@ -19,10 +29,9 @@ class Ens(Contract):
         _namesha3 = self.sha3(text=name)
         secret_hash = self.sha3(text=secret)
 
-        _value = self.node.w3.toWei(bidAmount, 'ether')
+        _value = self.toWei(bidAmount, 'ether')
 
-
-        fn = self._contract.functions.unsealBid(_namesha3, _value, secret_hash)
+        fn = self.functions.unsealBid(_namesha3, _value, secret_hash)
         return fn
 
 # Check for the winning bidder
@@ -37,7 +46,7 @@ class Ens(Contract):
 
         _namesha3 = self.sha3(text=name)
 
-        fn = self._contract.functions.finalizeAuction(_namesha3)
+        fn = self.functions.finalizeAuction(_namesha3)
         return fn
 
 

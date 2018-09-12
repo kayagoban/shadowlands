@@ -1,6 +1,8 @@
 from sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
 #from asciimatics.renderers import StaticRenderer, FigletText
 
+import random, string
+
 from dapp.contracts.ens import Ens
 from dapp.contracts.ens_registry import EnsRegistry
 from dapp.contracts.ens_resolver import EnsResolver
@@ -22,9 +24,14 @@ class Dapp(SLDapp):
         self._ens_resolver = EnsResolver(self._node)
         self._ens_reverse_resolver = EnsReverseResolver(self._node)
 
-        # Add some frames for our application
+        self._chosen_domain = None
+
+        # add initial frame
         self.add_frame(ENSStatusFrame, name="ENSStatus", height=6, width=45, title="Check status on ENS domain")
-        self.add_frame(ENSManageFrame, name="ENSManage", height=6, width=45, title="Manage an ENS domain")
+
+   # This method can catch key presses and mouse events
+    def process_event(self, event):
+        return None
 
 
 # SLFrame gives you helper methods for rapid development.
@@ -40,35 +47,46 @@ class ENSStatusFrame(SLFrame):
 
     def _ok(self):
         #debug(); pdb.set_trace()
-        auction_status = self._dapp._ens.auction_status(self.box_value())
+        self._chosen_domain = self.box_value()
+        auction_status = self._dapp._ens.auction_status(self.chosen_domain)
         # 2 means the domain is already owned. see ENS documentation.
         if auction_status == 2:
             # Note that we're using the web3.py ns library in this statement.
-            owner = self._dapp._ns.owner(self.box_value())
+            owner = self._dapp._ns.owner(self._chosen_domain)
             if self._dapp._node._credstick and owner == self._dapp._node._credstick.addressStr():
                 # This method takes a message and the next Frame to move to.
                 self.add_message_dialog("You own this ENS domain.", "ENSManage")
             else:
                 self.add_message_dialog("Somebody else owns this ENS domain.", "ENSStatus")
-        elif auction_status == 0:
-            self.add_message_dialog("You can start an auction for this name.", "ENSStatus")
-        elif auction_status == 1:
-            self.add_message_dialog("The auction for this name has begun and you can bid.", "ENSStatus")
-        elif auction_status == 4:
-            self.add_message_dialog("It is time to reveal the bids for this name auction.", "ENSStatus")
+        elif auction_status in [0, 1, 4]:
+            raise NextFrame("ENSAuction")
         elif auction_status == 3:
             self.add_message_dialog("This name is forbidden by the ENS contract.", "ENSStatus")
         elif auction_status == 5:
             self.add_message_dialog("This name is not yet avialable for auction.", "ENSStatus")
                 
     def _cancel(self):
-        raise ExitDapp
-
+        self._dapp.quit()
 
 
 class ENSManageFrame(SLFrame):
     def initialize(self):
-        pass
+        self.add_label("Your domain  blah blha blah lbah")
+
+
+class ENSAuctionFrame(SLFrame):
+    def initialize(self):
+        auction_status = self._dapp._ens.auction_status(self._dapp._chosen_domain)
+
+        if auction_status == 0:
+            self.add_label("You can start an auction for this name.")
+        elif auction_status == 1:
+            self.add_label("The auction for this name has begun and you can bid.")
+            #salt = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+        elif auction_status == 4:
+            self.add_label("It is time to reveal the bids for this name auction.")
+ 
+
 
 
 # NOTE it occurs to me that there is no real need for these helper functions.

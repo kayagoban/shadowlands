@@ -226,56 +226,6 @@ class SendBox(TransactionFrame):
         raise NextScene("Main")
 
 
-class MessageDialog(Frame):
-    def __init__(self, screen, message, height=3, width=30, next_scene="Main", **kwargs):
-        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False,  **kwargs)
-        self._next_scene = next_scene
-        self.set_theme('shadowlands')
-
-        layout2 = Layout([100], fill_frame=True)
-        self.add_layout(layout2)
-
-        layout2.add_widget(Divider(draw_line=False))
-        layout2.add_widget(Button("Ok", self._cancel), 0)
-        self.fix()
-
-    def _cancel(self):
-        self._destroy_window_stack()
-        raise NextScene(self._next_scene)
-
-
-class QuitDialog(Frame):
-    def __init__(self, screen):
-        super(QuitDialog, self).__init__(screen, 3, 30, has_shadow=True, is_modal=True, name="quitbox", title="Really quit?", can_scroll=False)
-        self.set_theme('shadowlands')
-
-        layout2 = Layout([1, 1], fill_frame=True)
-        self.add_layout(layout2)
-
-        layout2.add_widget(Button("Yes", self._ok), 1)
-        layout2.add_widget(Button("No", self._cancel), 0)
-        self.fix()
-
-    def _ok(self):
-        raise ExitTuiError 
-
-    def _cancel(self):
-        self._scene.remove_effect(self)
-        raise NextScene("Main")
-
-    def process_event(self, event):
-
-        if type(event) != KeyboardEvent:
-            return event
-
-        if event.key_code in [121, 89]:
-            self._ok() 
-        elif event.key_code in [110, 78]:
-            self._cancel()
-
-        super(QuitDialog, self).process_event(event)
- 
-
  
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
@@ -415,42 +365,6 @@ class NetworkOptions(Frame):
             self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))
 
 
-# This is a reusable dialog with a text field.
-# continue function will be passed the string argument with the value
-# of the text field, and this frame object so that it can be referenced
-# for later removal.
-# like so:
-# continue_function(returned_text, text_request_dialog_object)
-class TextRequestDialog(Frame):
-    def __init__(self, screen, label_prompt_text=None, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, **kwargs):
-        super(TextRequestDialog, self).__init__(screen, 10, 46, has_shadow=True, is_modal=True, can_scroll=False, **kwargs)
-        self.set_theme('shadowlands')
-        self._continue_function = continue_function
-        self._next_scene = next_scene
-
-        layout = Layout([100], fill_frame=True)
-        self.add_layout(layout)
-        layout.add_widget(Divider(draw_line=False))
-        layout.add_widget(Label(label_prompt_text, 2, align=label_align))
-        layout.add_widget(Divider(draw_line=False))
-        layout.add_widget(Text(text_label, "text_field", default_value=text_default_value))
- 
-
-        layout2 = Layout([1, 1], fill_frame=False)
-        self.add_layout(layout2)
-        layout2.add_widget(Button(continue_button_text, self._ok), 0)
-        layout2.add_widget(Button("Cancel", self._cancel), 1)
-        self.fix()
-
-    def _ok(self):
-        text = self.find_widget('text_field')
-        self._continue_function(text._value, self)
-        #self._destroy_window_stack()
-        raise NextScene(self._next_scene)
-
-    def _cancel(self):
-        self._destroy_window_stack()
-        raise NextScene(self._next_scene)
 
 class ValueOptions(Frame):
     def __init__(self, screen, interface):
@@ -501,4 +415,100 @@ class ValueOptions(Frame):
         raise NextScene('Main')
 
 
+
+
+
+class MessageDialog(Frame):
+    def __init__(self, screen, message, height=3, width=30, next_scene="Main", **kwargs):
+        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False,  **kwargs)
+        self._next_scene = next_scene
+        self.set_theme('shadowlands')
+
+        layout2 = Layout([100], fill_frame=True)
+        self.add_layout(layout2)
+
+        layout2.add_widget(Divider(draw_line=False))
+        layout2.add_widget(Button("Ok", self._cancel), 0)
+        self.fix()
+
+    def _cancel(self):
+        self._destroy_window_stack()
+        raise NextScene(self._next_scene)
+
+class YesNoDialog(Frame):
+    def __init__(self, screen, height, width, yes_callback=None, no_callback=None, yes_text="Yes", no_text="No",  **kwargs):
+        super(YesNoDialog, self).__init__(screen, 3, width, **kwargs)
+        self.set_theme('shadowlands')
+
+        layout2 = Layout([1, 1], fill_frame=True)
+        self.add_layout(layout2)
+
+        layout2.add_widget(Button("Yes", yes_callback), 1)
+        layout2.add_widget(Button("No", no_callback), 0)
+        self.fix()
+
+    #def _cancel(self):
+    #    self._destroy_window_stack()
+    #    raise NextScene(self._next_scene)
+
+
+
+class QuitDialog(YesNoDialog):
+    def __init__(self, screen):
+        super(QuitDialog, self).__init__(screen, 3, 30, yes_callback=self._ok, no_callback=self._cancel,  has_shadow=True, is_modal=True, name="quitbox", title="Really quit?", can_scroll=False)
+
+    def _ok(self):
+        raise ExitTuiError 
+
+    def _cancel(self):
+        self._scene.remove_effect(self)
+        raise NextScene("Main")
+
+    def process_event(self, event):
+        if type(event) != KeyboardEvent:
+            return event
+
+        if event.key_code in [121, 89]:
+            self._ok() 
+        elif event.key_code in [110, 78]:
+            self._cancel()
+
+        super(QuitDialog, self).process_event(event)
+ 
+# This is a reusable dialog with a text field.
+# continue function will be passed the string argument with the value
+# of the text field, and this frame object so that it can be referenced
+# for later removal.
+# like so:
+# continue_function(returned_text, text_request_dialog_object)
+class TextRequestDialog(Frame):
+    def __init__(self, screen, label_prompt_text=None, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, **kwargs):
+        super(TextRequestDialog, self).__init__(screen, 10, 46, has_shadow=True, is_modal=True, can_scroll=False, **kwargs)
+        self.set_theme('shadowlands')
+        self._continue_function = continue_function
+        self._next_scene = next_scene
+
+        layout = Layout([100], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Divider(draw_line=False))
+        layout.add_widget(Label(label_prompt_text, 2, align=label_align))
+        layout.add_widget(Divider(draw_line=False))
+        layout.add_widget(Text(text_label, "text_field", default_value=text_default_value))
+ 
+
+        layout2 = Layout([1, 1], fill_frame=False)
+        self.add_layout(layout2)
+        layout2.add_widget(Button(continue_button_text, self._ok), 0)
+        layout2.add_widget(Button("Cancel", self._cancel), 1)
+        self.fix()
+
+    def _ok(self):
+        text = self.find_widget('text_field')
+        self._continue_function(text._value, self)
+        #self._destroy_window_stack()
+        raise NextScene(self._next_scene)
+
+    def _cancel(self):
+        self._destroy_window_stack()
+        raise NextScene(self._next_scene)
 

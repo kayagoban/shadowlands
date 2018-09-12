@@ -69,14 +69,7 @@ class Interface():
         ]
         # We re-use these two effects, which is why we define
         # them here.
-
         screen.play(scenes, stop_on_resize=True)
-
-    def dapp_tui(self, screen):
-        self._screen = screen
-        # We re-use these two effects, which is why we define
-        # them here.
-        screen.play(dapp.scenes, stop_on_resize=True)
 
 
     def load(self):
@@ -84,8 +77,8 @@ class Interface():
 
         while True:
             try:
-                raise RunDapp
-                Screen.wrapper(self.tui)
+                #raise RunDapp
+                screen = Screen.wrapper(self.tui)
                 break
             except ResizeScreenError:
                 pass
@@ -93,11 +86,9 @@ class Interface():
                 print("switching to dapp...")
                 # load dapp from wherever it is
                 from dapp import Dapp
-                current_dapp = Dapp(self.node)         
-                try:
-                    Screen.wrapper(current_dapp.tui)
-                except ExitDapp:
-                    del(sys.modules['dapp'])
+                current_dapp = Dapp(screen, self.node)         
+            except ExitDapp:
+                del(sys.modules['dapp'])
             except ExitTuiError:
                 print("Shutting it all down...")
                 break

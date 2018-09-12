@@ -2,7 +2,7 @@ from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
-from sl_dapp import RunDapp
+from dapp import Dapp
 from tui.errors import ExitTuiError, PriceError
 from tui.debug import debug
 import pyperclip
@@ -48,9 +48,9 @@ class MainMenuListener(Effect):
         # N, n for network
         elif event.key_code in [78, 110]:
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
+        # E, e for ENS
         elif event.key_code in [69, 101]:
-            raise RunDapp
- 
+            Dapp(self._screen, self._scene, self._interface.node)
         # V, v for value
         elif event.key_code in [86, 118]:
 
