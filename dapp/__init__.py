@@ -13,6 +13,8 @@ import pdb
 #debug(); pdb.set_trace()
 
 
+# If you want the full power of asciimatics, you can override SLDapp
+# and do basically whatever you want.  But it will be a ton of work. 
 class Dapp(SLDapp):
     def initialize(self):
         # the node object provides the ns library from web3.py
@@ -53,7 +55,7 @@ class ENSStatusFrame(SLFrame):
         if auction_status == 2:
             # Note that we're using the web3.py ns library in this statement.
             owner = self.dapp.node._ns.owner(self._chosen_domain)
-            if self.dapp.node._credstick and owner == self._dapp._node._credstick.addressStr():
+            if self.dapp.node._credstick and owner == self.dapp.node._credstick.addressStr():
                 # This method takes a message and the next Frame to move to.
                 self.dapp.add_message_dialog("You own this ENS domain.")
             else:
