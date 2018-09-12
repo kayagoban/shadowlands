@@ -227,8 +227,9 @@ class SendBox(TransactionFrame):
 
 
 class MessageDialog(Frame):
-    def __init__(self, screen, message, height=3, width=30, **kwargs):
-        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False, **kwargs)
+    def __init__(self, screen, message, height=3, width=30, next_scene="Main", **kwargs):
+        super(MessageDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, name="message", title=message, can_scroll=False,  **kwargs)
+        self._next_scene = next_scene
         self.set_theme('shadowlands')
 
         layout2 = Layout([100], fill_frame=True)
@@ -240,7 +241,7 @@ class MessageDialog(Frame):
 
     def _cancel(self):
         self._destroy_window_stack()
-        raise NextScene("Main")
+        raise NextScene(self._next_scene)
 
 
 class QuitDialog(Frame):

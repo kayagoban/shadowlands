@@ -1,8 +1,5 @@
-from sl_dapp import SLDapp, SLFrame
-from asciimatics.scene import Scene
-from asciimatics.exceptions import NextScene
+from sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
 #from asciimatics.renderers import StaticRenderer, FigletText
-from tui.errors import ExitDapp
 
 from dapp.contracts.ens import Ens
 from dapp.contracts.ens_registry import EnsRegistry
@@ -11,59 +8,67 @@ from dapp.contracts.ens_reverse_resolver import EnsReverseResolver
 
 from tui.debug import debug
 import pdb
+#debug(); pdb.set_trace()
+
 
 class Dapp(SLDapp):
     def initialize(self):
+        # the node object provides the ns library from web3.py
+        # Some things are just easier using this lib.
         self._ns = self.node._ns
+        ## Here we instantiate our own Contract classes
         self._ens = Ens(self._node)
         self._ens_registry = EnsRegistry(self._node)
         self._ens_resolver = EnsResolver(self._node)
         self._ens_reverse_resolver = EnsReverseResolver(self._node)
 
-    @property
-    def scenes(self):
-        return [
-            Scene([ENSSearchFrame(self, 6, 45, title="Enter the name to manage or acquire")], -1, name="ENSQuery"),
-        ]
+        # Add some frames for our application
+        self.add_frame(ENSStatusFrame, name="ENSStatus", height=6, width=45, title="Check status on ENS domain")
+        self.add_frame(ENSManageFrame, name="ENSManage", height=6, width=45, title="Manage an ENS domain")
 
 
-class ENSSearchFrame(SLFrame):
+# SLFrame gives you helper methods for rapid development.
+# If you wish to do things yourself, you have the full asciimatics
+# library at your disposal.
+class ENSStatusFrame(SLFrame):
     def initialize(self):
-        self.add_textbox('ens_name', "ENS name:")
+        # add_textbox returns a function that will grab the value inside the textbox.
+        self.box_value = self.add_textbox('ens_name', "ENS name:")
+
+        # pass in callback functions with this method.
+        self.add_ok_cancel_buttons(self._ok, self._cancel)
 
     def _ok(self):
-        debug()
-        pdb.set_trace()
-        ens_name = self.find_widget('ens_name')
-        """
-        ethRegistrar.entries(web3.sha3('name'))[0];
-        This will return a single integer between 0 and 5. The full 
-        solidity data structure for this can be viewed here in the 
-        Registrar contract. The numbers represent different ‘states’ 
-        a name is currently in.
-
-        0 - Name is available and the auction hasn’t started
-        1 - Name is available and the auction has been started
-        2 - Name is taken and currently owned by someone
-        3 - Name is forbidden
-        4 - Name is currently in the ‘reveal’ stage of the auction
-        5 - Name is not yet available due to the ‘soft launch’ of names.
-        """
-        result = self._dapp._ens.name_status(ens_name._value)
-
-
-
-        result = self._dapp._ns.owner(ens_name._value)
-        
-
-        #self.save()
-        #self._model.update_current_contact(self.data)
-        raise NextScene("Main")
-
-    @staticmethod
-    def _cancel():
+        #debug(); pdb.set_trace()
+        auction_status = self._dapp._ens.auction_status(self.box_value())
+        # 2 means the domain is already owned. see ENS documentation.
+        if auction_status == 2:
+            # Note that we're using the web3.py ns library in this statement.
+            owner = self._dapp._ns.owner(self.box_value())
+            if self._dapp._node._credstick and owner == self._dapp._node._credstick.addressStr():
+                # This method takes a message and the next Frame to move to.
+                self.add_message_dialog("You own this ENS domain.", "ENSManage")
+            else:
+                self.add_message_dialog("Somebody else owns this ENS domain.", "ENSStatus")
+        elif auction_status == 0:
+            self.add_message_dialog("You can start an auction for this name.", "ENSStatus")
+        elif auction_status == 1:
+            self.add_message_dialog("The auction for this name has begun and you can bid.", "ENSStatus")
+        elif auction_status == 4:
+            self.add_message_dialog("It is time to reveal the bids for this name auction.", "ENSStatus")
+        elif auction_status == 3:
+            self.add_message_dialog("This name is forbidden by the ENS contract.", "ENSStatus")
+        elif auction_status == 5:
+            self.add_message_dialog("This name is not yet avialable for auction.", "ENSStatus")
+                
+    def _cancel(self):
         raise ExitDapp
 
+
+
+class ENSManageFrame(SLFrame):
+    def initialize(self):
+        pass
 
 
 # NOTE it occurs to me that there is no real need for these helper functions.

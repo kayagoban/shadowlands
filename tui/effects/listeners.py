@@ -2,7 +2,8 @@ from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
-from tui.errors import ExitTuiError, PriceError, RunDapp
+from sl_dapp import RunDapp
+from tui.errors import ExitTuiError, PriceError
 from tui.debug import debug
 import pyperclip
 

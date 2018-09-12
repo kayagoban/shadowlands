@@ -1,13 +1,15 @@
 from contract import Contract
 
+from tui.debug import debug
+import pdb
+#debug(); pdb.set_trace()
+
 class Ens(Contract):
     MAINNET='0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef'
 
-    def name_status(self, name):
+    def auction_status(self, name):
         status = self._contract.functions.entries(self.sha3(text=name)).call()
-
-        
-
+        return status[0]
 
     def unsealBid(self, name, bidAmount, secret):
         # here we actually remove the .eth if it is there.

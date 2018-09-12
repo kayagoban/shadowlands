@@ -1,7 +1,8 @@
 from asciimatics.exceptions import NextScene, ResizeScreenError
 from asciimatics.screen import Screen
 from tui.scenes.loading import LoadingScene
-from tui.errors import ExitTuiError, PriceError, RunDapp, ExitDapp
+from sl_dapp import ExitDapp, RunDapp
+from tui.errors import ExitTuiError, PriceError
 from tui.scenes.main import MainScene
 from tui.debug import debug
 import sys
