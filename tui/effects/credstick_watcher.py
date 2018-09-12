@@ -15,7 +15,9 @@ class CredstickWatcher(Effect):
 
     def _update(self, frame_no):
         if self._interface.credstick != None:
-            raise NextScene("Main")
+            self._screen._scenes = [self._screen._scenes[1]]
+            raise NextScene
+            #raise NextScene("Main")
 
     def reset(self):
         pass

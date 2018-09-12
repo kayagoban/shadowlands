@@ -27,7 +27,7 @@ class Dapp(SLDapp):
         self._chosen_domain = None
 
         # add initial frame
-        self.add_frame(ENSStatusFrame, name="ENSStatus", height=6, width=45, title="Check status on ENS domain")
+        self.add_frame(ENSStatusFrame, height=10, width=55, title="Check status on ENS domain")
 
    # This method can catch key presses and mouse events
     def process_event(self, event):
@@ -47,26 +47,28 @@ class ENSStatusFrame(SLFrame):
 
     def _ok(self):
         #debug(); pdb.set_trace()
-        self._chosen_domain = self.box_value()
-        auction_status = self._dapp._ens.auction_status(self.chosen_domain)
+        self.dapp._chosen_domain = self.box_value()
+        auction_status = self.dapp._ens.auction_status(self.dapp._chosen_domain)
         # 2 means the domain is already owned. see ENS documentation.
         if auction_status == 2:
             # Note that we're using the web3.py ns library in this statement.
-            owner = self._dapp._ns.owner(self._chosen_domain)
-            if self._dapp._node._credstick and owner == self._dapp._node._credstick.addressStr():
+            owner = self.dapp.node._ns.owner(self._chosen_domain)
+            if self.dapp.node._credstick and owner == self._dapp._node._credstick.addressStr():
                 # This method takes a message and the next Frame to move to.
-                self.add_message_dialog("You own this ENS domain.", "ENSManage")
+                self.dapp.add_message_dialog("You own this ENS domain.")
             else:
-                self.add_message_dialog("Somebody else owns this ENS domain.", "ENSStatus")
+                self.dapp.add_message_dialog("Somebody else owns this ENS domain.")
         elif auction_status in [0, 1, 4]:
-            raise NextFrame("ENSAuction")
+            self.dapp.add_frame(ENSAuctionFrame, height=6, width=45, title="ENS domain auction")
+            self.close()
         elif auction_status == 3:
-            self.add_message_dialog("This name is forbidden by the ENS contract.", "ENSStatus")
+            self.add_message_dialog("This name is forbidden by the ENS contract.")
         elif auction_status == 5:
-            self.add_message_dialog("This name is not yet avialable for auction.", "ENSStatus")
+            self.add_message_dialog("This name is not yet avialable for auction.")
                 
     def _cancel(self):
-        self._dapp.quit()
+        self.close()
+        self.dapp.quit()
 
 
 class ENSManageFrame(SLFrame):
@@ -76,7 +78,7 @@ class ENSManageFrame(SLFrame):
 
 class ENSAuctionFrame(SLFrame):
     def initialize(self):
-        auction_status = self._dapp._ens.auction_status(self._dapp._chosen_domain)
+        auction_status = self._dapp._ens.auction_status(self.dapp._chosen_domain)
 
         if auction_status == 0:
             self.add_label("You can start an auction for this name.")

@@ -408,11 +408,11 @@ class ValueOptions(Frame):
         self._interface._displayed_currency = options._value
         self._interface._config.displayed_currency = options._value
         self._destroy_window_stack()
-        raise NextScene('Main')
+        raise NextScene
 
     def _cancel(self):
         self._destroy_window_stack()
-        raise NextScene('Main')
+        raise NextScene
 
 
 
@@ -433,7 +433,10 @@ class MessageDialog(Frame):
 
     def _cancel(self):
         self._destroy_window_stack()
-        raise NextScene(self._next_scene)
+        raise NextScene
+        #self._scene.reset()
+        #raise NextScene(self._next_scene)
+
 
 class YesNoDialog(Frame):
     def __init__(self, screen, height, width, yes_callback=None, no_callback=None, yes_text="Yes", no_text="No",  **kwargs):
@@ -462,7 +465,8 @@ class QuitDialog(YesNoDialog):
 
     def _cancel(self):
         self._scene.remove_effect(self)
-        raise NextScene("Main")
+        raise NextScene
+        #raise NextScene("Main")
 
     def process_event(self, event):
         if type(event) != KeyboardEvent:

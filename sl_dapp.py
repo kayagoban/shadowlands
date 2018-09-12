@@ -21,17 +21,24 @@ class SLDapp(Effect):
     def initialize(self):
         pass
 
-    def add_frame(self, cls, name=None, height=None, width=None, title=None):
-        # we are actually adding scenes, one frame object (effect) per scene.  asciimatics can do a lot more
-        # than this, but we're hiding away the functionality for the sake of simplicity.
+    def add_frame(self, cls, height=None, width=None, title=None):
+        # we are adding SLFrame effects.  asciimatics can do a lot more
+        # than this, but we're hiding away the functionality for the 
+        # sake of simplicity.
         self._scene.add_effect(cls(self, height, width, title=title))
-        #self._scenes.append(
-        #   Scene([cls(self, height, width, title=title)], -1, name=name)
-        #)
 
-    def quit():
+    def add_message_dialog(self, message):
+        preferred_width= len(message) + 6
+        self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, destroy_window=None))
+
+    def add_yes_no_dialog(self, question, yes_fn=None, no_frame=None):
+        preferred_width= len(question) + 6
+        self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None))
+
+    def quit(self):
+        # Remove all owned windows
         self._screen.remove_effect(self)
-        raise NextScene("Main")
+        raise NextScene
 
     def _update():
         pass
@@ -73,22 +80,19 @@ class SLFrame(Frame):
         layout.add_widget(Divider(draw_line=False))
         return lambda: text_widget._value
          
-    def add_message_dialog(self, message, next_frame):
-        preferred_width= len(message) + 6
-        self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, destroy_window=None, next_scene=next_frame))
-
-    def add_yes_no_dialog(self, question, yes_fn=None, no_frame=None):
-        preferred_width= len(question) + 6
-        self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None, next_scene=next_frame))
-
     def add_label(self, label_text):
         layout = Layout([100])
         self.add_layout(layout)
         layout.add_widget(Label(label_text)) 
         layout.add_widget(Divider(draw_line=False))
 
-    def close():
-        self.destroy_parent_stack()
+    def close(self):
+        self._destroy_window_stack()
+        raise NextScene
+
+    @property
+    def dapp(self):
+        return self._dapp
 
 class ExitDapp(Exception):
     pass
