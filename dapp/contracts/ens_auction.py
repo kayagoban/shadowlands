@@ -4,7 +4,7 @@ from datetime import datetime
 import pdb
 #debug(); pdb.set_trace()
 
-class Ens(Contract):
+class EnsAuction(Contract):
     MAINNET='0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef'
 
 ############################

@@ -4,7 +4,7 @@ from sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
 import random, string
 from datetime import datetime, timedelta
 
-from dapp.contracts.ens import Ens
+from dapp.contracts.ens_auction import EnsAuction
 from dapp.contracts.ens_registry import EnsRegistry
 from dapp.contracts.ens_resolver import EnsResolver
 from dapp.contracts.ens_reverse_resolver import EnsReverseResolver
@@ -19,7 +19,7 @@ import pdb
 class Dapp(SLDapp):
     def initialize(self):
         ## Here we instantiate our own Contract classes
-        self.ens_auction_contract = Ens(self._node)
+        self.ens_auction_contract = EnsAuction(self._node)
         self.ens_registry_contract = EnsRegistry(self._node)
         self.ens_resolver_contract = EnsResolver(self._node)
         self.ens_reverse_resolver_contract = EnsReverseResolver(self._node)
