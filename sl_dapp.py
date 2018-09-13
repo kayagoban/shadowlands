@@ -3,7 +3,10 @@ from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, L
 from asciimatics.exceptions import NextScene
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
-from tui.effects.widgets import MessageDialog
+from tui.effects.widgets import MessageDialog, TransactionFrame
+
+from tui.debug import debug
+import pdb
 
 class SLDapp(Effect):
     def __init__(self, screen, scene, eth_node, config, price_poller):
@@ -45,6 +48,14 @@ class SLDapp(Effect):
         preferred_width= len(question) + 6
         self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None))
 
+    def add_transaction_dialog(self, tx_fn=None, cancel_fn=None, destroy_window=None, title="Sign & Send Transaction"):
+
+        #debug(); pdb.set_trace()
+        self._scene.add_effect( 
+            SLTransactionFrame(self._screen, 12, 59, self, tx_fn, cancel_fn, destroy_window=destroy_window, title=title) 
+        )
+
+
     def quit(self):
         # Remove all owned windows
         self._screen.remove_effect(self)
@@ -57,6 +68,20 @@ class SLDapp(Effect):
     def stop_frame():
         pass
 
+
+class SLTransactionFrame(TransactionFrame):
+    def __init__(self, screen, x, y, dapp=None, tx_fn=None, cancel_fn=None, **kwargs):
+        super(SLTransactionFrame, self).__init__(screen, x, y, dapp, self._ok_fn, cancel_fn, **kwargs) 
+        self._tx_fn = tx_fn
+        #self.estimated_gas = tx_fn.gasEstimate()
+        self.estimated_gas = tx_fn().estimateGas()
+        self.fix()
+
+    def _ok_fn(self, gas_price_wei):
+        self._interface.node.push(
+            self._tx_fn(), gas_price_wei
+        )
+        self.destroy_window_stack()
 
 
 class SLFrame(Frame):
@@ -103,6 +128,8 @@ class SLFrame(Frame):
     @property
     def dapp(self):
         return self._dapp
+
+
 
 class ExitDapp(Exception):
     pass

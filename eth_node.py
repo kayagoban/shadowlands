@@ -270,9 +270,9 @@ class Node():
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self._heartbeat_thread.start()
 
-    def push(self, contract_function, gas_price ):
+    def push(self, contract_function, gas_price):
 
-        tx = contract_function.buildTransaction(defaultTxDict(gas_price))
+        tx = contract_function.buildTransaction(self.defaultTxDict(gas_price))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         return rx
@@ -287,7 +287,7 @@ class Node():
 
     def build_send_tx(self,amt, recipient, gas_price):
         return  dict(
-            nonce=self.w3.eth.getTransactionCount(self.credstick.address),
+            nonce=self.w3.eth.getTransactionCount(self.credstick.addressStr()),
             gasPrice=gas_price,
             gas=100000,
             to=decode_hex(recipient),
@@ -297,9 +297,8 @@ class Node():
 
     def defaultTxDict(self,gas_price):
         return dict(
-            nonce=self.w3.eth.getTransactionCount(self._eth_address),
+            nonce=self.w3.eth.getTransactionCount(self.credstick.addressStr()),
             gasPrice=int(gas_price),
-            gas=800000,
             value=0
         ) 
 

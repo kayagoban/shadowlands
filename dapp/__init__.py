@@ -55,7 +55,7 @@ class ENSStatusFrame(SLFrame):
         if auction_status == 2:
             # node exposes the web3.py ens module functions.
             owner = self.dapp.node.ens.owner(self.dapp._chosen_domain)
-            if self.dapp.node.credstick and owner == self.dapp.node._credstick.addressStr():
+            if self.dapp.node.credstick and owner == self.dapp.node.credstick.addressStr():
                 # This method takes a message and the next Frame to move to.
                 self.dapp.add_frame(ENSManageFrame, height=6, width=45, title="Manage your ENS domain")
                 self.close()
@@ -89,13 +89,15 @@ class ENSManageFrame(SLFrame):
 
 
 #debug(); pdb.set_trace()
+#debug(); pdb.set_trace()
+
 class ENSAuctionFrame(SLFrame):
     def initialize(self):
         auction_status = self._dapp._ens.auction_status(self.dapp._chosen_domain)
 
         if auction_status == 0:
-            self.add_label("You can start an auction for this name.")
-            self.add_ok_cancel_buttons(self._start_auction, self._cancel)
+           self.add_label("You can start an auction for this name.")
+           self.add_ok_cancel_buttons(self._start_auction_choice, self._cancel)
         elif auction_status == 1:
             self.add_label("The auction for this name has begun and you can bid.")
             self.add_ok_cancel_buttons(self._make_bid, self._cancel)
@@ -104,21 +106,21 @@ class ENSAuctionFrame(SLFrame):
         elif auction_status == 4:
             self.add_label("It is time to reveal the bids for this name auction.")
 
+    def _start_auction_choice(self):
+        self.dapp.add_transaction_dialog(
+            self._send_auction_tx,
+            self._cancel, 
+            destroy_window=self, 
+            title="Begin Auction"
+        )
+
+    def _send_auction_tx(self):
+        return self.dapp._ens.start_auction(self.dapp._chosen_domain)
+
     def _cancel(self):
        self.close()
        self.dapp.quit()
 
-    def _start_auction(self):
-        debug(); pdb.set_trace()
-        # Find the estimated gas cost for this function
-        gas_estimate = self.dapp._ens.start_auction(self.dapp._chosen_domain).estimateGas()
-    
-        # Get the user's gas price choice
-        
-
-        self.dapp.node.push(
-            self.dapp._ens.start_auction(self.dapp._chosen_domain)
-        )
 
     def _make_bid(self):
         self.dapp.node.push(
@@ -127,7 +129,6 @@ class ENSAuctionFrame(SLFrame):
                                      0.01,
                                      "goopy goober guts")
         )
-
 
 
 

@@ -152,7 +152,6 @@ class TransactionFrame(Frame):
 
 
 
-
 class SendBox(TransactionFrame):
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
@@ -174,8 +173,6 @@ class SendBox(TransactionFrame):
 
         layout.add_widget(ListBox(1, currency_options, label="  Currency:",  name="currency"))
         layout.add_widget(Divider(draw_line=False))
-
-
         self.fix()
 
     def _validations(self, address, value):
@@ -201,6 +198,7 @@ class SendBox(TransactionFrame):
                 self._scene.add_effect( MessageDialog(self._screen, i))
             return False
  
+    #debug(); import pdb; pdb.set_trace()
     def _ok(self, gas_price_wei):
 
         address_text = self.find_widget('address')
@@ -220,11 +218,11 @@ class SendBox(TransactionFrame):
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
         self._scene.remove_effect(self)
-        raise NextScene("Main")
+        raise NextScene
 
     def _cancel(self):
         self._scene.remove_effect(self)
-        raise NextScene("Main")
+        raise NextScene
 
 
  
@@ -313,7 +311,7 @@ class NetworkOptions(Frame):
 
     def _cancel(self):
         self._scene.remove_effect(self)
-        raise NextScene("Main")
+        raise NextScene
 
     def _prompt_custom_http_uri(self):
         dialog = TextRequestDialog(
