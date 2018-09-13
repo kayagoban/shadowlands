@@ -1,5 +1,6 @@
 import sys, time, os
 from web3.exceptions import UnhandledRequest
+from web3.utils.threads import Timeout
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
 from ens import ENS
@@ -61,6 +62,10 @@ class Node():
         return self._blocks_behind
 
     @property
+    def ens(self):
+        return self._ns
+
+    @property
     def credstick(self):
         return self._credstick
 
@@ -95,7 +100,6 @@ class Node():
             return self._ens_domain
         else:
             return None
-
 
     @property
     def heartbeat_thread(self):
@@ -249,7 +253,7 @@ class Node():
             self._w3.isConnected()
             self._update_status()
 
-        except (AttributeError, UnhandledRequest):
+        except (AttributeError, UnhandledRequest, Timeout):
             self.connect_config_default() or self.connect_w3_local() or self.connect_w3_public_infura()
 
 
