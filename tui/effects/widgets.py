@@ -81,7 +81,7 @@ class TransactionFrame(Frame):
 
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
-        layout2.add_widget(Button("Sign Tx", ok_func), 0)
+        layout2.add_widget(Button("Sign Tx", lambda: ok_func(self._gas_price_wei)), 0)
         layout2.add_widget(Button("Cancel", cancel_func), 3)
 
     def fix(self):
@@ -148,7 +148,7 @@ class TransactionFrame(Frame):
             decimal_places = 3
 
         cost_estimate = str(round((Decimal(eth_price_curr) * gas_price_eth * self.estimated_gas), decimal_places))
-        return f"Estimated Tx cost: {curr} {self._interface.curr_symbol()} {cost_estimate}"
+        return f"Estimated Tx cost: {curr} {self._interface.config.curr_symbol} {cost_estimate}"
 
 
 
@@ -201,7 +201,7 @@ class SendBox(TransactionFrame):
                 self._scene.add_effect( MessageDialog(self._screen, i))
             return False
  
-    def _ok(self):
+    def _ok(self, gas_price_wei):
 
         address_text = self.find_widget('address')
         amount_text = self.find_widget('amount')
@@ -211,7 +211,7 @@ class SendBox(TransactionFrame):
             return
 
         try:
-            self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), self._gas_price_wei)
+            self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei)
         except SignTxError:
             self._scene.add_effect( MessageDialog(self._screen,"Credstick refused to sign Tx"))
         except ValueError:

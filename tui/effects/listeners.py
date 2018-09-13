@@ -50,7 +50,13 @@ class MainMenuListener(Effect):
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
         # E, e for ENS
         elif event.key_code in [69, 101]:
-            Dapp(self._screen, self._scene, self._interface.node)
+            Dapp(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )
         # V, v for value
         elif event.key_code in [86, 118]:
 

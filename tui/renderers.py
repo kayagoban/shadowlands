@@ -103,7 +103,7 @@ class EthValueRenderer(DynamicRenderer):
             decimal_places = 2
 
         val = str(round(currency_val * eth, decimal_places))
-        val = f"{curr} {self._interface.CURR_SYMBOLS[curr]} {val}"
+        val = f"{curr} {self._interface._config.curr_symbol} {val}"
 
         return [val], None
 

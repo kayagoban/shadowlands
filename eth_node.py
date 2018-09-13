@@ -280,14 +280,14 @@ class Node():
 
     # send_ether('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5', 0.01) 
     def send_ether(self,destination, amount, gas_price):
-        tx_dict = build_send_tx(amount, destination, gas_price)
+        tx_dict = self.build_send_tx(amount, destination, gas_price)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
 
     def build_send_tx(self,amt, recipient, gas_price):
         return  dict(
-            nonce=self.w3.eth.getTransactionCount(self._eth_address),
+            nonce=self.w3.eth.getTransactionCount(self.credstick.address),
             gasPrice=gas_price,
             gas=100000,
             to=decode_hex(recipient),

@@ -12,22 +12,8 @@ import sys
 
 class Interface():
     
-    CURR_SYMBOLS = {
-        'USD': '$',
-        'GBP': '£',
-        'EUR': '€',
-        'BTC': 'Ƀ',
-        'CHF': '',
-        'AUD': '$',
-        'RUB': '₽',
-        'JPY': '¥',
-        'CNY': '¥',
-        'SGD': '$'
-
-    }
-
     def __init__(self, _eth_node, price_poller, config):
-        self.node = _eth_node
+        self._node = _eth_node
         self._config = config
         self._screen = None
         self._price_poller = price_poller
@@ -42,8 +28,19 @@ class Interface():
     def credstick(self, credstick):
         self._credstick = credstick
 
-    def curr_symbol(self):
-        return self.CURR_SYMBOLS[self._config.displayed_currency]
+    @property
+    def node(self):
+        return self._node
+
+    @property
+    def config(self):
+        return self._config
+        
+    @property
+    def price_poller(self):
+        return self._price_poller
+
+
 
     def tui(self, screen):
         self._screen = screen

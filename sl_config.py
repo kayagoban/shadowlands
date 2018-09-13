@@ -4,6 +4,21 @@ from yaml.constructor import ConstructorError
 import pdb
 
 class SLConfig():
+
+    CURR_SYMBOLS = {
+        'USD': '$',
+        'GBP': '£',
+        'EUR': '€',
+        'BTC': 'Ƀ',
+        'CHF': '',
+        'AUD': '$',
+        'RUB': '₽',
+        'JPY': '¥',
+        'CNY': '¥',
+        'SGD': '$'
+
+    }
+
     def __init__(self, config_file_path=None):
         self._http_uri = ''
         self._websocket_uri = ''
@@ -109,5 +124,10 @@ class SLConfig():
     def displayed_currency(self, new_value):
         self._displayed_currency = new_value
         self._write_config_file()
+
+    @property
+    def curr_symbol(self):
+        return self.CURR_SYMBOLS[self._displayed_currency]
+
 
 

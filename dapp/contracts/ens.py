@@ -11,12 +11,12 @@ class Ens(Contract):
         return status[0]
 
     def start_auction(self, name):
-        fn = self.functions.startAuction(self.sha3('name'))
+        fn = self.functions.startAuction(self.sha3(text=name))
         return fn
 
     def place_bid(self, name, bidding_address, bid_amt_ether, secret):
         bid = self.functions.shaBid(
-            self.sha3(name), bidding_address, web3.toWei(bid_amt_ether, 'ether'), self.sha3(secret)
+            self.sha3(text=name), bidding_address, web3.toWei(bid_amt_ether, 'ether'), self.sha3(text=secret)
         )
         fn = self.functions.newBid(bid)
         return fn

@@ -6,16 +6,26 @@ from asciimatics.effects import Effect
 from tui.effects.widgets import MessageDialog
 
 class SLDapp(Effect):
-    def __init__(self, screen, scene, eth_node):
+    def __init__(self, screen, scene, eth_node, config, price_poller):
         self._screen = screen
         self._scene = scene
         self._node = eth_node
-        self._active_frame = None
+        self._config = config
+        self._price_poller = price_poller
         self.initialize()
 
     @property
     def node(self):
         return self._node
+
+    @property
+    def config(self):
+        return self._config
+        
+    @property
+    def price_poller(self):
+        return self._price_poller
+
 
     @abstractmethod
     def initialize(self):
