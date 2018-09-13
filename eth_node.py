@@ -1,4 +1,5 @@
 import sys, time, os
+from decimal import Decimal
 from web3.exceptions import UnhandledRequest
 from web3.utils.threads import Timeout
 from enum import Enum
@@ -270,9 +271,9 @@ class Node():
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self._heartbeat_thread.start()
 
-    def push(self, contract_function, gas_price, gas_limit=None):
+    def push(self, contract_function, gas_price, gas_limit=None, value=0):
 
-        tx = contract_function.buildTransaction(self.defaultTxDict(gas_price))
+        tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         return rx
@@ -295,11 +296,11 @@ class Node():
             data=b''
         )
 
-    def defaultTxDict(self,gas_price, gas_limit=None):
+    def defaultTxDict(self, gas_price, gas_limit=None, value=0):
         txdict = dict(
             nonce=self.w3.eth.getTransactionCount(self.credstick.addressStr()),
             gasPrice=int(gas_price),
-            value=0
+            value=value
         ) 
         if gas_limit:
             txdict['gas'] = gas_limit

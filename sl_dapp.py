@@ -4,6 +4,7 @@ from asciimatics.exceptions import NextScene
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
 from tui.effects.widgets import MessageDialog, TransactionFrame
+from decimal import Decimal
 
 from tui.debug import debug
 import pdb
@@ -48,10 +49,10 @@ class SLDapp(Effect):
         preferred_width= len(question) + 6
         self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None))
 
-    def add_transaction_dialog(self, tx_fn=None, destroy_window=None, title="Sign & Send Transaction"):
+    def add_transaction_dialog(self, tx_fn=None, tx_value=0, destroy_window=None, title="Sign & Send Transaction"):
         #debug(); pdb.set_trace()
         self._scene.add_effect( 
-            SLTransactionFrame(self._screen, 14, 59, self, tx_fn, destroy_window=destroy_window, title=title) 
+            SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, tx_value=tx_value) 
         )
 
 
@@ -69,22 +70,33 @@ class SLDapp(Effect):
 
 
 class SLTransactionFrame(TransactionFrame):
-    def __init__(self, screen, x, y, dapp=None, tx_fn=None, **kwargs):
+    def __init__(self, screen, x, y, dapp=None, tx_fn=None, tx_value=0, **kwargs):
         super(SLTransactionFrame, self).__init__(screen, x, y, dapp, self._ok_fn, self._cancel_fn, **kwargs) 
+        self.dapp = dapp
         self._tx_fn = tx_fn
         #self.estimated_gas = tx_fn.gasEstimate()
-        self.estimated_gas = tx_fn().estimateGas()
+        try:
+            self.estimated_gas = tx_fn().estimateGas()
+        except ValueError:
+            self.estimated_gas = 100000
+
+
 
         layout = Layout([100])
         self.prepend_layout(layout)
+        if tx_value != 0:
+            self.tx_value = Decimal(tx_value)
+            layout.add_widget(Label(f"You will send {self.tx_value} ETH"))
+            layout.add_widget(Divider(draw_line=False))
+ 
         layout.add_widget(Label(f"Estimated Gas for Tx: {self.estimated_gas}"))
         layout.add_widget(Divider(draw_line=False))
  
         self.fix()
 
     def _ok_fn(self, gas_price_wei):
-        self._interface.node.push(
-            self._tx_fn(), gas_price_wei, self.estimated_gas
+        self.dapp.node.push(
+            self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
         )
         self._destroy_window_stack()
         raise NextScene
@@ -92,6 +104,8 @@ class SLTransactionFrame(TransactionFrame):
     def _cancel_fn(self):
         self._destroy_window_stack()
         raise NextScene
+
+
 
 
 class SLFrame(Frame):
@@ -110,17 +124,17 @@ class SLFrame(Frame):
         self.initialize()
         self.fix()
 
-    def add_ok_cancel_buttons(self, ok_fn, cancel_fn):
+    def add_ok_cancel_buttons(self, ok_fn, cancel_fn, ok_text="OK"):
         layout = Layout([1, 1, 1, 1])
         self.add_layout(layout)
-        layout.add_widget(Button("OK", ok_fn), 0)
+        layout.add_widget(Button(ok_text, ok_fn), 0)
         layout.add_widget(Button("Cancel", cancel_fn), 3)
  
     # named arguments will be passed on to the asciimatics Text() constructor
-    def add_textbox(self, name, label_text, **kwargs):
+    def add_textbox(self, label_text, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
-        text_widget = Text(label_text, name, **kwargs)
+        text_widget = Text(label_text, **kwargs)
         layout.add_widget(text_widget)
         layout.add_widget(Divider(draw_line=False))
         return lambda: text_widget._value

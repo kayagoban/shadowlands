@@ -42,7 +42,7 @@ class Dapp(SLDapp):
 class ENSStatusFrame(SLFrame):
     def initialize(self):
         # add_textbox returns a function that will grab the value inside the textbox.
-        self.box_value = self.add_textbox('ens_name', "ENS name:")
+        self.box_value = self.add_textbox("ENS name:")
 
         # pass in callback functions with this method.
         self.add_ok_cancel_buttons(self._ok, self._cancel)
@@ -62,7 +62,7 @@ class ENSStatusFrame(SLFrame):
             else:
                 self.dapp.add_message_dialog("Somebody else owns this ENS domain.")
         elif auction_status in [0, 1, 4]:
-            self.dapp.add_frame(ENSAuctionFrame, height=6, width=45, title="ENS domain auction")
+            self.dapp.add_frame(ENSAuctionFrame, height=9, width=45, title="ENS domain auction")
             self.close()
         elif auction_status == 3:
             self.add_message_dialog("This name is forbidden by the ENS contract.")
@@ -99,8 +99,9 @@ class ENSAuctionFrame(SLFrame):
            self.add_label("You can start an auction for this name.")
            self.add_ok_cancel_buttons(self._start_auction_choice, self._cancel)
         elif auction_status == 1:
-            self.add_label("The auction for this name has begun and you can bid.")
-            self.add_ok_cancel_buttons(self._make_bid, self._cancel)
+            self.add_label("The auction for this name has begun.")
+            self.bidvalue = self.add_textbox("Bid Amount (Eth):")
+            self.add_ok_cancel_buttons(self._make_bid_choice, self._cancel, ok_text="Bid")
  
             #salt = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
         elif auction_status == 4:
@@ -109,7 +110,6 @@ class ENSAuctionFrame(SLFrame):
     def _start_auction_choice(self):
         self.dapp.add_transaction_dialog(
             self._send_auction_tx,
-            self._cancel, 
             destroy_window=self, 
             title="Begin Auction"
         )
@@ -117,19 +117,24 @@ class ENSAuctionFrame(SLFrame):
     def _send_auction_tx(self):
         return self.dapp._ens.start_auction(self.dapp._chosen_domain)
 
+    def _make_bid_choice(self):
+        self.dapp.add_transaction_dialog(
+            self._make_bid_tx,
+            tx_value=self.bidvalue(),
+            destroy_window=self, 
+            title=f"Bid on name '{self.dapp._chosen_domain}'"
+        )
+
+
+    def _make_bid_tx(self):
+        return self.dapp._ens.place_bid(self.dapp._chosen_domain,
+                                     self.dapp.node.credstick.addressStr(),
+                                     self.bidvalue(),
+                                     "goopy goober guts")
+
     def _cancel(self):
        self.close()
        self.dapp.quit()
-
-
-    def _make_bid(self):
-        self.dapp.node.push(
-            self.dapp._ens.place_bid(self.dapp._chosen_domain,
-                                     self.dapp.node.credstick.addressStr(),
-                                     0.01,
-                                     "goopy goober guts")
-        )
-
 
 
 # NOTE it occurs to me that there is no real need for these helper functions.
