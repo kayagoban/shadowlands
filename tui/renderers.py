@@ -81,6 +81,7 @@ class EthBalanceRenderer(DynamicRenderer):
             bal_str = 'Unknown'
         return [bal_str], None
 
+
 class EthValueRenderer(DynamicRenderer):
     def __init__(self, interface):
         super(EthValueRenderer, self).__init__(1, 15)
@@ -89,7 +90,7 @@ class EthValueRenderer(DynamicRenderer):
     def _render_now(self):
         curr = self._interface._config.displayed_currency
         try:
-            currency_val = Decimal(self._interface.price())
+            currency_val = Decimal(self._interface._price_poller.eth_price)
         except (TypeError, KeyError, PriceError):
             return ['Unavailable'], None
 

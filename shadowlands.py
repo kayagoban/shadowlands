@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import threading, time, sys
-from cryptocompy import price
 from time import sleep
 
 from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
 from sl_config import SLConfig
 from eth_node import Node
+from price_poller import PricePoller
+
 from tui.tui import Interface
 
 import pdb
@@ -18,7 +19,6 @@ credstick = None
 
 # Flags to halt threads
 credstick_thread_shutdown = False
-price_poller_thread_shutdown = False
 
 def credstick_finder(interface):
     global credstick_thread_shutdown
@@ -38,24 +38,6 @@ def credstick_finder(interface):
 
         if credstick_thread_shutdown:
             break
-
-
-
-def eth_price_poller(interface):
-    global price_poller_thread_shutdown
-
-    currencies = ["USD", "GBP", "EUR", 'BTC', 'AUD', 'CHF', 'JPY', 'RUB', 'CNY', 'SGD']
-
-    while True:
-        #debug(); 
-        #pdb.set_trace()
-        prices = price.get_current_price("ETH", currencies) 
-        interface.update_prices(prices)
-        # 5 minutes seems responsible.
-        for i in range (150):
-            time.sleep(2)
-            if price_poller_thread_shutdown:
-               return
 
 
 
@@ -80,17 +62,16 @@ eth_node.start_heartbeat_thread()
 #dapp.node = eth_node
 #dapp.register_node_on_contracts()
 
+# price import thread
+price_poller = PricePoller(sl_config)
+price_poller.start_thread()
 
 # create user interface 
-interface = Interface(eth_node, sl_config)
+interface = Interface(eth_node, price_poller, sl_config)
 #interface = Interface(eth_node, dapp, sl_config)
-
 
 #eth_price_poller(interface)
 
-# price import thread
-p = threading.Thread(target=eth_price_poller, args=[interface])
-p.start()
 
 # credstick finder thread
 m = threading.Thread(target=credstick_finder, args = [interface])
@@ -123,9 +104,9 @@ print("Closing credstick poller...")
 m.join()
 
 
-price_poller_thread_shutdown = True
 print("Waiting for price poller to shut down...")
-p.join()
+price_poller.stop_thread()
+
 
 eth_node.thread_shutdown = True
 print("Closing connection to ethereum node...")

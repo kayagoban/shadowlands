@@ -26,12 +26,11 @@ class Interface():
 
     }
 
-    def __init__(self, _eth_node, config):
+    def __init__(self, _eth_node, price_poller, config):
         self.node = _eth_node
         self._config = config
         self._screen = None
-        self._price = None
-        self._prices = None
+        self._price_poller = price_poller
         self._credstick = None
         self._loading_scene = True
 
@@ -43,21 +42,8 @@ class Interface():
     def credstick(self, credstick):
         self._credstick = credstick
 
-    # make this a pythonic attribute
-    def price(self):
-        try:
-            return self._prices['ETH'][self._config.displayed_currency]
-        except TypeError:
-            raise PriceError
-
     def curr_symbol(self):
         return self.CURR_SYMBOLS[self._config.displayed_currency]
-
-    def update_prices(self, _prices):
-        self._prices = _prices
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
-
-        # reset price cursor print effect
 
     def tui(self, screen):
         self._screen = screen

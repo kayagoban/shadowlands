@@ -138,7 +138,7 @@ class TransactionFrame(Frame):
 
         curr = self._interface._config.displayed_currency
         try:
-            eth_price_curr = self._interface.price()
+            eth_price_curr = self._interface._price_poller.eth_price
         except KeyError:
             return 'Ether Price Feed offline - No Tx Cost estimate'
         gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
