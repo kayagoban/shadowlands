@@ -78,17 +78,17 @@ class SLTransactionFrame(TransactionFrame):
         try:
             self.estimated_gas = tx_fn().estimateGas()
         except ValueError:
-            self.estimated_gas = 100000
+            self.estimated_gas = 1000000
 
 
 
         layout = Layout([100])
         self.prepend_layout(layout)
-        if tx_value != 0:
-            self.tx_value = Decimal(tx_value)
-            layout.add_widget(Label(f"You will send {self.tx_value} ETH"))
-            layout.add_widget(Divider(draw_line=False))
- 
+
+        self.tx_value = Decimal(tx_value)
+        layout.add_widget(Label(f"You will send {self.tx_value} ETH"))
+        layout.add_widget(Divider(draw_line=False))
+
         layout.add_widget(Label(f"Estimated Gas for Tx: {self.estimated_gas}"))
         layout.add_widget(Divider(draw_line=False))
  

@@ -1,14 +1,29 @@
 from contract import Contract
 from tui.debug import debug
+from datetime import datetime
 import pdb
 #debug(); pdb.set_trace()
 
 class Ens(Contract):
     MAINNET='0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef'
 
+############################
+# Contract read-only methods
+############################
+
     def auction_status(self, name):
         status = self.functions.entries(self.sha3(text=name)).call()
         return status[0]
+
+    def reveal_date(self, name):
+        #debug(); pdb.set_trace()
+        status = self.functions.entries(self.sha3(text=name)).call()
+        reveal_timestamp = status[2]
+        return datetime.fromtimestamp(reveal_timestamp)
+
+########
+# TXs
+########
 
     def start_auction(self, name):
         fn = self.functions.startAuction(self.sha3(text=name))

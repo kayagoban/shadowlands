@@ -2,6 +2,7 @@ from sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
 #from asciimatics.renderers import StaticRenderer, FigletText
 
 import random, string
+from datetime import datetime, timedelta
 
 from dapp.contracts.ens import Ens
 from dapp.contracts.ens_registry import EnsRegistry
@@ -62,7 +63,7 @@ class ENSStatusFrame(SLFrame):
             else:
                 self.dapp.add_message_dialog("Somebody else owns this ENS domain.")
         elif auction_status in [0, 1, 4]:
-            self.dapp.add_frame(ENSAuctionFrame, height=9, width=45, title="ENS domain auction")
+            self.dapp.add_frame(ENSAuctionFrame, height=9, width=50, title="ENS domain auction")
             self.close()
         elif auction_status == 3:
             self.add_message_dialog("This name is forbidden by the ENS contract.")
@@ -99,8 +100,22 @@ class ENSAuctionFrame(SLFrame):
            self.add_label("You can start an auction for this name.")
            self.add_ok_cancel_buttons(self._start_auction_choice, self._cancel)
         elif auction_status == 1:
-            self.add_label("The auction for this name has begun.")
-            self.bidvalue = self.add_textbox("Bid Amount (Eth):")
+            self.add_label(f"The auction for {self.dapp._chosen_domain} has begun.")
+            reveal_date = self.dapp._ens.reveal_date(self.dapp._chosen_domain)
+            time_left = reveal_date - datetime.now() - timedelta(days=2)
+
+            if time_left.total_seconds() > 0:
+                minutes_left = time_left.total_seconds() // 60
+                hours_left = minutes_left // 60
+                days_left = round(hours_left / 24, 1)
+                if minutes_left < 60:
+                    self.add_label(f"{minutes_left} minutes left to bid.")
+                elif hours_left < 24:
+                    self.add_label(f"{hours_left} hours left to bid.")
+                else:
+                    self.add_label(f"{days_left} days left to bid.")
+                   
+            self.bidvalue = self.add_textbox("Bid Amount [eth]:")
             self.add_ok_cancel_buttons(self._make_bid_choice, self._cancel, ok_text="Bid")
  
             #salt = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
