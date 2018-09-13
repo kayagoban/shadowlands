@@ -18,11 +18,8 @@ import pdb
 # and do basically whatever you want.  But it will be a ton of work. 
 class Dapp(SLDapp):
     def initialize(self):
-        # the node object provides the ns library from web3.py
-        # Some things are just easier using this lib.
-        self._ns = self.node._ns
         ## Here we instantiate our own Contract classes
-        self.ens_contract = Ens(self._node)
+        self.ens_auction_contract = Ens(self._node)
         self.ens_registry_contract = EnsRegistry(self._node)
         self.ens_resolver_contract = EnsResolver(self._node)
         self.ens_reverse_resolver_contract = EnsReverseResolver(self._node)
@@ -51,11 +48,11 @@ class ENSStatusFrame(SLFrame):
     def _ok(self):
         #debug(); pdb.set_trace()
         self.dapp._chosen_domain = self.box_value()
-        auction_status = self.dapp.ens_contract.auction_status(self.dapp._chosen_domain)
+        auction_status = self.dapp.ens_auction_contract.auction_status(self.dapp._chosen_domain)
         # 2 means the domain is already owned. see ENS documentation.
         if auction_status == 2:
             # node exposes the web3.py ens module functions.
-            owner = self.dapp.node.ens.owner(self.dapp._chosen_domain)
+            owner = self.dapp.ens_registry_contract.owner(self.dapp._chosen_domain)
             if self.dapp.node.credstick and owner == self.dapp.node.credstick.addressStr():
                 # This method takes a message and the next Frame to move to.
                 self.dapp.add_frame(ENSManageFrame, height=6, width=45, title="Manage your ENS domain")
@@ -94,14 +91,14 @@ class ENSManageFrame(SLFrame):
 
 class ENSAuctionFrame(SLFrame):
     def initialize(self):
-        auction_status = self._dapp.ens_contract.auction_status(self.dapp._chosen_domain)
+        auction_status = self._dapp.ens_auction_contract.auction_status(self.dapp._chosen_domain)
 
         if auction_status == 0:
            self.add_label("You can start an auction for this name.")
            self.add_ok_cancel_buttons(self._start_auction_choice, self._cancel)
         elif auction_status == 1:
             self.add_label(f"The auction for '{self.dapp._chosen_domain}' has begun.")
-            reveal_date = self.dapp.ens_contract.reveal_date(self.dapp._chosen_domain)
+            reveal_date = self.dapp.ens_auction_contract.reveal_date(self.dapp._chosen_domain)
             time_left = reveal_date - datetime.now() - timedelta(days=2)
 
             if time_left.total_seconds() > 0:
@@ -130,7 +127,7 @@ class ENSAuctionFrame(SLFrame):
         )
 
     def _send_auction_tx(self):
-        return self.dapp.ens_contract.start_auction(self.dapp._chosen_domain)
+        return self.dapp.ens_auction_contract.start_auction(self.dapp._chosen_domain)
 
     def _make_bid_choice(self):
         self.dapp.add_transaction_dialog(
@@ -141,7 +138,7 @@ class ENSAuctionFrame(SLFrame):
         )
 
     def _make_bid_tx(self):
-        return self.dapp.ens_contract.place_bid(self.dapp._chosen_domain,
+        return self.dapp.ens_auction_contract.place_bid(self.dapp._chosen_domain,
                                      self.dapp.node.credstick.addressStr(),
                                      self.bidvalue(),
                                      "goopy goober guts")

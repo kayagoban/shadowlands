@@ -16,10 +16,11 @@ class Ens(Contract):
         return status[0]
 
     def reveal_date(self, name):
-        #debug(); pdb.set_trace()
         status = self.functions.entries(self.sha3(text=name)).call()
         reveal_timestamp = status[2]
         return datetime.fromtimestamp(reveal_timestamp)
+        
+
 
 ########
 # TXs
