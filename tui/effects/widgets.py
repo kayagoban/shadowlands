@@ -4,6 +4,7 @@ from asciimatics.event import KeyboardEvent
 from tui.errors import ExitTuiError
 from decimal import Decimal
 from credstick import SignTxError
+from web3.exceptions import StaleBlockchain
 from binascii import Error
 import os
 
@@ -286,12 +287,17 @@ class NetworkOptions(Frame):
             self._prompt_custom_websocket_uri()
         elif connect_fn == 'connect_w3_custom_infura' and no_infura_key:
             self._scene.add_effect( MessageDialog(self._screen, "Set INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
-        elif self._attempt_connection(connect_fn):
-            connect_str = f"{self._interface.node.network_name} connected via {self._interface.node.connection_type}"
-            self._scene.add_effect( MessageDialog(self._screen, connect_str, destroy_window=self, width=(len(connect_str)+6) ) )
         else:
-            self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=self))
-
+            try:
+                connected = self._attempt_connection(connect_fn)
+            except StaleBlockchain:
+                self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected Node", destroy_window=self))
+                return
+            if connected:
+                connect_str = f"{self._interface.node.network_name} connected via {self._interface.node.connection_type}"
+                self._scene.add_effect( MessageDialog(self._screen, connect_str, destroy_window=self, width=(len(connect_str)+6) ) )
+            else:
+                self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=self))
 
     def _attempt_connection(self, fn_name, arg=None):
         fn = self._interface.node.__getattribute__(fn_name)
@@ -359,10 +365,17 @@ class NetworkOptions(Frame):
     def _continue_function(self, text, calling_frame):
         network_option = self.find_widget('netpicker')
         connect_fn = network_option._value
-        if self._attempt_connection(connect_fn, text):
+        try:
+            connected = self._attempt_connection(connect_fn, text)
+        except StaleBlockchain:
+            self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected node", destroy_window=calling_frame))
+            return
+
+        if connected:
             self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=calling_frame))
         else:
             self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))
+
 
 
 
