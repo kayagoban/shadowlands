@@ -15,9 +15,11 @@ class CredstickWatcher(Effect):
 
     def _update(self, frame_no):
         if self._interface.credstick != None:
+            # deleting the loading scene entirely.
             self._screen._scenes = [self._screen._scenes[1]]
+            # This makes sure the loading screen does not come back upon resize.
+            self._interface._loading_scene = False
             raise NextScene
-            #raise NextScene("Main")
 
     def reset(self):
         pass

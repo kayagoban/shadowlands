@@ -26,7 +26,6 @@ class Interface():
 
     }
 
-
     def __init__(self, _eth_node, config):
         self.node = _eth_node
         self._config = config
@@ -34,7 +33,7 @@ class Interface():
         self._price = None
         self._prices = None
         self._credstick = None
-        self._scenes = []
+        self._loading_scene = True
 
     @property
     def credstick(self):
@@ -63,10 +62,11 @@ class Interface():
     def tui(self, screen):
         self._screen = screen
 
-        scenes = [
-            LoadingScene(self._screen, "LoadingScene", self),
-            MainScene(self._screen, "Main", self)
-        ]
+        scenes = []
+        if self._loading_scene:
+            scenes.append(LoadingScene(self._screen, "LoadingScene", self))
+
+        scenes.append(MainScene(self._screen, "Main", self))
         # We re-use these two effects, which is why we define
         # them here.
         screen.play(scenes, stop_on_resize=True)
@@ -80,7 +80,9 @@ class Interface():
                 #raise RunDapp
                 screen = Screen.wrapper(self.tui)
                 break
-            except ResizeScreenError:
+            except ResizeScreenError as e:
+                #debug(); import pdb; pdb.set_trace()
+                # TODO make ResizeScreenError just raise NextScene
                 pass
             except RunDapp:
                 print("switching to dapp...")
