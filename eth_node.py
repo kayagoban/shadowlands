@@ -270,7 +270,7 @@ class Node():
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self._heartbeat_thread.start()
 
-    def push(self, contract_function, gas_price):
+    def push(self, contract_function, gas_price, gas_limit=None):
 
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price))
         signed_tx = self._credstick.signTx(tx)
@@ -295,12 +295,16 @@ class Node():
             data=b''
         )
 
-    def defaultTxDict(self,gas_price):
-        return dict(
+    def defaultTxDict(self,gas_price, gas_limit=None):
+        txdict = dict(
             nonce=self.w3.eth.getTransactionCount(self.credstick.addressStr()),
             gasPrice=int(gas_price),
             value=0
         ) 
+        if gas_limit:
+            txdict['gas'] = gas_limit
+        return txdict
+
 
     def find_parity_tx(self, tx_hash):
         for txdata in self.w3.txpool.parity_all_transactions:

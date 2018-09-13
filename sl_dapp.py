@@ -48,11 +48,10 @@ class SLDapp(Effect):
         preferred_width= len(question) + 6
         self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None))
 
-    def add_transaction_dialog(self, tx_fn=None, cancel_fn=None, destroy_window=None, title="Sign & Send Transaction"):
-
+    def add_transaction_dialog(self, tx_fn=None, destroy_window=None, title="Sign & Send Transaction"):
         #debug(); pdb.set_trace()
         self._scene.add_effect( 
-            SLTransactionFrame(self._screen, 12, 59, self, tx_fn, cancel_fn, destroy_window=destroy_window, title=title) 
+            SLTransactionFrame(self._screen, 14, 59, self, tx_fn, destroy_window=destroy_window, title=title) 
         )
 
 
@@ -70,18 +69,29 @@ class SLDapp(Effect):
 
 
 class SLTransactionFrame(TransactionFrame):
-    def __init__(self, screen, x, y, dapp=None, tx_fn=None, cancel_fn=None, **kwargs):
-        super(SLTransactionFrame, self).__init__(screen, x, y, dapp, self._ok_fn, cancel_fn, **kwargs) 
+    def __init__(self, screen, x, y, dapp=None, tx_fn=None, **kwargs):
+        super(SLTransactionFrame, self).__init__(screen, x, y, dapp, self._ok_fn, self._cancel_fn, **kwargs) 
         self._tx_fn = tx_fn
         #self.estimated_gas = tx_fn.gasEstimate()
         self.estimated_gas = tx_fn().estimateGas()
+
+        layout = Layout([100])
+        self.prepend_layout(layout)
+        layout.add_widget(Label(f"Estimated Gas for Tx: {self.estimated_gas}"))
+        layout.add_widget(Divider(draw_line=False))
+ 
         self.fix()
 
     def _ok_fn(self, gas_price_wei):
         self._interface.node.push(
-            self._tx_fn(), gas_price_wei
+            self._tx_fn(), gas_price_wei, self.estimated_gas
         )
-        self.destroy_window_stack()
+        self._destroy_window_stack()
+        raise NextScene
+
+    def _cancel_fn(self):
+        self._destroy_window_stack()
+        raise NextScene
 
 
 class SLFrame(Frame):
