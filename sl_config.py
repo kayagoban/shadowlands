@@ -15,8 +15,8 @@ class SLConfig():
         'RUB': '₽',
         'JPY': '¥',
         'CNY': '¥',
-        'SGD': '$'
-
+        'SGD': '$',
+        'ETH': 'Ξ'
     }
 
     def __init__(self, config_file_path=None):
