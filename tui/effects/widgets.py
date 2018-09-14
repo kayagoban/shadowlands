@@ -391,7 +391,7 @@ class ValueOptions(Frame):
         self._node = self._interface.node
 
         options = []
-        currencies = self._interface._prices['ETH']
+        currencies = self._interface.price_poller.eth_prices
         for k in currencies.keys():
             options.append( (k, k) )
 
@@ -416,7 +416,6 @@ class ValueOptions(Frame):
 
     def _ok(self):
         options = self.find_widget('valuepicker')
-        self._interface._displayed_currency = options._value
         self._interface._config.displayed_currency = options._value
         self._destroy_window_stack()
         raise NextScene

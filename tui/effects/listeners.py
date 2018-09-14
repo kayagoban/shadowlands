@@ -62,7 +62,7 @@ class MainMenuListener(Effect):
 
             #debug(); import pdb; pdb.set_trace()
             try:
-                self._interface._prices
+                self._interface.price_poller.eth_prices
                 self._scene.add_effect(ValueOptions(self._screen, self._interface))
             except (PriceError):
                 self._scene.add_effect(MessageDialog(self._screen, "Price feed unavailable, try later", 3, 44) )
