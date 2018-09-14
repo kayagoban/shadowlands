@@ -2,7 +2,7 @@ from asciimatics.effects import Effect
 from asciimatics.screen import Screen
 from random import random
 import curses
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 #from tui.effect_responder import ResponsiveEffect
 
 class Materialize(Effect):

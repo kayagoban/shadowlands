@@ -1,10 +1,10 @@
 from asciimatics.exceptions import NextScene, ResizeScreenError
 from asciimatics.screen import Screen
-from tui.scenes.loading import LoadingScene
-from sl_dapp import ExitDapp, RunDapp
-from tui.errors import ExitTuiError, PriceError
-from tui.scenes.main import MainScene
-from tui.debug import debug
+from shadowlands.tui.scenes.loading import LoadingScene
+from shadowlands.sl_dapp import ExitDapp, RunDapp
+from shadowlands.tui.errors import ExitTuiError, PriceError
+from shadowlands.tui.scenes.main import MainScene
+from shadowlands.tui.debug import debug
 import sys
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()

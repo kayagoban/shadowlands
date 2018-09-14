@@ -1,9 +1,9 @@
 from asciimatics.renderers import DynamicRenderer
 from decimal import Decimal
-from tui.errors import PriceError
-from eth_node import NodeConnectionError
+from shadowlands.tui.errors import PriceError
+from shadowlands.eth_node import NodeConnectionError
 
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 import pdb
 
 

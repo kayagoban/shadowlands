@@ -1,4 +1,4 @@
-from contract import Contract
+from shadowlands.contract import Contract
 
 class Erc20(Contract):
 

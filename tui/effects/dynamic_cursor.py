@@ -1,4 +1,4 @@
-from tui.effects.cursor import Cursor
+from shadowlands.tui.effects.cursor import Cursor
 
 class DynamicSourceCursor(Cursor):
     def __init__(self, screen, renderer, x, y, refresh_period=None, **kwargs):

@@ -3,15 +3,15 @@
 import threading, time, sys
 from time import sleep
 
-from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
-from sl_config import SLConfig
-from eth_node import Node
-from price_poller import PricePoller
+from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
+from shadowlands.sl_config import SLConfig
+from shadowlands.eth_node import Node
+from shadowlands.price_poller import PricePoller
 
-from tui.tui import Interface
+from shadowlands.tui.tui import Interface
 
 import pdb
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 #pdb.set_trace()
 
 menuSelection = None

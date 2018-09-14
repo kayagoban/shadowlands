@@ -8,7 +8,7 @@ from ens import ENS
 import threading
 
 import pdb
-import tui.debug
+import shadowlands.tui.debug
 
 #debug(); 
 #pdb.set_trace()

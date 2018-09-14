@@ -3,10 +3,10 @@ from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, L
 from asciimatics.exceptions import NextScene
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
-from tui.effects.widgets import MessageDialog, TransactionFrame
+from shadowlands.tui.effects.widgets import MessageDialog, TransactionFrame
 from decimal import Decimal
 
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 import pdb
 
 class SLDapp(Effect):

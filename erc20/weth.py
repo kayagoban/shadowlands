@@ -1,4 +1,4 @@
-from contract.erc20 import Erc20
+from shadowlands.contract.erc20 import Erc20
 
 class Weth(Erc20):
     KOVAN='0xd0A1E359811322d97991E03f863a0C30C2cF029C'

@@ -3,14 +3,14 @@ from asciimatics.screen import Screen
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from random import random
-from tui.errors import ExitTuiError
+from shadowlands.tui.errors import ExitTuiError
 from time import sleep
 import logging
 import threading
 import curses
 import sys
 
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 import pdb
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()

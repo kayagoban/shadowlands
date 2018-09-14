@@ -1,11 +1,11 @@
 from asciimatics.renderers import StaticRenderer
 from asciimatics.widgets import Frame, Layout, Text, Button
 from asciimatics.scene import Scene
-from tui.effects.materialize import Materialize
-from tui.effects.dynamic_cursor import DynamicSourceCursor
-from tui.effects.listeners import MainMenuListener
-from tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, ENSRenderer
-from tui.debug import debug
+from shadowlands.tui.effects.materialize import Materialize
+from shadowlands.tui.effects.dynamic_cursor import DynamicSourceCursor
+from shadowlands.tui.effects.listeners import MainMenuListener
+from shadowlands.tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, ENSRenderer
+from shadowlands.tui.debug import debug
 
 
 #debug(screen._screen); import pdb; pdb.set_trace()

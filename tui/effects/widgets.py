@@ -1,14 +1,14 @@
 from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, ListBox, RadioButtons, Label
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from tui.errors import ExitTuiError
+from shadowlands.tui.errors import ExitTuiError
 from decimal import Decimal
-from credstick import SignTxError
+from shadowlands.credstick import SignTxError
 from web3.exceptions import StaleBlockchain
 from binascii import Error
 import os
 
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 import pdb
 
 # Make sure the widget frame is_modal or claimed_focus.

@@ -1,15 +1,15 @@
-from sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
+from shadowlands.sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
 #from asciimatics.renderers import StaticRenderer, FigletText
 
 import random, string
 from datetime import datetime, timedelta
 
-from dapp.contracts.ens_auction import EnsAuction
-from dapp.contracts.ens_registry import EnsRegistry
-from dapp.contracts.ens_resolver import EnsResolver
-from dapp.contracts.ens_reverse_resolver import EnsReverseResolver
+from shadowlands.dapp.contracts.ens_auction import EnsAuction
+from shadowlands.dapp.contracts.ens_registry import EnsRegistry
+from shadowlands.dapp.contracts.ens_resolver import EnsResolver
+from shadowlands.dapp.contracts.ens_reverse_resolver import EnsReverseResolver
 
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 import pdb
 #debug(); pdb.set_trace()
 

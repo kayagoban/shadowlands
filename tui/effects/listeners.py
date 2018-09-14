@@ -1,10 +1,10 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
-from dapp import Dapp
-from tui.errors import ExitTuiError, PriceError
-from tui.debug import debug
+from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
+from shadowlands.dapp import Dapp
+from shadowlands.tui.errors import ExitTuiError, PriceError
+from shadowlands.tui.debug import debug
 import pyperclip
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()

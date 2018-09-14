@@ -1,10 +1,10 @@
 from asciimatics.renderers import StaticRenderer, FigletText
 from asciimatics.scene import Scene
-from tui.effects.materialize import Materialize
-from tui.effects.cursor import LoadingScreenCursor
-from tui.effects.dynamic_cursor import DynamicSourceCursor
-from tui.renderers import BlockStatusRenderer, NetworkStatusRenderer
-from tui.effects.credstick_watcher import CredstickWatcher
+from shadowlands.tui.effects.materialize import Materialize
+from shadowlands.tui.effects.cursor import LoadingScreenCursor
+from shadowlands.tui.effects.dynamic_cursor import DynamicSourceCursor
+from shadowlands.tui.renderers import BlockStatusRenderer, NetworkStatusRenderer
+from shadowlands.tui.effects.credstick_watcher import CredstickWatcher
 
 
 PROMPT='''Welcome, chummer.  Insert your credstick to begin...
