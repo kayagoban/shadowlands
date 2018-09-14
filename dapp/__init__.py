@@ -85,7 +85,6 @@ class ENSManageFrame(SLFrame):
        self.dapp.quit()
 
 
-
 #debug(); pdb.set_trace()
 #debug(); pdb.set_trace()
 
