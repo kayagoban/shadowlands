@@ -1,4 +1,4 @@
-from contract import Contract
+from shadowlands.contract import Contract
 
 class EnsReverseResolver(Contract):
     MAINNET='0x9062C0A6Dbd6108336BcBe4593a3D1cE05512069'

@@ -1,5 +1,5 @@
-from contract import Contract
-from tui.debug import debug
+from shadowlands.contract import Contract
+from shadowlands.tui.debug import debug
 from datetime import datetime
 import pdb
 #debug(); pdb.set_trace()

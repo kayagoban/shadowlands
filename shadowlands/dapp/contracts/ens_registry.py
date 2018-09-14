@@ -1,7 +1,7 @@
-from contract import Contract
-from dapp.namehash import namehash
+from shadowlands.contract import Contract
+from shadowlands.dapp.namehash import namehash
 from hexbytes import HexBytes
-from tui.debug import debug
+from shadowlands.tui.debug import debug
 import pdb
 
 #debug(); pdb.set_trace()
