@@ -12,39 +12,11 @@ from shadowlands.tui.tui import Interface
 
 import pdb
 from shadowlands.tui.debug import debug
-#pdb.set_trace()
-
-menuSelection = None
-credstick = None
-
-# Flags to halt threads
-credstick_thread_shutdown = False
-
-def credstick_finder(interface):
-    global credstick_thread_shutdown
-    not_found = True
-
-    while not_found:
-        try: 
-            credstick = Credstick.detect()
-            credstick.open()
-            eth_node.credstick = credstick
-            eth_node.ethAddress = credstick.derive()
-            #eth_node.poll()
-            not_found = False
-            interface.credstick = credstick
-        except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
-            time.sleep(0.25)
-
-        if credstick_thread_shutdown:
-            break
-
-
 
 #pdb.set_trace()
 
 
-
+#Credstick.detect()
 
 # Read from config file
 sl_config = SLConfig()
@@ -59,60 +31,39 @@ eth_node.connect_config_default()
 
 eth_node.start_heartbeat_thread()
 
-#dapp.node = eth_node
-#dapp.register_node_on_contracts()
-
 # price import thread
 price_poller = PricePoller(sl_config)
 price_poller.start_thread()
 
 # create user interface 
 interface = Interface(eth_node, price_poller, sl_config)
-#interface = Interface(eth_node, dapp, sl_config)
-
-#eth_price_poller(interface)
-
-
-# credstick finder thread
-m = threading.Thread(target=credstick_finder, args = [interface])
-m.start()
-
-
-
-#m.join()
-#rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
-#rx = dapp.send_ether('0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.0000001337)
-#import pdb; pdb.set_trace()
-
-
-
-
 
 # Begin interface
-
 interface.load()
 
-
-
-# Shut it down.
-if credstick != None:
-    credstick.close()
-
-
-credstick_thread_shutdown = True
+# Shut it all down.
 print("Closing credstick poller...")
-m.join()
+Credstick.stop_detect_thread()
 
-
-print("Waiting for price poller to shut down...")
+print("Closing price poller...")
 price_poller.stop_thread()
-
 
 eth_node.thread_shutdown = True
 print("Closing connection to ethereum node...")
 eth_node._heartbeat_thread.join()
 
 sys.exit(0)
+
+
+
+
+
+
+#m.join()
+#rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
+#import pdb; pdb.set_trace()
+
+
 
 
 
@@ -130,12 +81,6 @@ sys.exit(0)
 #os.system("clear")
 
 
-def send_tx(rx):
-    if rx != None:
-        print('Transaction sent.')
-        print(rx)
-
-
 #rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
 
 #dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
@@ -145,14 +90,6 @@ def send_tx(rx):
 
 # dapp.send_ether('0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.000001337)
 #rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
-
-# rx = dapp.ens_finalize_auction('cthomas')
-
-#dapp.register_ens_resolver('mindmyvagina')
-
-#dapp.set_ens_resolver_address('mindmyvagina', eth_node.ethAddress)
-
-# dapp.set_ens_reverse_lookup('ceilingcat')
 
 
 

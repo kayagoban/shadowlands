@@ -5,6 +5,7 @@ from shadowlands.sl_dapp import ExitDapp, RunDapp
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.tui.scenes.main import MainScene
 from shadowlands.tui.debug import debug
+from shadowlands.credstick import Credstick
 import sys
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
@@ -50,8 +51,15 @@ class Interface():
             scenes.append(LoadingScene(self._screen, "LoadingScene", self))
 
         scenes.append(MainScene(self._screen, "Main", self))
-        # We re-use these two effects, which is why we define
-        # them here.
+
+        # Now that we have the screen, we can 
+        # Start the credstick watcher thread.
+        # The trezor needs UI elements, otherwise we could have
+        # done this in a better place.
+        Credstick.interface = self
+        Credstick.start_detect_thread()
+         
+
         screen.play(scenes, stop_on_resize=True)
 
 

@@ -1,6 +1,6 @@
 import rlp, struct
 from hexbytes import HexBytes
-from credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
+from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
 from rlp import encode, decode
@@ -94,6 +94,7 @@ def hd_path(pathStr=LEDGER_PATH):
 
 
 class LedgerEthDriver(Credstick):
+    _driver = None
 
     @classmethod
     def open(cls):
@@ -112,7 +113,7 @@ class LedgerEthDriver(Credstick):
         cls._driver = None
 
     @classmethod
-    def derive(cls):
+    def derive(cls, path="44'/60'/0'/0"):
         try:
             result = cls._driver.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
             offset = 1 + result[0]
