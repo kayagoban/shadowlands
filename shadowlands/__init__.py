@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import threading, time, sys
-from time import sleep
+import sys
 
-from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, NoCredstickFoundError
+from shadowlands.credstick import Credstick
 from shadowlands.sl_config import SLConfig
 from shadowlands.eth_node import Node
 from shadowlands.price_poller import PricePoller
-
 from shadowlands.tui.tui import Interface
 
 import pdb

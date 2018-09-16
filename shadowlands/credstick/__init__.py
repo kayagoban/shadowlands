@@ -1,4 +1,4 @@
-import hid
+import hid, threading, time
 
 # TODO
 # fork eth-account and eth-keys repos from the Web3.py project and 
