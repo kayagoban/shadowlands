@@ -5,6 +5,7 @@ from shadowlands.tui.errors import ExitTuiError
 from decimal import Decimal
 from shadowlands.credstick import SignTxError
 from web3.exceptions import StaleBlockchain
+from decimal import InvalidOperation
 from binascii import Error
 import os
 
@@ -97,7 +98,12 @@ class TransactionFrame(Frame):
     def _on_text_change(self):
         gas_price_gwei = None
         custgas = self.find_widget('custgas')
-        gas_price_gwei = Decimal(custgas._value)
+        try:
+            gas_price_gwei = Decimal(custgas._value)
+        except InvalidOperation:
+            # Let it blow up later down the line
+            gas_price_gwei = custgas._value
+            
 
         self._update_gastimate_label(gas_price_gwei)
 
@@ -423,8 +429,6 @@ class ValueOptions(Frame):
     def _cancel(self):
         self._destroy_window_stack()
         raise NextScene
-
-
 
 
 

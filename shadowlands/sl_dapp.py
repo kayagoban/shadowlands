@@ -42,9 +42,9 @@ class SLDapp(Effect):
         # sake of simplicity.
         self._scene.add_effect(cls(self, height, width, title=title))
 
-    def add_message_dialog(self, message):
+    def add_message_dialog(self, message, **kwargs):
         preferred_width= len(message) + 6
-        self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, destroy_window=None))
+        self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
 
     def add_yes_no_dialog(self, question, yes_fn=None, no_frame=None):
         preferred_width= len(question) + 6
@@ -59,7 +59,7 @@ class SLDapp(Effect):
 
     def quit(self):
         # Remove all owned windows
-        self._screen.remove_effect(self)
+        self._scene.remove_effect(self)
         raise NextScene
 
     def _update():
@@ -101,8 +101,9 @@ class SLTransactionFrame(TransactionFrame):
             self.dapp.node.push(
                 self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
             )
-        except SignTxError:
-            self._scene.add_effect(MessageDialog("Credstick did not sign Transaction", destroy_window=self))
+        except (SignTxError, BaseException):
+            self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
+            #self._scene.add_effect(MessageDialog(self._screen, "Credstick did not sign Transaction", destroy_window=self, width=40))
             return
 
         self._destroy_window_stack()

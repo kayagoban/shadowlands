@@ -4,10 +4,11 @@ from shadowlands.sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
 import random, string
 from datetime import datetime, timedelta
 
+from shadowlands.contract import OpenContractError, ContractConfigError
 from shadowlands.dapp.contracts.ens_auction import EnsAuction
 from shadowlands.dapp.contracts.ens_registry import EnsRegistry
-from shadowlands.dapp.contracts.ens_resolver import EnsResolver
-from shadowlands.dapp.contracts.ens_reverse_resolver import EnsReverseResolver
+#from shadowlands.dapp.contracts.ens_resolver import EnsResolver
+#from shadowlands.dapp.contracts.ens_reverse_resolver import EnsReverseResolver
 
 from shadowlands.tui.debug import debug
 import pdb
@@ -19,10 +20,14 @@ import pdb
 class Dapp(SLDapp):
     def initialize(self):
         ## Here we instantiate our own Contract classes
-        self.ens_auction_contract = EnsAuction(self._node)
-        self.ens_registry_contract = EnsRegistry(self._node)
-        self.ens_resolver_contract = EnsResolver(self._node)
-        self.ens_reverse_resolver_contract = EnsReverseResolver(self._node)
+        try:
+            self.ens_auction_contract = EnsAuction(self._node)
+            self.ens_registry_contract = EnsRegistry(self._node)
+        except (OpenContractError, ContractConfigError):
+            self.add_message_dialog("Could not load the contracts for this Dapp.")
+            return None
+        #self.ens_resolver_contract = EnsResolver(self._node)
+        #self.ens_reverse_resolver_contract = EnsReverseResolver(self._node)
 
         self._chosen_domain = None
 
