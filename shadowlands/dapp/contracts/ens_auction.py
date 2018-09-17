@@ -1,5 +1,6 @@
 from shadowlands.contract import Contract
 from shadowlands.tui.debug import debug
+from eth_utils import decode_hex
 from datetime import datetime
 import pdb
 #debug(); pdb.set_trace()
@@ -18,23 +19,57 @@ class EnsAuction(Contract):
         reveal_timestamp = status[2]
         return datetime.fromtimestamp(reveal_timestamp)
         
+    def winning_bid_amount(self, name):
+        value = self.functions.entries(self.sha3(text="dapps")).call()[4]
+        return self.fromWei(value, 'ether')
 
+    def winning_bidder(self, name):
+        value = self.functions.entries(self.sha3(text="dapps")).call()[1]
+        return value
+
+    '''
+    def shaBid1(self, name, bidding address, bid_amt_ether, secret):
+        bid = self.functions.shaBid(
+            self.sha3(text=name), bidding_address, self.toWei(bid_amt_ether, 'ether'), self.sha3(text=secret)
+        ).call()
+        debug(); pdb.set_trace()
+        return bid
+ 
+    def shaBid2(self, name, bidding address, bid_amt_ether, secret):
+        bid = self.functions.shaBid(
+            self.sha3(text=name), bidding_address, self.toWei(bid_amt_ether, 'ether'), self.sha3(text=secret)
+        ).call()
+        debug(); pdb.set_trace()
+        return bid
+'''
+ 
 
 ########
 # TXs  (notice they return the function objects themselves)
 ########
+
+    #debug(); pdb.set_trace()
 
     def start_auction(self, name):
         fn = self.functions.startAuction(self.sha3(text=name))
         return fn
 
     def place_bid(self, name, bidding_address, bid_amt_ether, secret):
-        #debug(); pdb.set_trace()
         bid = self.functions.shaBid(
             self.sha3(text=name), bidding_address, self.toWei(bid_amt_ether, 'ether'), self.sha3(text=secret)
         ).call()
         fn = self.functions.newBid(bid)
         return fn
+
+    '''
+    def place_bid_hex_decoded(self, name, bidding_address, bid_amt_ether, secret):
+        bid = self.functions.shaBid(
+            self.sha3(text=name), bidding_address, self.toWei(bid_amt_ether, 'ether'), self.sha3(text=secret)
+        ).call()
+        fn = self.functions.newBid(bid)
+        return fn
+'''
+
 
     def unsealBid(self, name, bidAmount, secret):
         # here we actually remove the .eth if it is there.

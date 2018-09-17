@@ -3,6 +3,7 @@ from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, L
 from asciimatics.exceptions import NextScene
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
+from shadowlands.credstick import SignTxError
 from shadowlands.tui.effects.widgets import MessageDialog, TransactionFrame
 from decimal import Decimal
 
@@ -69,6 +70,7 @@ class SLDapp(Effect):
         pass
 
 
+
 class SLTransactionFrame(TransactionFrame):
     def __init__(self, screen, x, y, dapp=None, tx_fn=None, tx_value=0, **kwargs):
         super(SLTransactionFrame, self).__init__(screen, x, y, dapp, self._ok_fn, self._cancel_fn, **kwargs) 
@@ -95,9 +97,14 @@ class SLTransactionFrame(TransactionFrame):
         self.fix()
 
     def _ok_fn(self, gas_price_wei):
-        self.dapp.node.push(
-            self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
-        )
+        try:
+            self.dapp.node.push(
+                self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
+            )
+        except SignTxError:
+            self._scene.add_effect(MessageDialog("Credstick did not sign Transaction", destroy_window=self))
+            return
+
         self._destroy_window_stack()
         raise NextScene
 

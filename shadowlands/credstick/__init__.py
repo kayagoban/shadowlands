@@ -19,8 +19,6 @@ class CloseCredstickError(Exception):
 class SignTxError(Exception):
     pass
 
-
-
 class Credstick(object):
     interface = None
     eth_node = None

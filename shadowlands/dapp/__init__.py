@@ -60,7 +60,7 @@ class ENSStatusFrame(SLFrame):
             else:
                 self.dapp.add_message_dialog("Somebody else owns this ENS domain.")
         elif auction_status in [0, 1, 4]:
-            self.dapp.add_frame(ENSAuctionFrame, height=9, width=50, title="ENS domain auction")
+            self.dapp.add_frame(ENSAuctionFrame, height=11, width=50, title="ENS domain auction")
             self.close()
         elif auction_status == 3:
             self.add_message_dialog("This name is forbidden by the ENS contract.")
@@ -117,6 +117,36 @@ class ENSAuctionFrame(SLFrame):
             #salt = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
         elif auction_status == 4:
             self.add_label("It is time to reveal the bids for this name auction.")
+            reveal_date = self.dapp.ens_auction_contract.reveal_date(self.dapp._chosen_domain)
+            time_left = reveal_date - datetime.now()
+
+            if time_left.total_seconds() > 0:
+                minutes_left = time_left.total_seconds() // 60
+                hours_left = minutes_left // 60
+                days_left = round(hours_left / 24, 1)
+                if minutes_left < 60:
+                    self.add_label(f"{minutes_left} minutes left to reveal your bid.")
+                elif hours_left < 24:
+                    self.add_label(f"{hours_left} hours left to reveal your bid.")
+                else:
+                    self.add_label(f"{days_left} days left to reveal your bid.")
+
+            self.bid_amount_value = self.add_textbox("Bid amount:")
+            self.bid_secret_value = self.add_textbox("Bid Secret:")
+            self.add_ok_cancel_buttons(self._reveal_bid_choice, self._cancel, ok_text="Reveal Bid")
+ 
+    def _reveal_bid_choice(self):
+        self.dapp.add_transaction_dialog(
+            self._reveal_bid_tx,
+            destroy_window=self, 
+            title="Reveal Bid"
+        )
+
+    def _reveal_bid_tx(self):
+        return self.dapp.ens_auction_contract.unsealBid(
+            self.dapp._chosen_domain, 
+            self.bid_amount_value(), 
+            self.bid_secret_value())
 
     def _start_auction_choice(self):
         self.dapp.add_transaction_dialog(

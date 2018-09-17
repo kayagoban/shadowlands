@@ -13,6 +13,9 @@ from eth_keys.datatypes import PrivateKey
 from eth_account.datastructures import AttributeDict
 from eth_utils.crypto import keccak
 
+from shadowlands.tui.debug import debug
+import pdb
+
 from eth_account.internal.transactions import (
     ChainAwareUnsignedTransaction,
     UnsignedTransaction,
@@ -62,8 +65,9 @@ P2_RETURN_CHAIN_CODE = b'\x01'
 P1_FIRST_TRANS_DATA_BLOCK = b'\x00'
 # Seems to crash the app on the ledger.  Possibly incomplete documentation on this
 # Opcode
-#P1_SUBSEQUENT_TRANS_DATA_BLOCK = b'\x80'  
+P1_SUBSEQUENT_TRANS_DATA_BLOCK = b'\x80'  
 P2_UNUSED_PARAMETER = b'\x00'
+P2_UNUSED_PARAMETER2 = b'\x01'
 
 
 BIP44_PATH="44'/60'/0'/0/0"
@@ -156,6 +160,9 @@ class LedgerEthDriver(Credstick):
                 'data': b''
             })
             '''
+
+            #debug(); pdb.set_trace()
+
             tx = UnsignedTransaction.from_dict(transaction_dict)
 
             encodedTx = rlp.encode(tx, UnsignedTransaction)
@@ -185,8 +192,9 @@ class LedgerEthDriver(Credstick):
                 'v': v,
             })
 
-        except CommException:
-            raise SignTxError("Error while attempting SignTx")
+        except CommException as e:
+            raise SignTxError(f"Ledger device threw error  while attempting SignTx with apdu {apdu}:  {e.message}")
+            #import pdb; pdb.set_trace()
 
         return attr_dict
 

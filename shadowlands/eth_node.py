@@ -1,6 +1,6 @@
 import sys, time, os
 from decimal import Decimal
-from web3.exceptions import UnhandledRequest
+from web3.exceptions import UnhandledRequest, BadFunctionCallOutput
 from web3.utils.threads import Timeout
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
@@ -8,10 +8,9 @@ from ens import ENS
 import threading
 
 import pdb
-import shadowlands.tui.debug
+from shadowlands.tui.debug import debug
 
-#debug(); 
-#pdb.set_trace()
+#debug(); #pdb.set_trace()
    
 class NodeConnectionError(Exception):
     pass
@@ -140,7 +139,10 @@ class Node():
 
             if self._credstick:
                 self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-                self._ens_domain = self._ns.name(self._credstick.addressStr())
+                try:
+                    self._ens_domain = self._ns.name(self._credstick.addressStr())
+                except BadFunctionCallOutput:
+                    self._ens_domain = 'Unknown'
 
 
     def is_connected_with(self, _w3, connection_type, _heart_rate):
@@ -193,14 +195,15 @@ class Node():
 
 
     def connect_w3_custom_websocket(self, custom_uri=None):
+        #debug(); pdb.set_trace()
         self.cleanout_w3()
         if not custom_uri:
-            custom_uri = sl_config.websocket_uri
-            _w3 = self.w3_websocket(custom_uri)
-            if self.is_connected_with(_w3, 'Custom websocket', 2):
-                self._sl_config.websocket_uri = custom_uri
-                self._sl_config.default_method = self.connect_w3_custom_websocket.__name__
-                return True
+            custom_uri = self._sl_config.websocket_uri
+        _w3 = self.w3_websocket(custom_uri)
+        if self.is_connected_with(_w3, 'Custom websocket', 18):
+            self._sl_config.websocket_uri = custom_uri
+            self._sl_config.default_method = self.connect_w3_custom_websocket.__name__
+            return True
         return False
 
 
@@ -217,12 +220,12 @@ class Node():
         self.cleanout_w3()
         from web3 import Web3
         if not path:
-            path = sl_config.ipc_path
-            w3 = Web3(Web3.IPCProvider(path))
-            if self.is_connected_with(w3, 'Custom IPC', 1):
-                self._sl_config.ipc_path = path
-                self._sl_config.default_method = self.connect_w3_custom_ipc.__name__
-                return True
+            path = self._sl_config.ipc_path
+        w3 = Web3(Web3.IPCProvider(path))
+        if self.is_connected_with(w3, 'Custom IPC', 1):
+            self._sl_config.ipc_path = path
+            self._sl_config.default_method = self.connect_w3_custom_ipc.__name__
+            return True
         return False
 
 
@@ -230,12 +233,12 @@ class Node():
         self.cleanout_w3()
         from web3 import Web3
         if not custom_uri:
-            custom_uri = sl_config.http_uri
-            w3 = Web3(Web3.HTTPProvider(custom_uri))
-            if self.is_connected_with(w3, 'Custom HTTP', 1):
-                self._sl_config.http_uri = custom_uri
-                self._sl_config.default_method = self.connect_w3_custom_http.__name__
-                return True
+            custom_uri = self._sl_config.http_uri
+        w3 = Web3(Web3.HTTPProvider(custom_uri))
+        if self.is_connected_with(w3, 'Custom HTTP', 1):
+            self._sl_config.http_uri = custom_uri
+            self._sl_config.default_method = self.connect_w3_custom_http.__name__
+            return True
         return False
 
 
