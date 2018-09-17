@@ -79,7 +79,11 @@ class EthBalanceRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        bal = self._interface.node.eth_balance
+        try:
+            bal = self._interface.node.eth_balance
+        except AttributeError:
+            return ['Unknown'], None
+
         if bal:
             bal_str = str( bal )
         else:
@@ -99,9 +103,14 @@ class EthValueRenderer(DynamicRenderer):
         except (TypeError, KeyError, PriceError):
             return ['Unavailable'], None
 
-        eth = self._interface.node.eth_balance
+        try:
+            eth = self._interface.node.eth_balance
+        except AttributeError:
+            return ['Unavailable'], None
+
         if not eth:
             return ['Unavailable'], None
+
         if curr == 'BTC':
             decimal_places = 6
         else:
