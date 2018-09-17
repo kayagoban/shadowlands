@@ -14,7 +14,7 @@ from shadowlands.tui.debug import debug
 #pdb.set_trace()
 
 
-#Credstick.detect()
+#Credstick.credstick_finder()
 
 # Read from config file
 sl_config = SLConfig()
@@ -35,6 +35,7 @@ price_poller.start_thread()
 
 # create user interface 
 interface = Interface(eth_node, price_poller, sl_config)
+
 
 # Begin interface
 interface.load()

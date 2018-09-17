@@ -23,6 +23,7 @@ class SignTxError(Exception):
 
 class Credstick(object):
     interface = None
+    eth_node = None
     manufacturer = None
     product = None
     address = None
@@ -31,7 +32,7 @@ class Credstick(object):
 
     @classmethod
     def addressStr(cls):
-        return '0x' + cls.address.decode('ascii')
+        return cls.address
 
     @classmethod
     def heartbeat(cls):
@@ -55,8 +56,8 @@ class Credstick(object):
                 if ('interface_number' in hidDevice and hidDevice['interface_number'] == -1) or ('usage_page' in hidDevice and hidDevice['usage_page'] in [0xf1d0, 0xff00]):
                     if hidDevice['path'] is not None:
                         from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                        TrezorEthDriver.manufacturer = hidDevice['manufacturer_string']
-                        TrezorEthDriver.product = hidDevice['product_string']
+                        TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
+                        TrezorEthDriver.productStr = hidDevice['product_string']
                         return TrezorEthDriver
  
         raise NoCredstickFoundError("Could not identify any supported credstick")
@@ -74,13 +75,18 @@ class Credstick(object):
     @classmethod
     def credstick_finder(cls):
         not_found = True
+        address = None
 
         while not_found:
             try: 
                 credstick = cls.detect()
                 credstick.open()
-                eth_node.credstick = credstick
-                interface.credstick = credstick
+                while not address:
+                    address = credstick.derive()
+                    time.sleep(1)
+
+                cls.eth_node.credstick = credstick
+                cls.interface.credstick = credstick
                 not_found = False
             except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
                 time.sleep(0.25)

@@ -52,14 +52,6 @@ class Interface():
 
         scenes.append(MainScene(self._screen, "Main", self))
 
-        # Now that we have the screen, we can 
-        # Start the credstick watcher thread.
-        # The trezor needs UI elements, otherwise we could have
-        # done this in a better place.
-        Credstick.interface = self
-        Credstick.start_detect_thread()
-         
-
         screen.play(scenes, stop_on_resize=True)
 
 

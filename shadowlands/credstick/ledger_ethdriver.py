@@ -103,7 +103,6 @@ class LedgerEthDriver(Credstick):
             cls._driver = getDongle(False)
             cls.manufacturerStr = cls._driver.device.get_manufacturer_string()
             cls.productStr = cls._driver.device.get_product_string()
-            cls.address = cls.derive()
         except (OSError, CommException):
             raise OpenCredstickError
 
@@ -117,10 +116,11 @@ class LedgerEthDriver(Credstick):
         try:
             result = cls._driver.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
             offset = 1 + result[0]
-            cls.address = result[offset + 1 : offset + 1 + result[offset]]
+            address = result[offset + 1 : offset + 1 + result[offset]]
         except(CommException, IOError):
             raise DeriveCredstickAddressError("Could not derive an address from your credstick, user.")
-        return cls.addressStr()
+        cls.address = '0x' + address.decode('ascii')
+        return cls.address
 
     @classmethod
     def version(cls):

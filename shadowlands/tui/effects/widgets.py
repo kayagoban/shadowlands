@@ -496,8 +496,8 @@ class QuitDialog(YesNoDialog):
 # like so:
 # continue_function(returned_text, text_request_dialog_object)
 class TextRequestDialog(Frame):
-    def __init__(self, screen, label_prompt_text=None, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, **kwargs):
-        super(TextRequestDialog, self).__init__(screen, 10, 46, has_shadow=True, is_modal=True, can_scroll=False, **kwargs)
+    def __init__(self, screen, height=10, width=46, label_prompt_text=None, label_height=2, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, hide_char=None, title=None, **kwargs):
+        super(TextRequestDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, can_scroll=False, title=title, **kwargs)
         self.set_theme('shadowlands')
         self._continue_function = continue_function
         self._next_scene = next_scene
@@ -505,9 +505,9 @@ class TextRequestDialog(Frame):
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
         layout.add_widget(Divider(draw_line=False))
-        layout.add_widget(Label(label_prompt_text, 2, align=label_align))
+        layout.add_widget(Label(label_prompt_text, label_height, align=label_align))
         layout.add_widget(Divider(draw_line=False))
-        layout.add_widget(Text(text_label, "text_field", default_value=text_default_value))
+        layout.add_widget(Text(text_label, "text_field", default_value=text_default_value, hide_char=hide_char))
  
 
         layout2 = Layout([1, 1], fill_frame=False)
