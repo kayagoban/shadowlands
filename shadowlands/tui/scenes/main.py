@@ -11,18 +11,8 @@ from shadowlands.tui.debug import debug
 #debug(screen._screen); import pdb; pdb.set_trace()
 #from tui.effects.cursor import LoadingScreenCursor
 class MainScene(Scene):
-
-    CREDSTICK_DISPLAY = '''
-╔═ Ledger Nano S ══════════════════════════════════════════════════════════════╗
-║                                                                ${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}T${2,2} ║ ${7,1}D${2,2}
-║  ${7,1}A${2,2}ddress:                                                      e ║ o ║ o ║ a
-║                                                                n ║ p ║ k ║ p
-║  Ξth:                                                          d ║ y ║ e ║ p
-║                                                                      ║ n ║ s
-║  ${7,1}V${2,2}alue:                             ║  ${7,1}E${2,2}NS:                          ║ s
-╚═════════════════════════════════════╩════════════════════════════════════════╝
-'''
-    MENU_TOP='''══════════════════════════════════════════════════════════════╗'''
+    #MENU_TOP='''══════════════════════════════════════════════════════════════╗'''
+    MENU_TOP='''═══════════════════════════════════════════════╗'''
 
     MENU_FRAME = '''
 ╔═
@@ -65,7 +55,7 @@ ${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b
             Materialize(screen, StaticRenderer(['${7,1}N${2,2}etwork:' ]), 45, 0, signal_acceleration_factor=2),
             DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 55, 0, refresh_period=250),
             Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05),
-            Materialize(screen, StaticRenderer([self.MENU_TOP]), 17, 3, signal_acceleration_factor=1.05),
+            Materialize(screen, StaticRenderer([self.MENU_TOP]), 32, 3, signal_acceleration_factor=1.05),
             DynamicSourceCursor(screen, CredstickNameRenderer(interface), 3, 3),
             Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05),
             Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=10),

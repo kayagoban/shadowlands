@@ -62,10 +62,15 @@ class CredstickNameRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
+        space_available = 29 
         if not self._interface.credstick:
             name = 'Unknown'
         else:
             name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
+            padding = '═' * (space_available - len(name))
+            name = f"{name} {padding}"
+
+            
         return [name], None
 
 class EthBalanceRenderer(DynamicRenderer):

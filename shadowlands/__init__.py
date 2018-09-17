@@ -42,7 +42,8 @@ interface.load()
 
 # Shut it all down.
 print("Closing credstick poller...")
-Credstick.stop_detect_thread()
+interface.credstick.stop_detect_thread()
+interface.credstick.close()
 
 print("Closing price poller...")
 price_poller.stop_thread()
