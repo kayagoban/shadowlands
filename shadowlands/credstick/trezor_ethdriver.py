@@ -141,6 +141,7 @@ The layout is:
             nonce=int_to_big_endian(tx['nonce']),
             gas_price=int_to_big_endian(tx['gasPrice']),
             gas_limit=int_to_big_endian(tx['gas']),
+            chain_id=int(cls.eth_node._network),
             value=int_to_big_endian(tx['value']))
 
         if tx['to']:
