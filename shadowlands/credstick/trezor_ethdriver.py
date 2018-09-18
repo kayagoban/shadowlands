@@ -11,11 +11,19 @@ from trezorlib import messages as proto
 import binascii
 
 from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
-from shadowlands.tui.effects.widgets import TextRequestDialog
+from shadowlands.tui.effects.widgets import TextRequestDialog, MessageDialog
 
 from shadowlands.tui.debug import debug
 import pdb
 
+
+# The Trezor protocol is a dumpster fire of shitty design
+# caused by the inability to authenticate without client
+# side intervention.
+#
+# I hope you enjoy using this because I bled for its
+# implementation.
+#
 class TrezorEthDriver(Credstick):
     transport = None
     state = None
@@ -44,7 +52,7 @@ class TrezorEthDriver(Credstick):
         try:
             cls.features = cls.call_raw(init_msg)
         except TransportException:
-            raise OpenCredstickError
+            raise OpenCredstickError("Error opening Trezor")
 
     #self.features = expect(proto.Features)(self.call)(init_msg)
 
@@ -53,13 +61,6 @@ class TrezorEthDriver(Credstick):
 
         #cls.address = cls.derive()
 
-    @classmethod
-    def matrix_process(cls, text, calling_window):
-        response = cls.call_raw(proto.PinMatrixAck(pin=text))
-        if response.__class__.__name__ is 'EthereumAddress':
-            address = '0x' + binascii.hexlify(response.address).decode('ascii')
-            address = cls.eth_node.w3.toChecksumAddress(address)
-            cls.address = address
  
             #debug(); pdb.set_trace()
         #calling_window._destroy_window_stack()
@@ -67,39 +68,50 @@ class TrezorEthDriver(Credstick):
         #calling_window._scene.reset()
 
     @classmethod
-    def close(cls):
-        if cls.transport:
-            cls.transport.close()
+    def matrix_process(cls, text, calling_window):
+        response = cls.call_raw(proto.PinMatrixAck(pin=text))
+        if response.__class__.__name__ is 'EthereumAddress':
+            address = '0x' + binascii.hexlify(response.address).decode('ascii')
+            address = cls.eth_node.w3.toChecksumAddress(address)
+            cls.address = address
+        else:
+            calling_window._scene.add_effect(MessageDialog(calling_window._screen, "Trezor is unlocked now.", destroy_window=calling_window))
+            # open a message dialog, tell them they are now authenticated and to try whatever they were doing again
+
+
+    @classmethod
+    def matrix_request_window(cls):
+        legend = '''Use the numeric keypad to describe number positions. 
+The layout is:
+                  7 8 9
+                  4 5 6
+                  1 2 3'''
+        scr = cls.interface._screen
+        dialog = TextRequestDialog(scr, 
+                                   height=14,
+                                   width = 60,
+                                   label_prompt_text=legend,
+                                   label_height=5, 
+                                   continue_button_text="Unlock",
+                                   continue_function=cls.matrix_process,
+                                   text_label="Your code:",
+                                   hide_char="*",
+                                   label_align="<",
+                                   title="Trezor Auth",
+                                   reset_scene=False
+                                  )
+        scr.current_scene.add_effect( dialog )
 
  
     @classmethod
-    def derive(cls, path="44'/60'/0'/0"):
+    def derive(cls, path="44'/60'/0'/0/0"):
         #address = "44'/60'/0'/0"  # ledger so-called standard
         #address = "44'/60'/0'/0/0"  # BIP44 standard (trezor)
         address_n = tools.parse_path(path)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
         response = cls.call_raw(call_obj)
         if response.__class__.__name__ == 'PinMatrixRequest':
-            legend = '''Use the numeric keypad to describe number positions. 
-The layout is:
-                      7 8 9
-                      4 5 6
-                      1 2 3'''
-            scr = cls.interface._screen
-            dialog = TextRequestDialog(scr, 
-                                       height=14,
-                                       width = 60,
-                                       label_prompt_text=legend,
-                                       label_height=5, 
-                                       continue_button_text="Unlock",
-                                       continue_function=cls.matrix_process,
-                                       text_label="Your code:",
-                                       hide_char="*",
-                                       label_align="<",
-                                       title="Trezor Auth",
-                                       reset_scene=False
-                                      )
-            scr.current_scene.add_effect( dialog )
+            cls.matrix_request_window()
             return None
         elif response.__class__.__name__ == 'Failure':
             return None
@@ -112,10 +124,78 @@ The layout is:
         #return result
 
 
-class NotImplementedError(Exception):
-    pass
 
-#TrezorEthDriver.derive()
+    @classmethod
+    def signTx(cls, tx, path="44'/60'/0'/0/0"):
+
+        def int_to_big_endian(value):
+            return value.to_bytes((value.bit_length() + 7) // 8, 'big')
+
+        tx = cls.prepare_tx(tx)
+
+        #n = self._convert_prime(n)
+        address_n = tools.parse_path(path)
+ 
+        msg = proto.EthereumSignTx(
+            address_n=address_n,
+            nonce=int_to_big_endian(tx['nonce']),
+            gas_price=int_to_big_endian(tx['gasPrice']),
+            gas_limit=int_to_big_endian(tx['gas']),
+            value=int_to_big_endian(tx['value']))
+
+        if tx['to']:
+            msg.to = tx['to']
+
+        data = tx['data']
+        if data:
+            msg.data_length = len(data)
+            data, chunk = data[1024:], data[:1024]
+            msg.data_initial_chunk = chunk
+
+        #if chain_id:
+        #    msg.chain_id = chain_id
+
+        #if tx_type is not None:
+        #    msg.tx_type = tx_type
+
+        #debug(); pdb.set_trace()
+
+        response = cls.call_raw(msg)
+
+        if response.__class__.__name__ == 'PinMatrixRequest':
+            cls.matrix_request_window()
+            raise SignTxError("Credstick needs to be unlocked")
+ 
+        response = cls.call_raw(proto.ButtonAck())
+        # are you really sure?  really really sure?
+        # really really really really really sure?
+        # For f*#$&# sake.
+        response = cls.call_raw(proto.ButtonAck())
+
+        while response.data_length is not None:
+            data_length = response.data_length
+            data, chunk = data[data_length:], data[:data_length]
+            response = self.call_raw(proto.EthereumTxAck(data_chunk=chunk))
+        
+        v = response.signature_v
+        r = response.signature_r
+        s = response.signature_s
+
+        stx = cls.signed_tx(tx, v, 
+                            int(r.hex(), 16), 
+                            int(s.hex(), 16)
+                           )
+
+        #debug(); pdb.set_trace()
+
+        return stx
+
+
+    @classmethod
+    def close(cls):
+        if cls.transport:
+            cls.transport.close()
+
 
 
 '''

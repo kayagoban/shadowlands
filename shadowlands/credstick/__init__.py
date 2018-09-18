@@ -1,5 +1,12 @@
 import hid, threading, time
+from hexbytes import HexBytes
+from eth_account.internal.transactions import Transaction, UnsignedTransaction
+from eth_utils import decode_hex, encode_hex
+from eth_utils.crypto import keccak
+from eth_account.datastructures import AttributeDict
+import rlp
 from time import sleep
+
 
 from shadowlands.tui.debug import debug
 import pdb
@@ -106,6 +113,42 @@ class Credstick(object):
             if cls.detect_thread_shutdown:
                 break
 
+    @classmethod
+    def prepare_tx(cls, transaction_dict):
+        try:
+            del(transaction_dict['chainId'])
+        except:
+            # Fine, if it isn't there it isn't there. jeez.
+            pass
+
+        # if to and data fields are hex strings, turn them into byte arrays
+        if (transaction_dict['to']).__class__ == str:
+            transaction_dict['to'] = decode_hex(transaction_dict['to'])
+
+        if (transaction_dict['data']).__class__ == str:
+            transaction_dict['data'] = decode_hex(transaction_dict['data'])
+
+        return transaction_dict
+
+    @classmethod
+    def signed_tx(cls, transaction_dict, v, r, s):
+        tx = UnsignedTransaction.from_dict(transaction_dict)
+
+        trx = Transaction(tx.nonce, tx.gasPrice, tx.gas, tx.to, tx.value, tx.data, v, r, s)
+        #debug(); pdb.set_trace()
+        enctx = rlp.encode(trx)
+        transaction_hash = keccak(enctx)
+
+        attr_dict =  AttributeDict({
+            'rawTransaction': HexBytes(enctx),
+            'hash': HexBytes(transaction_hash),
+            'r': r,
+            's': s,
+            'v': v,
+        })
+        
+        return attr_dict
+
 
     @classmethod
     def open(cls):
@@ -124,7 +167,9 @@ class Credstick(object):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
-    def signTx(cls, tx):
+    def signTx(cls, transaction_dict, r=None, s=None, v=None):
+
+ 
         raise NotImplementedError(optional_error_message)
 
     @classmethod
