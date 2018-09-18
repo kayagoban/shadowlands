@@ -1,6 +1,7 @@
 
 import threading, time
 from cryptocompy import price
+from requests.exceptions import ConnectionError
 
 
 class PricePoller:
@@ -13,12 +14,17 @@ class PricePoller:
     def eth_price_poller(self):
         currencies = ["USD", "GBP", "EUR", 'BTC', 'AUD', 'CHF', 'JPY', 'RUB', 'CNY', 'SGD']
         while True:
-            #debug(); 
-            #pdb.set_trace()
-            self._prices = price.get_current_price("ETH", currencies) 
             # 5 minutes seems responsible.
-            for i in range (150):
-                time.sleep(2)
+            sleep_time=300
+            try:
+                self._prices = price.get_current_price("ETH", currencies) 
+                sleep_time = 300
+            except ConnectionError:
+                self._prices = None
+                # Retry faster to anticipate the connection coming back online
+                sleep_time = 10 
+            for i in range (sleep_time):
+                time.sleep(1)
                 if self._thread_shutdown:
                    return
 
