@@ -159,18 +159,24 @@ The layout is:
         #    msg.tx_type = tx_type
 
         #debug(); pdb.set_trace()
+        try:
+            response = cls.call_raw(msg)
 
-        response = cls.call_raw(msg)
-
-        if response.__class__.__name__ == 'PinMatrixRequest':
-            cls.matrix_request_window()
-            raise SignTxError("Credstick needs to be unlocked")
- 
-        response = cls.call_raw(proto.ButtonAck())
-        # are you really sure?  really really sure?
-        # really really really really really sure?
-        # For f*#$&# sake.
-        response = cls.call_raw(proto.ButtonAck())
+            if response.__class__.__name__ == 'PinMatrixRequest':
+                cls.matrix_request_window()
+                raise SignTxError("Credstick needs to be unlocked")
+     
+            response = cls.call_raw(proto.ButtonAck())
+            if response.__class__.__name__ == 'Failure':
+                raise SignTxError
+            # are you really sure?  really really sure?
+            # really really really really really sure?
+            # For f*#$&# sake.
+            response = cls.call_raw(proto.ButtonAck())
+            if response.__class__.__name__ == 'Failure':
+                raise SignTxError
+        except TransportException:
+            raise SignTxError
 
         while response.data_length is not None:
             data_length = response.data_length
@@ -186,7 +192,6 @@ The layout is:
                             int(s.hex(), 16)
                            )
 
-        #debug(); pdb.set_trace()
 
         return stx
 
