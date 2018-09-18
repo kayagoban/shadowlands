@@ -158,23 +158,20 @@ The layout is:
         #if tx_type is not None:
         #    msg.tx_type = tx_type
 
-        #debug(); pdb.set_trace()
         try:
             response = cls.call_raw(msg)
+
+            # This is dumb.
+            while response.__class__.__name__ == 'ButtonRequest':
+                response = cls.call_raw(proto.ButtonAck())
 
             if response.__class__.__name__ == 'PinMatrixRequest':
                 cls.matrix_request_window()
                 raise SignTxError("Credstick needs to be unlocked")
-     
-            response = cls.call_raw(proto.ButtonAck())
+ 
             if response.__class__.__name__ == 'Failure':
                 raise SignTxError
-            # are you really sure?  really really sure?
-            # really really really really really sure?
-            # For f*#$&# sake.
-            response = cls.call_raw(proto.ButtonAck())
-            if response.__class__.__name__ == 'Failure':
-                raise SignTxError
+
         except TransportException:
             raise SignTxError
 
@@ -191,10 +188,9 @@ The layout is:
                             int(r.hex(), 16), 
                             int(s.hex(), 16)
                            )
-
-
         return stx
 
+    #debug(); pdb.set_trace()
 
     @classmethod
     def close(cls):
@@ -202,6 +198,8 @@ The layout is:
             cls.transport.close()
 
 
+class SomeException(Exception):
+    pass
 
 '''
     @session
