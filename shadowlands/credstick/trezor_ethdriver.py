@@ -5,7 +5,7 @@ from time import sleep
 import getpass
 
 from trezorlib.client import ProtocolMixin, BaseClient 
-from trezorlib.transport import enumerate_devices, get_transport
+from trezorlib.transport import enumerate_devices, get_transport, TransportException
 from trezorlib import tools
 from trezorlib import messages as proto 
 import binascii
@@ -14,6 +14,7 @@ from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCr
 from shadowlands.tui.effects.widgets import TextRequestDialog
 
 from shadowlands.tui.debug import debug
+import pdb
 
 class TrezorEthDriver(Credstick):
     transport = None
@@ -30,15 +31,22 @@ class TrezorEthDriver(Credstick):
 
     @classmethod
     def open(cls):
-        sleep(1.25)
-        cls.transport = get_transport(None, prefix_search=False)
+        try:
+            cls.transport = get_transport(None, prefix_search=False)
+        except StopIteration as e:
+           debug(); pdb.set_trace()
  
         init_msg = proto.Initialize()
 
         if cls.state is not None:
             init_msg.state = cls.state
-        cls.features = cls.call_raw(init_msg)
-        #self.features = expect(proto.Features)(self.call)(init_msg)
+
+        try:
+            cls.features = cls.call_raw(init_msg)
+        except TransportException:
+            raise OpenCredstickError
+
+    #self.features = expect(proto.Features)(self.call)(init_msg)
 
         #if str(cls.features.vendor) not in self.VENDORS:
         #    raise RuntimeError("Unsupported device")
@@ -48,7 +56,15 @@ class TrezorEthDriver(Credstick):
     @classmethod
     def matrix_process(cls, text, calling_window):
         response = cls.call_raw(proto.PinMatrixAck(pin=text))
-        calling_window._destroy_window_stack()
+        if response.__class__.__name__ is 'EthereumAddress':
+            address = '0x' + binascii.hexlify(response.address).decode('ascii')
+            address = cls.eth_node.w3.toChecksumAddress(address)
+            cls.address = address
+ 
+            #debug(); pdb.set_trace()
+        #calling_window._destroy_window_stack()
+        #calling_window._scene.remove_effect(calling_window)
+        #calling_window._scene.reset()
 
     @classmethod
     def close(cls):
@@ -59,8 +75,7 @@ class TrezorEthDriver(Credstick):
     @classmethod
     def derive(cls, path="44'/60'/0'/0"):
         #address = "44'/60'/0'/0"  # ledger so-called standard
-        #address = "44'/60'/0'/0/0"  # trezor standard
-        #n = self._convert_prime(n)
+        #address = "44'/60'/0'/0/0"  # BIP44 standard (trezor)
         address_n = tools.parse_path(path)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
         response = cls.call_raw(call_obj)
@@ -81,7 +96,8 @@ The layout is:
                                        text_label="Your code:",
                                        hide_char="*",
                                        label_align="<",
-                                       title="Trezor Auth"
+                                       title="Trezor Auth",
+                                       reset_scene=False
                                       )
             scr.current_scene.add_effect( dialog )
             return None

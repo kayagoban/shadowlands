@@ -500,11 +500,12 @@ class QuitDialog(YesNoDialog):
 # like so:
 # continue_function(returned_text, text_request_dialog_object)
 class TextRequestDialog(Frame):
-    def __init__(self, screen, height=10, width=46, label_prompt_text=None, label_height=2, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, hide_char=None, title=None, **kwargs):
+    def __init__(self, screen, height=10, width=46, label_prompt_text=None, label_height=2, continue_button_text=None, continue_function=None, text_label=None, text_default_value=None, label_align="^", next_scene=None, hide_char=None, title=None, reset_scene=True, **kwargs):
         super(TextRequestDialog, self).__init__(screen, height, width, has_shadow=True, is_modal=True, can_scroll=False, title=title, **kwargs)
         self.set_theme('shadowlands')
         self._continue_function = continue_function
         self._next_scene = next_scene
+        self._reset_scene = reset_scene
 
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
@@ -524,9 +525,14 @@ class TextRequestDialog(Frame):
         text = self.find_widget('text_field')
         self._continue_function(text._value, self)
         #self._destroy_window_stack()
-        raise NextScene(self._next_scene)
+        if self._reset_scene:
+            raise NextScene(self._next_scene)
+        #self._scene.remove_effect(self)
+        #self._screen.reset()
 
     def _cancel(self):
         self._destroy_window_stack()
         raise NextScene(self._next_scene)
+
+
 

@@ -1,4 +1,9 @@
 import hid, threading, time
+from time import sleep
+
+from shadowlands.tui.debug import debug
+import pdb
+
 
 # TODO
 # fork eth-account and eth-keys repos from the Web3.py project and 
@@ -57,6 +62,7 @@ class Credstick(object):
                         from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
                         TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
                         TrezorEthDriver.productStr = hidDevice['product_string']
+                        sleep(1)
                         return TrezorEthDriver
  
         raise NoCredstickFoundError("Could not identify any supported credstick")
@@ -74,15 +80,22 @@ class Credstick(object):
     @classmethod
     def credstick_finder(cls):
         not_found = True
-        address = None
 
         while not_found:
             try: 
                 credstick = cls.detect()
                 credstick.open()
-                while not address:
-                    address = credstick.derive()
+                credstick.derive()
+
+                timeout = 30 
+
+                while credstick.address is None and timeout > 0:
                     time.sleep(1)
+                    timeout -= 1
+                if credstick.address is None:
+                    raise DeriveCredstickAddressError
+
+                #debug(); pdb.set_trace()
 
                 cls.eth_node.credstick = credstick
                 cls.interface.credstick = credstick
