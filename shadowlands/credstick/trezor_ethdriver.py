@@ -179,7 +179,7 @@ The layout is:
         while response.data_length is not None:
             data_length = response.data_length
             data, chunk = data[data_length:], data[:data_length]
-            response = self.call_raw(proto.EthereumTxAck(data_chunk=chunk))
+            response = cls.call_raw(proto.EthereumTxAck(data_chunk=chunk))
         
         v = response.signature_v
         r = response.signature_r
