@@ -263,7 +263,10 @@ class Node():
 
     def heartbeat(self):
         while True:
-            self.poll()
+            try:
+                self.poll()
+            except Timeout:
+                pass
 
             for i in range(self._heart_rate):
                 time.sleep(1)
