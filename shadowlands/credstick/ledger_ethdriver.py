@@ -63,8 +63,6 @@ P2_RETURN_CHAIN_CODE = b'\x01'
 
 # transaction protocol
 P1_FIRST_TRANS_DATA_BLOCK = b'\x00'
-# Seems to crash the app on the ledger.  Possibly incomplete documentation on this
-# Opcode
 P1_SUBSEQUENT_TRANS_DATA_BLOCK = b'\x80'  
 P2_UNUSED_PARAMETER = b'\x00'
 P2_UNUSED_PARAMETER2 = b'\x01'
@@ -131,71 +129,82 @@ class LedgerEthDriver(Credstick):
         apdu = b'\xe0\x06\x00\x00\x00\x04'
         result = cls._driver.exchange(apdu)
 
+
     @classmethod
     def signTx(cls,transaction_dict=EXAMPLE_DICT):
+
         try:
 
-            # Strip chainId if it's there...  the ledger doesn't like it.
+            transaction_dict = cls.prepare_tx(transaction_dict)
 
-            try:
-                del(transaction_dict['chainId'])
-            except:
-                # Fine, if it isn't there it isn't there. jeez.
-                pass
 
-            # if to and data fields are hex strings, turn them into byte arrays
-            if (transaction_dict['to']).__class__ == str:
-                transaction_dict['to'] = decode_hex(transaction_dict['to'])
-
-            if (transaction_dict['data']).__class__ == str:
-                transaction_dict['data'] = decode_hex(transaction_dict['data'])
-
-            '''
-            tx = UnsignedTransaction.from_dict({
-                'nonce': 80,
-                'gasPrice': 21000,
-                'gas': 4000000,
-                'value': int(0.00001),
-                'to': decode_hex('0xb75D1e62b10E4ba91315C4aA3fACc536f8A922F5'),
-                'data': b''
-            })
-            '''
-
-            #debug(); pdb.set_trace()
-
+       
             tx = UnsignedTransaction.from_dict(transaction_dict)
 
             encodedTx = rlp.encode(tx, UnsignedTransaction)
 
             encodedPath = hd_path()
             # Each path element is 4 bytes.  How many path elements are we sending?
+
             derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
+
+            #derivationPathCount = int_to_big_endian(len(encodedPath) // 4)
+
             # Prepend the byte representing the count of path elements to the path encoding itself.
             encodedPath = derivationPathCount + encodedPath 
-            dataPayloadSize = (len(encodedPath) + len(encodedTx)).to_bytes(1, 'big')
-            dataPayload = dataPayloadSize + encodedPath + encodedTx
-            apdu = CLA + INS_OPCODE_SIGN_TRANS + P1_FIRST_TRANS_DATA_BLOCK + P2_UNUSED_PARAMETER + dataPayloadSize + encodedPath + encodedTx
-            result = cls._driver.exchange(apdu)
+
+            dataPayload = encodedPath + encodedTx
+
+            # Big thanks to the Geth team for their ledger implementation (and documentation).
+            # You guys are stars.
+            #
+            # To the others reading, the ledger can only take 255 bytes of data payload per apdu exchange.
+            # hence, you have to chunk that shit and use 0x08 for the P1 opcode on subsequent calls.
+
+            #debug(); pdb.set_trace()
+
+            while len(dataPayload) > 0:
+                chunkSize = 255
+                if chunkSize > len(dataPayload):
+                    chunkSize = len(dataPayload)
+                
+                p1_op = P1_FIRST_TRANS_DATA_BLOCK
+
+                encodedChunkSize = (chunkSize).to_bytes(1, 'big')
+
+                apdu = CLA + INS_OPCODE_SIGN_TRANS + p1_op + P2_UNUSED_PARAMETER + encodedChunkSize + dataPayload[:chunkSize] 
+                result = cls._driver.exchange(apdu)
+
+                dataPayload = dataPayload[chunkSize:]
+                p1_op = P1_SUBSEQUENT_TRANS_DATA_BLOCK
+
             v = result[0]
             r = int((result[1:1 + 32]).hex(), 16)
             s = int((result[1 + 32: 1 + 32 + 32]).hex(), 16)
-            
-            trx = Transaction(tx.nonce, tx.gasPrice, tx.gas, tx.to, tx.value, tx.data, v, r, s)
-            enctx = rlp.encode(trx)
-            transaction_hash = keccak(enctx)
 
-            attr_dict =  AttributeDict({
-                'rawTransaction': HexBytes(enctx),
-                'hash': HexBytes(transaction_hash),
-                'r': r,
-                's': s,
-                'v': v,
-            })
+            stx = cls.signed_tx(transaction_dict, v, r, s)
 
         except CommException as e:
             raise SignTxError(f"Ledger device threw error  while attempting SignTx with apdu {apdu}:  {e.message}")
             #import pdb; pdb.set_trace()
 
-        return attr_dict
+        return stx
+    
+
+        '''for len(payload) > 0 {
+            // Calculate the size of the next data chunk
+            chunk := 255
+            if chunk > len(payload) {
+                    chunk = len(payload)
+            }
+            // Send the chunk over, ensuring it's processed correctly
+            reply, err = w.ledgerExchange(ledgerOpSignTransaction, op, 0, payload[:chunk])
+            if err != nil {
+                    return common.Address{}, nil, err
+            }
+            // Shift the payload and ensure subsequent chunks are marked as such
+            payload = payload[chunk:]
+            op = ledgerP1ContTransactionData
+    }'''
 
 
