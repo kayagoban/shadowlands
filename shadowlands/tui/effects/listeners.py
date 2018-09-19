@@ -3,6 +3,7 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
 from shadowlands.dapp import Dapp
+from shadowlands.deploy import Deployer
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.tui.debug import debug
 import pyperclip
@@ -59,13 +60,22 @@ class MainMenuListener(Effect):
             )
         # V, v for value
         elif event.key_code in [86, 118]:
-
             #debug(); import pdb; pdb.set_trace()
             try:
                 self._interface.price_poller.eth_prices
                 self._scene.add_effect(ValueOptions(self._screen, self._interface))
             except (PriceError):
                 self._scene.add_effect(MessageDialog(self._screen, "Price feed unavailable, try later", 3, 44) )
+
+        # D, d for Deploy
+        elif event.key_code in [ord('D'), ord('d')]:
+           Deployer(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+           )
 
         else:
             return None

@@ -50,10 +50,10 @@ class SLDapp(Effect):
         preferred_width= len(question) + 6
         self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None))
 
-    def add_transaction_dialog(self, tx_fn=None, tx_value=0, destroy_window=None, title="Sign & Send Transaction"):
+    def add_transaction_dialog(self, tx_fn=None, tx_value=0, destroy_window=None, title="Sign & Send Transaction", **kwargs):
         #debug(); pdb.set_trace()
         self._scene.add_effect( 
-            SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, tx_value=tx_value) 
+            SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, tx_value=tx_value, **kwargs) 
         )
 
 
@@ -72,17 +72,18 @@ class SLDapp(Effect):
 
 
 class SLTransactionFrame(TransactionFrame):
-    def __init__(self, screen, x, y, dapp=None, tx_fn=None, tx_value=0, **kwargs):
+    def __init__(self, screen, x, y, dapp=None, tx_fn=None, tx_value=0, gas_limit=None, **kwargs):
         super(SLTransactionFrame, self).__init__(screen, x, y, dapp, self._ok_fn, self._cancel_fn, **kwargs) 
         self.dapp = dapp
         self._tx_fn = tx_fn
-        #self.estimated_gas = tx_fn.gasEstimate()
-        try:
-            self.estimated_gas = tx_fn().estimateGas()
-        except ValueError:
-            self.estimated_gas = 1000000
 
-
+        if gas_limit is not None:
+            self.estimated_gas = gas_limit
+        else:
+            try:
+                self.estimated_gas = tx_fn().estimateGas()
+            except ValueError:
+                self.estimated_gas = 1000000
 
         layout = Layout([100])
         self.prepend_layout(layout)
