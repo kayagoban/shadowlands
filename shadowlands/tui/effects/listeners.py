@@ -6,6 +6,7 @@ from shadowlands.dapp import Dapp
 from shadowlands.deploy import Deployer
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.tui.debug import debug
+import pdb
 import pyperclip
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
@@ -33,6 +34,8 @@ class MainMenuListener(Effect):
 
         if type(event) != KeyboardEvent:
             return event
+
+        #debug(); pdb.set_trace()
 
         # if event.key_code == -1:    # esc.  for some reason esc has lag.
 
@@ -76,6 +79,12 @@ class MainMenuListener(Effect):
                 self._interface.config,
                 self._interface.price_poller
            )
+        #elif event.key_code is 18:   # ctrl-r
+            # manage shadowlands release
+
+            
+
+
 
         else:
             return None
