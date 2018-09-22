@@ -29,7 +29,7 @@ class SLConfig():
         if config_file_path:
             self._config_file_path = config_file_path
         else:
-            self._config_file_path = Path.home().joinpath(".shadowlands.cfg")
+            self._config_file_path = Path.home().joinpath(".shadowlands").joinpath("shadowlands.cfg")
 
         if not self._config_file_path.exists():
             self._write_config_file()

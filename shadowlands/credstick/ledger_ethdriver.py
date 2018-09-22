@@ -193,10 +193,9 @@ class LedgerEthDriver(Credstick):
 
             stx = cls.signed_tx(transaction_dict, v, r, s)
 
-        except CommException as e:
-            raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}:  {}".format(apdu, e.message)
             #import pdb; pdb.set_trace()
-
+        except CommException as e:
+            raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}:  {}".format(apdu, e.message))
         return stx
     
 
