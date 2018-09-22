@@ -36,11 +36,11 @@ class SLDapp(Effect):
     def initialize(self):
         pass
 
-    def add_frame(self, cls, height=None, width=None, title=None):
+    def add_frame(self, cls, height=None, width=None, title=None, **kwargs):
         # we are adding SLFrame effects.  asciimatics can do a lot more
         # than this, but we're hiding away the functionality for the 
         # sake of simplicity.
-        self._scene.add_effect(cls(self, height, width, title=title))
+        self._scene.add_effect(cls(self, height, width, title=title, **kwargs))
 
     def add_message_dialog(self, message, **kwargs):
         preferred_width= len(message) + 6

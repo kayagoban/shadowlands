@@ -41,9 +41,10 @@ interface = Interface(eth_node, price_poller, sl_config)
 interface.load()
 
 # Shut it all down.
-print("Closing credstick poller...")
-interface.credstick.stop_detect_thread()
-interface.credstick.close()
+if interface.credstick is not None:
+    print("Closing credstick poller...")
+    interface.credstick.stop_detect_thread()
+    interface.credstick.close()
 
 print("Closing price poller...")
 price_poller.stop_thread()

@@ -3,7 +3,6 @@ rlp==1.0.2
 ledgerblue==0.1.19
 qrcode_terminal==0.8
 eth_account==0.3.0
-npyscreen==4.10.5
 hexbytes==0.1.0
 eth_keys==0.2.0b3
 eth_utils==1.2.0

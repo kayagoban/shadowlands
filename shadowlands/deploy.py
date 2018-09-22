@@ -10,11 +10,11 @@ from shadowlands.sl_dapp import SLDapp
 
 
 class Deployer(SLDapp):
-    FILEPATH='/Users/cthomas/src/sloader/sloader.sol'
+    FILEPATH='shadowlands/sloader.sol'
 
     def initialize(self):
         contract_source_code = open(self.FILEPATH, 'r').read()
-        compiled_sol = compile_source(contract_source_code) # Compiled source code
+        compiled_sol = compile_source(contract_source_code, optimize=True) # Compiled source code
         contract_interface = compiled_sol['<stdin>:SLoader']
         SLoader = self.node.w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
 

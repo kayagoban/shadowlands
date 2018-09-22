@@ -1,6 +1,7 @@
 import sys, time, os
 from decimal import Decimal
 from web3.exceptions import UnhandledRequest, BadFunctionCallOutput
+from websockets.exceptions import InvalidStatusCode
 from web3.utils.threads import Timeout
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
@@ -257,7 +258,7 @@ class Node():
             self._w3.isConnected()
             self._update_status()
 
-        except (AttributeError, UnhandledRequest, Timeout):
+        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode):
             self.connect_config_default() or self.connect_w3_local() or self.connect_w3_public_infura()
 
 
