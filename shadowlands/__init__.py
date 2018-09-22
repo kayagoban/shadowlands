@@ -24,9 +24,6 @@ sl_config = SLConfig()
 eth_node = Node(sl_config)
 
 # Eth node heartbeat
-
-eth_node.connect_config_default()
-
 eth_node.start_heartbeat_thread()
 
 # price import thread
