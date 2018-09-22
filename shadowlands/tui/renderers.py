@@ -16,7 +16,7 @@ class NetworkStatusRenderer(DynamicRenderer):
 
     def _render_now(self):
         if self.node.connection_type and self.node.network_name:
-            return [f'{self.node.connection_type},  {self.node.network_name}'], None
+            return ["{},  {}".format(self.node.connection_type, self.node.network_name)], None
 
         return ['No ethereum connection'], None
 
@@ -68,7 +68,7 @@ class CredstickNameRenderer(DynamicRenderer):
         else:
             name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
             padding = '═' * (space_available - len(name))
-            name = f"{name} {padding}"
+            name = "{} {}".format(name,padding)
 
             
         return [name], None
@@ -117,7 +117,7 @@ class EthValueRenderer(DynamicRenderer):
             decimal_places = 2
 
         val = str(round(currency_val * eth, decimal_places))
-        val = f"{curr} {self._interface._config.curr_symbol} {val}"
+        val = "{} {} {}".format(curr, self._interface._config.curr_symbol, val)
 
         return [val], None
 

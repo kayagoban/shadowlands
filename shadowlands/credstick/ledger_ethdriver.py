@@ -171,32 +171,19 @@ class LedgerEthDriver(Credstick):
                 chunkSize = 255
                 if chunkSize > len(dataPayload):
                     chunkSize = len(dataPayload)
-                    #pixie_dust = b'\x00\x1f'
                 
-                #if p1_op is P1_FIRST_TRANS_DATA_BLOCK:
                 encodedChunkSize = (chunkSize).to_bytes(1, 'big')
                 apdu = CLA + INS_OPCODE_SIGN_TRANS + p1_op + P2_UNUSED_PARAMETER + encodedChunkSize + dataPayload[:chunkSize] 
-                #else:
-                #apdu = CLA + INS_OPCODE_SIGN_TRANS + p1_op + P2_UNUSED_PARAMETER + dataPayload[:chunkSize] 
 
-                #apdusize = len(apdu).to_bytes(2, 'big')
-                #apdu = apdusize + apdu
+                #apdufile = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) 
+                #f = open('logs/{}'.format(apdufile), 'wb')
+                #f.write(apdu)
+                #f.close()
 
-                apdufile = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) 
-                f = open(f'logs/{apdufile}', 'wb')
-                f.write(apdu)
-                f.close()
-
-                #print(f"apdu exchange length {len(apdu)}")
                 result = cls._driver.exchange(apdu)
-                #result = cls._driver.exchange(apdu, remaining_payload=dataPayload)
-                #print(f"apdu exchange result {result}")
-                
 
                 dataPayload = dataPayload[chunkSize:]
                 p1_op = P1_SUBSEQUENT_TRANS_DATA_BLOCK
-
-            #print(f"apdu exchange complete")
 
             #debug(); pdb.set_trace()
 
@@ -207,7 +194,7 @@ class LedgerEthDriver(Credstick):
             stx = cls.signed_tx(transaction_dict, v, r, s)
 
         except CommException as e:
-            raise SignTxError(f"Ledger device threw error  while attempting SignTx with apdu {apdu}:  {e.message}")
+            raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}:  {}".format(apdu, e.message)
             #import pdb; pdb.set_trace()
 
         return stx

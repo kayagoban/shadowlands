@@ -101,7 +101,7 @@ class ENSAuctionFrame(SLFrame):
            self.add_label("You can start an auction for this name.")
            self.add_ok_cancel_buttons(self._start_auction_choice, self._cancel)
         elif auction_status == 1:
-            self.add_label(f"The auction for '{self.dapp._chosen_domain}' has begun.")
+            self.add_label("The auction for '{}' has begun.".format(self.dapp._chosen_domain))
             reveal_date = self.dapp.ens_auction_contract.reveal_date(self.dapp._chosen_domain)
             time_left = reveal_date - datetime.now() - timedelta(days=2)
 
@@ -110,13 +110,13 @@ class ENSAuctionFrame(SLFrame):
                 hours_left = minutes_left // 60
                 days_left = round(hours_left / 24, 1)
                 if minutes_left < 60:
-                    self.add_label(f"{minutes_left} minutes left to bid.")
+                    self.add_label("{} minutes left to bid.".format(minutes_left))
                 elif hours_left < 24:
-                    self.add_label(f"{hours_left} hours left to bid.")
+                    self.add_label("{} hours left to bid.".format(hours_left))
                 else:
-                    self.add_label(f"{days_left} days left to bid.")
+                    self.add_label("{} days left to bid.".format(days_left))
                    
-            self.bidvalue = self.add_textbox(f"Bid Amount {self.dapp.config.CURR_SYMBOLS['ETH']}")
+            self.bidvalue = self.add_textbox("Bid Amount {}".format(self.dapp.config.CURR_SYMBOLS['ETH']))
             self.add_ok_cancel_buttons(self._make_bid_choice, self._cancel, ok_text="Bid")
  
             #salt = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
@@ -130,11 +130,11 @@ class ENSAuctionFrame(SLFrame):
                 hours_left = minutes_left // 60
                 days_left = round(hours_left / 24, 1)
                 if minutes_left < 60:
-                    self.add_label(f"{minutes_left} minutes left to reveal your bid.")
+                    self.add_label("{} minutes left to reveal your bid.".format(minutes_left))
                 elif hours_left < 24:
-                    self.add_label(f"{hours_left} hours left to reveal your bid.")
+                    self.add_label("{} hours left to reveal your bid.".format(hours_left))
                 else:
-                    self.add_label(f"{days_left} days left to reveal your bid.")
+                    self.add_label("{} days left to reveal your bid.".format(days_left))
 
             self.bid_amount_value = self.add_textbox("Bid amount:")
             self.bid_secret_value = self.add_textbox("Bid Secret:")
@@ -168,7 +168,7 @@ class ENSAuctionFrame(SLFrame):
             self._make_bid_tx,
             tx_value=self.bidvalue(),
             destroy_window=self, 
-            title=f"Bid on name '{self.dapp._chosen_domain}'"
+            title="Bid on name '{}'".format(self.dapp._chosen_domain)
         )
 
     def _make_bid_tx(self):

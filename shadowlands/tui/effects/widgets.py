@@ -154,7 +154,7 @@ class TransactionFrame(Frame):
             decimal_places = 3
 
         cost_estimate = str(round((Decimal(eth_price_curr) * gas_price_eth * self.estimated_gas), decimal_places))
-        return f"Estimated Tx cost: {curr} {self._interface.config.curr_symbol} {cost_estimate}"
+        return "Estimated Tx cost: {} {} {}".format(curr, self._interface.config.curr_symbol, cost_estimate)
 
 
 
@@ -298,7 +298,7 @@ class NetworkOptions(Frame):
                 self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected Node", destroy_window=self))
                 return
             if connected:
-                connect_str = f"{self._interface.node.network_name} connected via {self._interface.node.connection_type}"
+                connect_str = "{} connected via {}".format(self._interface.node.network_name, self._interface.node.connection_type)
                 self._scene.add_effect( MessageDialog(self._screen, connect_str, destroy_window=self, width=(len(connect_str)+6) ) )
             else:
                 self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=self))
@@ -376,7 +376,7 @@ class NetworkOptions(Frame):
             return
 
         if connected:
-            self._scene.add_effect( MessageDialog(self._screen, f"{self._interface.node.network_name} connected", destroy_window=calling_frame))
+            self._scene.add_effect( MessageDialog(self._screen, "{} connected".format(self._interface.node.network_name), destroy_window=calling_frame))
         else:
             self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))
 
