@@ -48,7 +48,7 @@ class SLConfig():
 
  
     def _read_yaml(self):
-        f = open(self._config_file_path, 'r')
+        f = open(str(self._config_file_path), 'r')
         try:
             self._options_dict = yaml.load(f.read())
         except ConstructorError:
@@ -64,7 +64,7 @@ class SLConfig():
             self._displayed_currency = self._options_dict['displayed_currency']
            
     def _write_config_file(self):
-        f = open(self._config_file_path, 'w')
+        f = open(str(self._config_file_path), 'w')
         f.write(yaml.dump(self._config_dict()))
         f.close()
 
