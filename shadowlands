@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ ! -d ~/.shadowlands ]; then
   for pythonfile in `which python3`; do
     if [ -f $pythonfile ]; then
@@ -43,7 +45,7 @@ from eth_utils import encode_hex
 import wget
 
 SLOADER_MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
-SLOADER_ABI='''[{"constant":true,"inputs":[],"name":"latestReleaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint8"}],"name":"releaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"checksum","type":"bytes32"},{"name":"url","type":"string"}],"name":"addRelease","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint8"}],"name":"releaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"releaseCount","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"latestReleaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]'''
+SLOADER_ABI='''[{"constant":true,"inputs":[],"name":"latestReleaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"latestReleaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"}]'''
 
 try:
     from web3.auto.infura import w3
