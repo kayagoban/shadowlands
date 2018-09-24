@@ -1,20 +1,68 @@
-#!/bin/sh
+#!/bin/sh -l
 
-if [ ! -d ~/.shadowlands ]; then
-  for pythonfile in `which python3`; do
-    if [ -f $pythonfile ]; then
-      echo Found a usable python binary at `$pythonfile -V`
-      break;
-    fi
-  done
+while [[ $# -gt 0 ]]
+do
+key="$1"
+INSTALL="FALSE"
 
-  echo "Making a virtual python env for Shadowlands in ~/.shadowlands"
-  mkdir -p ~/.shadowlands/cache
-  touch ~/.shadowlands/firstrun
-  $pythonfile -m venv ~/.shadowlands
+case $key in
+    --help)
+    echo
+    echo "Usage: shadowlands [arg]"
+    echo
+    echo "arguments:"
+    echo "            --clean    Removes the installation at ~/.shadowlands."
+    echo "            --install  Preinstalls the python virtualenv at ~/.shadowlands"
+    echo "            --help     This message"
+    exit
+    ;;
+    --clean)
+    echo "Removing virtual python environment at ~/.shadowlands"
+    rm -rf ~/.shadowlands
+    exit
+    ;;
+    --install)
+    INSTALL="TRUE"
+    shift
+    ;;
+    *)    # unknown option
+    echo "Unrecognized option; try 'shadowlands --help'"
+    exit
+    ;;
+esac
+done
+
+if [ "$INSTALL" != "TRUE" ]; then 
+  if [ -f ~/.shadowlands/shadowlands.py ]; then
+    ~/.shadowlands/shadowlands.py
+    exit
+  fi
 fi
 
-echo "Activating virtual python env for Shadowlands"
+if [ ! -f ~/.shadowlands/firstrun ]; then
+  if [ ! -d ~/.shadowlands ]; then
+    for pythonfile in `which python3`; do
+      if [ -f $pythonfile ]; then
+        echo Found a usable python binary at `$pythonfile -V`
+        break;
+      fi
+    done
+
+    mkdir -p ~/.shadowlands/cache
+    touch ~/.shadowlands/firstrun
+    echo "Making a virtual python env for Shadowlands in ~/.shadowlands"
+    $pythonfile -m venv ~/.shadowlands
+  fi
+
+  ~/.shadowlands/bin/pip install --upgrade pip
+  ~/.shadowlands/bin/pip install wget eth_utils web3
+fi
+
+if [ "$INSTALL" == "TRUE" ]; then
+  exit
+fi
+
+echo "Activating Shadowlands virtual environment"
 source ~/.shadowlands/bin/activate
 
 cat << EOF > ~/.shadowlands/shadowlands.py
@@ -24,16 +72,6 @@ import sys, os, pdb, shutil
 from pathlib import Path
 
 first_run_tag = Path.home().joinpath(".shadowlands").joinpath("firstrun")
-if first_run_tag.exists():
-    # if it's MacOS and version 3.6, we'll fix ssl.
-
-    print("Setting up SLoader dependencies...")
-    # To stop pip from bitching constantly
-    call(['pip', 'install', '--upgrade', 'pip'])
-
-    for reqs in ["wget", "zipimport", "zipfile", "eth_utils", "web3"]:
-        call(['pip', 'install', reqs])
-    first_run_tag.unlink()
 
 import zipimport
 import zipfile
@@ -58,7 +96,6 @@ except:
 
 #pdb.set_trace()
 
-print("")
 print("Connected to " + w3.version.node)
 
 print("Bootstrapping SLoader contract at " + SLOADER_MAINNET)
@@ -94,6 +131,7 @@ if sl_zipfile is None:
         print("ERROR: Downloaded file did not pass checksum, aborting.")
         sys.exit(1)
     print("Checksum verified...")
+    print("")
 
     #cheating
     #sl_zipfile = Path.cwd().joinpath('shadowlands.zip')
@@ -114,6 +152,6 @@ mod = importer.load_module('shadowlands')
 
 EOF
 
-chmod 755 ~/.shadowlands/shadowlands.py
+chmod 555 ~/.shadowlands/shadowlands.py
 ~/.shadowlands/shadowlands.py
 
