@@ -1,0 +1,10 @@
+Package: shadowlands
+Version: 0.05a
+Installed-Size: 56
+Maintainer: Chuck Thomas <cthomas@railjumper.com>
+Section: devel
+Architecture: all
+Priority: optional
+Depends: python3 (>=3.5), python3-venv, python3-dev, python3-all-dev, git, build-essential, autoconf, libtool, pkg-config, libusb-dev, libudev-dev, libssl-dev, libusb-1.0-0-dev, bash, xsel, xclip
+Description: Text UI for Ethereum dapp development
+

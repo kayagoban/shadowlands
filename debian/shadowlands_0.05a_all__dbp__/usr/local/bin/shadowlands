@@ -1,0 +1,152 @@
+#!/bin/bash -l
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+INSTALL="FALSE"
+
+case $key in
+    --help)
+    echo
+    echo "Usage: shadowlands [arg]"
+    echo
+    echo "arguments:"
+    echo "            --clean    Removes the installation at ~/.shadowlands."
+    echo "            --install  Preinstalls the python virtualenv at ~/.shadowlands"
+    echo "            --help     This message"
+    exit
+    ;;
+    --clean)
+    echo "Removing virtual python environment at ~/.shadowlands"
+    rm -rf ~/.shadowlands
+    exit
+    ;;
+    --install)
+    INSTALL="TRUE"
+    shift
+    ;;
+    *)    # unknown option
+    echo "Unrecognized option; try 'shadowlands --help'"
+    exit
+    ;;
+esac
+done
+
+if [ "$INSTALL" != "TRUE" ]; then 
+  if [ -f ~/.shadowlands/shadowlands.py ]; then
+    ~/.shadowlands/shadowlands.py
+    exit
+  fi
+fi
+
+if [ ! -f ~/.shadowlands/firstrun ]; then
+  if [ ! -d ~/.shadowlands ]; then
+    for pythonfile in `which python3`; do
+      if [ -f $pythonfile ]; then
+        echo Found a usable python binary at `$pythonfile -V`
+        break;
+      fi
+    done
+
+    mkdir -p ~/.shadowlands/cache
+    touch ~/.shadowlands/firstrun
+    echo "Making a virtual python env for Shadowlands in ~/.shadowlands"
+    $pythonfile -m venv ~/.shadowlands
+  fi
+
+  ~/.shadowlands/bin/pip install --upgrade pip
+  ~/.shadowlands/bin/pip install wget eth_utils web3
+fi
+
+if [ "$INSTALL" == "TRUE" ]; then
+  exit
+fi
+
+echo "Activating Shadowlands virtual environment"
+source ~/.shadowlands/bin/activate
+
+cat << EOF > ~/.shadowlands/shadowlands.py
+#!$HOME/.shadowlands/bin/python3
+from subprocess import call
+import sys, os, pdb, shutil
+from pathlib import Path
+
+first_run_tag = Path.home().joinpath(".shadowlands").joinpath("firstrun")
+
+import zipimport
+import zipfile
+import hashlib
+from time import sleep
+import sys
+import pdb
+from eth_utils import encode_hex
+import wget
+
+SLOADER_MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
+SLOADER_ABI='''[{"constant":true,"inputs":[],"name":"latestReleaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"latestReleaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"}]'''
+
+try:
+    from web3.auto.infura import w3
+    w3.isConnected() and w3.version.network == '1'
+except:
+    from web3.auto import w3
+    if not (w3.isConnected() and w3.version.network == '1') :
+        print("Could not get an eth node to bootstrap from, exiting.")
+        sys.exit(1)
+
+#pdb.set_trace()
+
+print("Connected to " + w3.version.node)
+
+print("Bootstrapping SLoader contract at " + SLOADER_MAINNET)
+sloader_contract = w3.eth.contract(SLOADER_MAINNET, abi=SLOADER_ABI)
+
+shadowlands_zip_url = sloader_contract.functions.latestReleaseUrl().call()
+bytes32_checksum = sloader_contract.functions.latestReleaseChecksum().call()
+shadowlands_checksum = encode_hex(bytes32_checksum).replace('0x','')
+print("Contract reports latest checksum is " + shadowlands_checksum)
+
+shadowlands_cache_dir = Path.home().joinpath(".shadowlands").joinpath("cache")
+
+sl_zipfile = None
+
+def filehasher(sl_zipfile):
+    hasher = hashlib.sha256()
+    with open(str(sl_zipfile), 'rb') as afile:
+        buf = afile.read()
+        hasher.update(buf)
+        return hasher.hexdigest()
+
+for cached_file in shadowlands_cache_dir.iterdir():
+    if shadowlands_checksum == filehasher(cached_file):
+        print("Checksum matched cached copy of Shadowlands...")
+        sl_zipfile = cached_file
+        break
+
+if sl_zipfile is None:
+    print("Getting latest Shadowlands version...")
+    sl_zipfile = wget.download(shadowlands_zip_url, out=str(shadowlands_cache_dir))
+    print(" ")
+    if shadowlands_checksum != filehasher(str(sl_zipfile)):
+        print("ERROR: Downloaded file did not pass checksum, aborting.")
+        sys.exit(1)
+    print("Checksum verified...")
+    print("")
+
+    archive = zipfile.ZipFile(str(sl_zipfile), 'r')
+    print("Gathering Shadowlands dependencies...")
+    requirements = archive.read('shadowlands/requirements.txt')
+    reqs = requirements.split()
+    for req in reqs:
+        call(['pip','install', req])
+    archive.close()
+
+importer = zipimport.zipimporter(str(sl_zipfile))
+print("Loading Shadowlands...")
+mod = importer.load_module('shadowlands')
+
+EOF
+
+chmod 555 ~/.shadowlands/shadowlands.py
+~/.shadowlands/shadowlands.py
+
