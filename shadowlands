@@ -133,18 +133,13 @@ if sl_zipfile is None:
     print("Checksum verified...")
     print("")
 
-    #cheating
-    #sl_zipfile = Path.cwd().joinpath('shadowlands.zip')
-
     archive = zipfile.ZipFile(str(sl_zipfile), 'r')
     print("Gathering Shadowlands dependencies...")
     requirements = archive.read('shadowlands/requirements.txt')
     reqs = requirements.split()
     for req in reqs:
-        print("Sloader pip installing {}".format(req) )
         call(['pip','install', req])
     archive.close()
-    #sys.exit(0)
 
 importer = zipimport.zipimporter(str(sl_zipfile))
 print("Loading Shadowlands...")
