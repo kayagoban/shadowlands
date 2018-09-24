@@ -1,29 +1,10 @@
-#!/bin/bash
-
-#uname -a | grep 'Darwin' &> /dev/null
-#if [ $? == 0 ]; then
-#  OS="MACOS"
-#   echo "You're running MacOS.  Here's how to upgrade your python:"
-#   echo "Get the official Python 3.6 packages are available at:"
-#   echo "https://www.python.org/ftp/python/3.6.6/python-3.6.6-macosx10.9.pkg"
-#   echo "https://www.python.org/ftp/python/3.6.6/python-3.6.6-macosx10.6.pkg"
-#   exit
-#fi
-
 if [ ! -d ~/.shadowlands ]; then
-  for pythonfile in `which python3` '/usr/bin/python3.6'  '/usr/local/bin/python3.6' '/opt/bin/python3.6' `which python3.5` '/usr/bin/python3.5' ; do
+  for pythonfile in `which python3`; do
     if [ -f $pythonfile ]; then
-      echo Found a usable python binary at $pythonfile;
+      echo Found a usable python binary at `$pythonfile -V`
       break;
     fi
   done
-
-  if [ ! -f $pythonfile ]; then
-    echo "You need to install python 3.6 to run Shadowlands."
-    echo
-    #python_help
-    exit
-  fi
 
   echo "Making a virtual python env for Shadowlands in ~/.shadowlands"
   mkdir -p ~/.shadowlands/cache
@@ -34,70 +15,11 @@ fi
 echo "Activating virtual python env for Shadowlands"
 source ~/.shadowlands/bin/activate
 
-cat << EOF > ~/.shadowlands/sloader.py
+cat << EOF > ~/.shadowlands/shadowlands.py
 #!$HOME/.shadowlands/bin/python3
 from subprocess import call
 import sys, os, pdb, shutil
 from pathlib import Path
-# version check
-
-def fix_ssl():
-    import os
-    import os.path
-    import ssl
-    import stat
-    import subprocess
-    import sys
-
-    STAT_0o775 = ( stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
-                 | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP
-                 | stat.S_IROTH |                stat.S_IXOTH )
-
-    openssl_dir, openssl_cafile = os.path.split(
-        ssl.get_default_verify_paths().openssl_cafile)
-
-    print(" -- pip install --upgrade certifi")
-    subprocess.check_call([sys.executable,
-        "-E", "-s", "-m", "pip", "install", "--upgrade", "certifi"])
-
-    import certifi
-
-    # change working directory to the default SSL directory
-    os.chdir(openssl_dir)
-    relpath_to_certifi_cafile = os.path.relpath(certifi.where())
-    print(" -- removing any existing file or link")
-    try:
-        os.remove(openssl_cafile)
-    except FileNotFoundError:
-        pass
-    print(" -- creating symlink to certifi certificate bundle")
-    os.symlink(relpath_to_certifi_cafile, openssl_cafile)
-    print(" -- setting permissions")
-    os.chmod(openssl_cafile, STAT_0o775)
-    print(" -- update complete")
-
-'''
- sudo "/usr/bin/xcode-select", "--install"
-  puts "Press any key when the installation has completed."
-  getc
-  sudo "/usr/bin/xcode-select", "--switch", "/Library/Developer/CommandLineTools"
-'''
-
-# test for MacOS.  If so, disallow anything but python 3.6  
-# if they have that, 
-
-homedir = os.environ['HOME']
-#pdb.set_trace()
-
-if sys.version_info[0] < 3:
-    print("Python 3.5 required for Shadowlands.  Quitting..")
-    shutil.rmtree(homedir+'/.shadowlands')
-    sys.exit(1)
-
-if sys.version_info[0] >= 3 and sys.version_info[1] < 5:
-    print("Python 3.6 required for Shadowlands.  Quitting..")
-    shutil.rmtree(homedir+'/.shadowlands')
-    sys.exit(1)
 
 first_run_tag = Path.home().joinpath(".shadowlands").joinpath("firstrun")
 if first_run_tag.exists():
@@ -107,7 +29,7 @@ if first_run_tag.exists():
     # To stop pip from bitching constantly
     call(['pip', 'install', '--upgrade', 'pip'])
 
-    for reqs in ["wget", "zipimport", "zipfile", "wget", "eth_utils", "web3", "eth-hash[pycryptodome,pysha3]"]:
+    for reqs in ["wget", "zipimport", "zipfile", "eth_utils", "web3"]:
         call(['pip', 'install', reqs])
     first_run_tag.unlink()
 
@@ -118,18 +40,10 @@ from time import sleep
 import sys
 import pdb
 from eth_utils import encode_hex
-import web3
 import wget
 
 SLOADER_MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
 SLOADER_ABI='''[{"constant":true,"inputs":[],"name":"latestReleaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint8"}],"name":"releaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"checksum","type":"bytes32"},{"name":"url","type":"string"}],"name":"addRelease","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint8"}],"name":"releaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"releaseCount","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"latestReleaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]'''
-
-def filehasher(sl_zipfile):
-    hasher = hashlib.sha256()
-    with open(str(sl_zipfile), 'rb') as afile:
-        buf = afile.read()
-        hasher.update(buf)
-        return hasher.hexdigest()
 
 try:
     from web3.auto.infura import w3
@@ -140,7 +54,8 @@ except:
         print("Could not get an eth node to bootstrap from, exiting.")
         sys.exit(1)
 
-    #pdb.set_trace()
+#pdb.set_trace()
+
 print("")
 print("Connected to " + w3.version.node)
 
@@ -155,12 +70,19 @@ print("Contract reports latest checksum is " + shadowlands_checksum)
 shadowlands_cache_dir = Path.home().joinpath(".shadowlands").joinpath("cache")
 
 sl_zipfile = None
+
+def filehasher(sl_zipfile):
+    hasher = hashlib.sha256()
+    with open(str(sl_zipfile), 'rb') as afile:
+        buf = afile.read()
+        hasher.update(buf)
+        return hasher.hexdigest()
+
 for cached_file in shadowlands_cache_dir.iterdir():
     if shadowlands_checksum == filehasher(cached_file):
         print("Checksum matched cached copy of Shadowlands...")
         sl_zipfile = cached_file
         break
-
 
 if sl_zipfile is None:
     print("Getting latest Shadowlands version...")
@@ -170,10 +92,9 @@ if sl_zipfile is None:
         print("ERROR: Downloaded file did not pass checksum, aborting.")
         sys.exit(1)
     print("Checksum verified...")
-    #pdb.set_trace()
 
     #cheating
-    sl_zipfile = Path.cwd().joinpath('shadowlands.zip')
+    #sl_zipfile = Path.cwd().joinpath('shadowlands.zip')
 
     archive = zipfile.ZipFile(str(sl_zipfile), 'r')
     print("Gathering Shadowlands dependencies...")
@@ -191,11 +112,6 @@ mod = importer.load_module('shadowlands')
 
 EOF
 
+chmod 755 ~/.shadowlands/shadowlands.py
+~/.shadowlands/shadowlands.py
 
-#chmod 755 ~/.shadowlands/setup.py
-#~/.shadowlands/setup.py
-
-#. ~/.shadowlands/bin/activate
-
-chmod 755 ~/.shadowlands/sloader.py
-~/.shadowlands/sloader.py
