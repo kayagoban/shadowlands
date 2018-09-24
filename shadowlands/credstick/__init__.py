@@ -57,29 +57,26 @@ class Credstick(object):
             #import pdb; pdb.set_trace()
             #import pdb; pdb.set_trace()
             if hidDevice['vendor_id'] == 0x2c97:
-                if ('interface_number' in hidDevice and hidDevice['interface_number'] == 0) or ('usage_page' in hidDevice and hidDevice['usage_page'] == 0xffa0):
-                    if hidDevice['path'] is not None:
-                        from shadowlands.credstick.ledger_ethdriver import LedgerEthDriver
-                        LedgerEthDriver.manufacturer = hidDevice['manufacturer_string']
-                        LedgerEthDriver.product = hidDevice['product_string']
-                        return LedgerEthDriver
+                if hidDevice['path'] is not None:
+                    from shadowlands.credstick.ledger_ethdriver import LedgerEthDriver
+                    LedgerEthDriver.manufacturer = hidDevice['manufacturer_string']
+                    LedgerEthDriver.product = hidDevice['product_string']
+                    return LedgerEthDriver
             elif hidDevice['vendor_id'] == 0x534c:
-                if ('interface_number' in hidDevice and hidDevice['interface_number'] == -1) or ('usage_page' in hidDevice and hidDevice['usage_page'] in [0xf1d0, 0xff00]):
-                    if hidDevice['path'] is not None:
-                        from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                        TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
-                        TrezorEthDriver.productStr = hidDevice['product_string']
-                        sleep(1)
-                        return TrezorEthDriver
+                if hidDevice['path'] is not None:
+                    from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
+                    TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
+                    TrezorEthDriver.productStr = hidDevice['product_string']
+                    sleep(1)
+                    return TrezorEthDriver
             elif hidDevice['vendor_id'] == 0x1209:
-                if ('interface_number' in hidDevice and hidDevice['interface_number'] == -1) or ('usage_page' in hidDevice and hidDevice['usage_page'] in [0xf1d0, 0xff00]):
-                    if hidDevice['path'] is not None:
-                        from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                        TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
-                        TrezorEthDriver.productStr = 'Trezor Model T'
-                        ##hidDevice['product_string']
-                        sleep(1)
-                        return TrezorEthDriver
+                if hidDevice['path'] is not None:
+                    from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
+                    TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
+                    TrezorEthDriver.productStr = 'Trezor Model T'
+                    ##hidDevice['product_string']
+                    sleep(1)
+                    return TrezorEthDriver
  
         raise NoCredstickFoundError("Could not identify any supported credstick")
 
