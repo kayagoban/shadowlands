@@ -41,7 +41,7 @@ fi
 
 if [ ! -f ~/.shadowlands/firstrun ]; then
   if [ ! -d ~/.shadowlands ]; then
-    for pythonfile in `which python3`; do
+    for pythonfile in `which python3.6` `which python3`; do
       if [ -f $pythonfile ]; then
         echo Found a usable python binary at `$pythonfile -V`
         break;
