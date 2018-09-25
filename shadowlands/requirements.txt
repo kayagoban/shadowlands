@@ -1,4 +1,4 @@
-asciimatics==1.9.1.dev97+g840fc12
+git+https://github.com/kayagoban/asciimatics.git
 attrdict==2.0.0
 bitcoin==1.1.42
 certifi==2018.8.24
