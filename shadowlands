@@ -55,7 +55,7 @@ if [ ! -f ~/.shadowlands/firstrun ]; then
   fi
 
   ~/.shadowlands/bin/pip install --upgrade pip
-  ~/.shadowlands/bin/pip install wget eth_utils web3
+  ~/.shadowlands/bin/pip install wget web3==4.7.1
 fi
 
 if [ "$INSTALL" == "TRUE" ]; then
