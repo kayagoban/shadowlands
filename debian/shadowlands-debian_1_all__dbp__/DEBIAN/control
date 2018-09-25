@@ -1,6 +1,6 @@
-Package: shadowlands
-Version: 0.05a
-Installed-Size: 56
+Package: shadowlands-debian
+Version: 1
+Installed-Size: 52
 Maintainer: Chuck Thomas <cthomas@railjumper.com>
 Section: devel
 Architecture: all
