@@ -424,11 +424,11 @@ class ValueOptions(Frame):
         options = self.find_widget('valuepicker')
         self._interface._config.displayed_currency = options._value
         self._destroy_window_stack()
-        raise NextScene
+        raise NextScene(self._scene.name)
 
     def _cancel(self):
         self._destroy_window_stack()
-        raise NextScene
+        raise NextScene(self._scene.name)
 
 
 class MessageDialog(Frame):
@@ -446,7 +446,7 @@ class MessageDialog(Frame):
 
     def _cancel(self):
         self._destroy_window_stack()
-        raise NextScene
+        raise NextScene(self._scene.name)
         #self._scene.reset()
         #raise NextScene(self._next_scene)
 
@@ -478,7 +478,7 @@ class QuitDialog(YesNoDialog):
 
     def _cancel(self):
         self._scene.remove_effect(self)
-        raise NextScene
+        raise NextScene(self._scene.name)
         #raise NextScene("Main")
 
     def process_event(self, event):
@@ -525,13 +525,13 @@ class TextRequestDialog(Frame):
         self._continue_function(text._value, self)
         #self._destroy_window_stack()
         if self._reset_scene:
-            raise NextScene(self._next_scene)
+            raise NextScene(self._scene.name)
         #self._scene.remove_effect(self)
         #self._screen.reset()
 
     def _cancel(self):
         self._destroy_window_stack()
-        raise NextScene(self._next_scene)
+        raise NextScene(self._scene.name)
 
 
 
