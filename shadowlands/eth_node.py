@@ -258,7 +258,7 @@ class Node():
             self._w3.isConnected()
             self._update_status()
 
-        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed):
+        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError):
             self.connect_config_default() or self.connect_w3_local() or self.connect_w3_public_infura()
 
 
