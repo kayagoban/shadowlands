@@ -12,7 +12,7 @@ Description: Python RAD platform for Ethereum dapp development
 <</CTRL>>
 <<FILES>>
 1
-/home/cthomas/Downloads/shadowlands-0.07a/shadowlands* -> shadowlands -> /usr/bin
+/home/cthomas/src/shadowlands/shadowlands* -> shadowlands -> /usr/local/bin
 <</FILES>>
 <<SCRIPTS>>
 <<PREINST>>
