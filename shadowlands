@@ -62,7 +62,7 @@ try:
     except ImportError:
         try:
             call(['pip','install', '--upgrade', 'pip'])
-            for req in ['wget', 'web3==4.7.1', 'eth_utils']:
+            for req in ['git+https://github.com/kayagoban/python3-wget.git', 'web3==4.7.1', 'eth_utils']:
                 call(['pip','install', req])
         except (KeyboardInterrupt, Exception) as e:
             raise BootstrapError(e)
@@ -130,6 +130,9 @@ try:
         except (KeyboardInterrupt, Exception) as e:
             # Our dependencies were not installed, we have to scrap the file and try again next time.
             os.remove(str(sl_zipfile))
+            import traceback
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_tb)
             print("\nError while gathering Shadowlands dependencies.")
             sys.exit(1)
 
