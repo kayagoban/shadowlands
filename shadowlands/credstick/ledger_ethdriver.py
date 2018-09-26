@@ -121,8 +121,8 @@ class LedgerEthDriver(Credstick):
             result = cls._driver.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
             offset = 1 + result[0]
             address = result[offset + 1 : offset + 1 + result[offset]]
-        except(CommException, IOError):
-            raise DeriveCredstickAddressError("Could not derive an address from your credstick, user.")
+        except(CommException, IOError, BaseException):
+            raise DeriveCredstickAddressError("Could not derive an address from your credstick.")
         cls.address = '0x' + address.decode('ascii')
         return cls.address
 
