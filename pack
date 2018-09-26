@@ -6,3 +6,5 @@ rm -f /tmp/shadowlands*.zip
 VERSION=`cat ./VERSION`
 echo "SL_VERSION='$VERSION'" | cat > shadowlands/version.py
 zip -r /tmp/shadowlands-$VERSION.zip shadowlands/
+git diff
+git commit -a
