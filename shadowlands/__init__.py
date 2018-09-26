@@ -46,9 +46,8 @@ if interface.credstick is not None:
 print("Closing price poller...")
 price_poller.stop_thread()
 
-eth_node.thread_shutdown = True
 print("Closing connection to ethereum node...")
-eth_node._heartbeat_thread.join()
+eth_node.stop_thread()
 
 sys.exit(0)
 

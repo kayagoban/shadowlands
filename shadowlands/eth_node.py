@@ -278,6 +278,10 @@ class Node():
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self._heartbeat_thread.start()
 
+    def stop_thread(self):
+        self._thread_shutdown = True
+        self._heartbeat_thread.join()
+
     def push(self, contract_function, gas_price, gas_limit=None, value=0):
 
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
@@ -318,8 +322,6 @@ class Node():
         for txdata in self.w3.txpool.parity_all_transactions:
             if txdata['hash'] == mytx:
                 return txdata
-
-
 
 
 from web3.txpool import TxPool
