@@ -40,3 +40,8 @@ class CredstickWatcher(Effect):
 
     def stop_frame(self):
         pass
+
+    def process_event(self, event):
+        return None
+
+

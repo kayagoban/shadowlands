@@ -317,7 +317,7 @@ class NetworkOptions(Frame):
 
     def _cancel(self):
         self._scene.remove_effect(self)
-        raise NextScene
+        raise NextScene(self._scene.name)
 
     def _prompt_custom_http_uri(self):
         dialog = TextRequestDialog(
@@ -429,7 +429,6 @@ class ValueOptions(Frame):
     def _cancel(self):
         self._destroy_window_stack()
         raise NextScene
-
 
 
 class MessageDialog(Frame):

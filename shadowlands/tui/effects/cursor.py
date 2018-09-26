@@ -136,9 +136,9 @@ class Cursor(Effect):
         return self._stop_frame
 
 
+'''
 class LoadingScreenCursor(Cursor):
 
-    '''
     def __init__(self, screen, renderer, x, y, _interface=None, **kwargs):
         super(LoadingScreenCursor, self).__init__(screen, renderer, x, y, **kwargs)
         self.interface = _interface
@@ -154,20 +154,13 @@ class LoadingScreenCursor(Cursor):
         super(LoadingScreenCursor, self)._update(frame_no)
 '''
 
-    #def _update(self, frame_no):
-    #    if frame_no % 10  == 0:
-    #        return
-    #
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
- 
+''' 
     def process_event(self, event):
 
         if type(event) != KeyboardEvent:
             return None
 
         # if user just hits enter, give them some extra info
-
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
         if event.key_code == 10:
             # blank the cursor if it's there.
             image, colours = self._renderer.rendered_text
@@ -181,15 +174,5 @@ class LoadingScreenCursor(Cursor):
             self._y += 2
             self.char = 0
             return None
-        # Test 'n' to continue to main
-        #elif event.key_code == 110:
-        elif event.key_code == -1 or event.key_code == 113:
-        #    raise NextScene("Main")
-            raise ExitTuiError
-        else:
-            return None
 
-        
-        # This lets the event bubble up through the other effects
-        # in the scene
-        #return event
+'''

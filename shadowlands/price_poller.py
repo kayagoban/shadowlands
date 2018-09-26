@@ -33,6 +33,8 @@ class PricePoller:
         self._thread.start()
 
     def stop_thread(self):
+        if self._thread == None:
+            return
         self._thread_shutdown = True
         self._thread.join()
 

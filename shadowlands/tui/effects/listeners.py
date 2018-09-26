@@ -12,6 +12,35 @@ import pyperclip
 
 #debug(self._screen._screen); import pdb; pdb.set_trace()
 
+class LoadingScreenListener(Effect):
+    def __init__(self, screen, interface, **kwargs):
+        super(LoadingScreenListener, self).__init__(screen, **kwargs)
+        self._interface = interface
+
+    def _update(self, frame_no):
+        pass
+
+    def reset(self):
+        pass
+
+
+    def stop_frame(self):
+        pass
+ 
+    def process_event(self, event):
+
+        if event.key_code == -1 or event.key_code == 113:
+            raise ExitTuiError
+        elif event.key_code == ord('N') or event.key_code == ord('n'):
+            self._scene.add_effect(NetworkOptions(self._screen, self._interface))
+
+        if type(event) != KeyboardEvent:
+            return event
+
+        return None
+
+
+
 class MainMenuListener(Effect):
     def __init__(self, screen, interface, **kwargs):
         super(MainMenuListener, self).__init__(screen, **kwargs)
@@ -19,8 +48,6 @@ class MainMenuListener(Effect):
 
     def _update(self, frame_no):
         pass
-        #if self._interface.credstick != None:
-        #    raise NextScene("Main")
 
     def reset(self):
         pass
@@ -88,9 +115,5 @@ class MainMenuListener(Effect):
                 self._interface.config,
                 self._interface.price_poller
             )
-            
-
-
-
         else:
             return None

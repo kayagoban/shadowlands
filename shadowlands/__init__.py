@@ -39,15 +39,17 @@ interface.load()
 
 # Shut it all down.
 if interface.credstick is not None:
-    print("Closing credstick poller...")
-    interface.credstick.stop_detect_thread()
     interface.credstick.close()
+
+print("Closing credstick poller...")
+Credstick.stop_detect_thread()
 
 print("Closing price poller...")
 price_poller.stop_thread()
 
 print("Closing connection to ethereum node...")
 eth_node.stop_thread()
+
 
 sys.exit(0)
 

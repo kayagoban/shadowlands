@@ -87,6 +87,9 @@ class Credstick(object):
 
     @classmethod 
     def stop_detect_thread(cls):
+        if cls.detect_thread == None:
+            return
+
         cls.detect_thread_shutdown = True 
         cls.detect_thread.join()
 

@@ -279,6 +279,9 @@ class Node():
         self._heartbeat_thread.start()
 
     def stop_thread(self):
+        if self._heartbeat_thread == None:
+            return
+
         self._thread_shutdown = True
         self._heartbeat_thread.join()
 
