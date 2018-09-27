@@ -21,6 +21,7 @@ sl_config = SLConfig()
 
 
 # Start network subsystem
+
 eth_node = Node(sl_config)
 
 # Eth node heartbeat

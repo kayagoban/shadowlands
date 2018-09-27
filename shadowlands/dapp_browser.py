@@ -19,7 +19,7 @@ class DappBrowserFrame(SLFrame):
             ("AmazongDApp", "/fussll/path/blah")
         ]
         self.add_listbox(4, options, layout_distribution=[1, 1, 1, 1], layout_index=1)
-        self.add_button(self.close, "Cancel", layout_distribution=[1, 1, 1, 1], layout_index=3)
+        self.add_button(self.close, "Cancel", layout_distribution=[80, 20], layout_index=1)
 
     def _select_dir_fn(self):
         self.dapp.add_frame(DirPickerFrame, height=21, width=55, title="Choose local Dapp directory")

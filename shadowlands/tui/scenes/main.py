@@ -65,6 +65,9 @@ ${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b
             DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9, refresh_period=500),
             MainMenuListener(screen, interface)
 
+
+
+
             #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),
