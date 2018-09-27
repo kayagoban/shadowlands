@@ -3,7 +3,8 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
 from shadowlands.dapp import Dapp
-from shadowlands.deploy import Deployer
+from shadowlands.dapp_browser import DappBrowser
+#from shadowlands.deploy import Deployer
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.tui.debug import debug
@@ -99,13 +100,21 @@ class MainMenuListener(Effect):
                 self._scene.add_effect(MessageDialog(self._screen, "Price feed unavailable, try later", 3, 44) )
         # D, d for Deploy
         elif event.key_code in [ord('D'), ord('d')]:
-            Deployer(
+            DappBrowser(
                 self._screen, 
                 self._scene, 
                 self._interface.node,
                 self._interface.config,
                 self._interface.price_poller
             )
+            '''
+            Deployer(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )'''
         elif event.key_code is 18:
             # super top secret shadowlands release management dapp.
             ReleaseVersion(

@@ -540,4 +540,15 @@ class TextRequestDialog(Frame):
         raise NextScene(self._scene.name)
 
 
+class LiveLabel(Label):
+    def __init__(self, label_fn, **kwargs):
+        super(LiveLabel, self).__init__("", **kwargs)
+        self._text_fn = label_fn
 
+    def update(self, frame_no):
+        (colour, attr, bg) = self._frame.palette["label"]
+        for i, text in enumerate(
+                _split_text(self._text_fn(), self._w, self._h, self._frame.canvas.unicode_aware)):
+            self._frame.canvas.paint(
+                "{:{}{}}".format(text, self._align, self._w), self._x, self._y + i, colour, attr, bg)
+ 

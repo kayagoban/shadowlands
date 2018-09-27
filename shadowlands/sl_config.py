@@ -82,11 +82,11 @@ class SLConfig():
 
     @property
     def sl_dapp_path(self):
-        return self._sl_dapp_path
+        return str(self._sl_dapp_path)
 
     @sl_dapp_path.setter
     def sl_dapp_path(self, new_value):
-        self._sl_dapp_path = new_value
+        self._sl_dapp_path = Path(new_value)
         self._write_config_file()
 
     @property

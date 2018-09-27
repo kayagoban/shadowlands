@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label
+from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser
 from asciimatics.exceptions import NextScene
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
@@ -31,11 +31,11 @@ class SLDapp(Effect):
     def price_poller(self):
         return self._price_poller
 
-
     @abstractmethod
     def initialize(self):
         pass
 
+    # cls is a custom subclass of SLFrame
     def add_frame(self, cls, height=None, width=None, title=None, **kwargs):
         # we are adding SLFrame effects.  asciimatics can do a lot more
         # than this, but we're hiding away the functionality for the 
@@ -56,7 +56,6 @@ class SLDapp(Effect):
             SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, tx_value=tx_value, **kwargs) 
         )
 
-
     def quit(self):
         # Remove all owned windows
         self._scene.remove_effect(self)
@@ -69,6 +68,68 @@ class SLDapp(Effect):
     def stop_frame():
         pass
 
+
+
+class SLFrame(Frame):
+    def __init__(self, dapp, height, width, **kwargs):
+        self._dapp = dapp
+        self._screen = dapp._screen
+
+        super(SLFrame, self).__init__(self._screen,
+                                      height,
+                                      width,
+                                      can_scroll=False,
+                                      is_modal=True,
+                                      **kwargs)
+                                      #hover_focus=True,
+        self.set_theme('shadowlands')
+        self.initialize()
+        self.fix()
+
+    def add_button(self, ok_fn, text="Select"):
+        layout = Layout([100])
+        self.add_layout(layout)
+        layout.add_widget(Button(text, ok_fn), 0)
+        layout.add_widget(Divider(draw_line=False))
+
+    def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK"):
+        layout = Layout([1, 1, 1, 1])
+        self.add_layout(layout)
+        layout.add_widget(Button(ok_text, ok_fn), 0)
+        if cancel_fn is None:
+            cancel_fn = self.close
+        layout.add_widget(Button("Cancel", cancel_fn), 3)
+ 
+    # named arguments will be passed on to the asciimatics Text() constructor
+    def add_textbox(self, label_text, **kwargs):
+        layout = Layout([100])
+        self.add_layout(layout)
+        text_widget = Text(label_text, **kwargs)
+        layout.add_widget(text_widget)
+        layout.add_widget(Divider(draw_line=False))
+        return lambda: text_widget._value
+         
+    def add_label(self, label_text):
+        layout = Layout([100])
+        self.add_layout(layout)
+        layout.add_widget(Label(label_text)) 
+        layout.add_widget(Divider(draw_line=False))
+
+    def add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None):
+        layout = Layout([100])
+        self.add_layout(layout)
+        browser = FileBrowser(height, path, on_select=on_select_fn, on_change=on_change_fn)
+        layout.add_widget(browser)
+        layout.add_widget(Divider(draw_line=False))
+        return lambda: browser._value
+
+    def close(self):
+        self._destroy_window_stack()
+        raise NextScene(self._scene.name)
+
+    @property
+    def dapp(self):
+        return self._dapp
 
 
 class SLTransactionFrame(TransactionFrame):
@@ -105,7 +166,6 @@ class SLTransactionFrame(TransactionFrame):
         #except (SignTxError):
         except UnreasonablySpecificException:
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
-            #self._scene.add_effect(MessageDialog(self._screen, "Credstick did not sign Transaction", destroy_window=self, width=40))
             return
 
         self._destroy_window_stack()
@@ -118,58 +178,6 @@ class SLTransactionFrame(TransactionFrame):
 
 class UnreasonablySpecificException(Exception):
     pass
-
-
-class SLFrame(Frame):
-    def __init__(self, dapp, height, width, **kwargs):
-        self._dapp = dapp
-        self._screen = dapp._screen
-
-        super(SLFrame, self).__init__(self._screen,
-                                      height,
-                                      width,
-                                      can_scroll=False,
-                                      is_modal=True,
-                                      **kwargs)
-                                      #hover_focus=True,
-        self.set_theme('shadowlands')
-        self.initialize()
-        self.fix()
-
-    def add_ok_cancel_buttons(self, ok_fn, cancel_fn, ok_text="OK"):
-        layout = Layout([1, 1, 1, 1])
-        self.add_layout(layout)
-        layout.add_widget(Button(ok_text, ok_fn), 0)
-        layout.add_widget(Button("Cancel", cancel_fn), 3)
- 
-    # named arguments will be passed on to the asciimatics Text() constructor
-    def add_textbox(self, label_text, **kwargs):
-        layout = Layout([100])
-        self.add_layout(layout)
-        text_widget = Text(label_text, **kwargs)
-        layout.add_widget(text_widget)
-        layout.add_widget(Divider(draw_line=False))
-        return lambda: text_widget._value
-         
-    def add_label(self, label_text):
-        layout = Layout([100])
-        self.add_layout(layout)
-        layout.add_widget(Label(label_text)) 
-        layout.add_widget(Divider(draw_line=False))
-
-    def add_filebrowser(self, on_select_fn, height=15, root='/', on_change_fn=None):
-        layout = Layout([100])
-        self.add_layout(layout)
-        layout_add_widget(FileBrowser(height, root, on_select=on_select_fn, on_change=on_change_fn))
-        layout.add_widget(Divider(draw_line=False))
-
-    def close(self):
-        self._destroy_window_stack()
-        raise NextScene(self._scene.name)
-
-    @property
-    def dapp(self):
-        return self._dapp
 
 
 

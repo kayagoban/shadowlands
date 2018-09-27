@@ -1,13 +1,8 @@
 import json
-#import web3
 from solc import compile_source
-#from web3.contract import ConciseContract
 import pyperclip
 import pdb
 from shadowlands.sl_dapp import SLDapp
-
-#pdb.set_trace()
-
 
 class Deployer(SLDapp):
     FILEPATH='shadowlands/sloader.sol'
