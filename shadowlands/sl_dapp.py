@@ -120,6 +120,7 @@ class SLFrame(Frame):
         list_widget = ListBox(height, options, **kwargs)
         layout.add_widget(list_widget, layout_index)
         layout.add_widget(Divider(draw_line=False))
+        return lambda: list_widget.value
          
     def add_label(self, label_text, layout_distribution=[100], layout_index=0,):
         layout = Layout(layout_distribution)
