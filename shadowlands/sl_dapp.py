@@ -86,10 +86,10 @@ class SLFrame(Frame):
         self.initialize()
         self.fix()
 
-    def add_button(self, ok_fn, text="Select"):
-        layout = Layout([100])
+    def add_button(self, ok_fn, text, layout_distribution=[100], layout_index=0):
+        layout = Layout(layout_distribution)
         self.add_layout(layout)
-        layout.add_widget(Button(text, ok_fn), 0)
+        layout.add_widget(Button(text, ok_fn), layout_index)
         layout.add_widget(Divider(draw_line=False))
 
     def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK"):
@@ -108,11 +108,23 @@ class SLFrame(Frame):
         layout.add_widget(text_widget)
         layout.add_widget(Divider(draw_line=False))
         return lambda: text_widget._value
-         
-    def add_label(self, label_text):
+
+    def add_divider(self, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
-        layout.add_widget(Label(label_text)) 
+        layout.add_widget(Divider(**kwargs))
+
+    def add_listbox(self, height, options, layout_distribution=[100], layout_index=0, **kwargs):
+        layout = Layout(layout_distribution)
+        self.add_layout(layout)
+        list_widget = ListBox(height, options, **kwargs)
+        layout.add_widget(list_widget, layout_index)
+        layout.add_widget(Divider(draw_line=False))
+         
+    def add_label(self, label_text, layout_distribution=[100], layout_index=0,):
+        layout = Layout(layout_distribution)
+        self.add_layout(layout)
+        layout.add_widget(Label(label_text), layout_index) 
         layout.add_widget(Divider(draw_line=False))
 
     def add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None):

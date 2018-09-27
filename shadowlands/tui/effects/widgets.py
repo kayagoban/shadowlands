@@ -36,7 +36,13 @@ class GasPricePicker(RadioButtons):
         self._interface = interface
 
         gas_price_wei = self._interface.node.w3.eth.gasPrice
-        gas_price_minus_20_percent = gas_price_wei - gas_price_wei * Decimal(.2)
+        try:
+            gas_price_minus_20_percent = gas_price_wei - gas_price_wei * Decimal(.2)
+        except TypeError as e:
+            print("gas_price_wei from w3.eth.gasPrice was unexpectedly a dict?")
+            print(str(gas_price_wei))
+            debug(); pdb.set_trace()
+
         gas_price_gwei = self._interface.node.w3.fromWei(gas_price_wei, 'gwei')
         gas_price_gwei_m20 = self._interface.node.w3.fromWei(gas_price_minus_20_percent, 'gwei')
 
@@ -539,16 +545,3 @@ class TextRequestDialog(Frame):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
-
-class LiveLabel(Label):
-    def __init__(self, label_fn, **kwargs):
-        super(LiveLabel, self).__init__("", **kwargs)
-        self._text_fn = label_fn
-
-    def update(self, frame_no):
-        (colour, attr, bg) = self._frame.palette["label"]
-        for i, text in enumerate(
-                _split_text(self._text_fn(), self._w, self._h, self._frame.canvas.unicode_aware)):
-            self._frame.canvas.paint(
-                "{:{}{}}".format(text, self._align, self._w), self._x, self._y + i, colour, attr, bg)
- 
