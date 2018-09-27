@@ -1,5 +1,4 @@
-from shadowlands.sl_dapp import SLDapp, SLFrame, NextFrame, ExitDapp
-#from asciimatics.renderers import StaticRenderer, FigletText
+from shadowlands.sl_dapp import SLDapp, SLFrame, ExitDapp
 
 import random, string
 from datetime import datetime, timedelta
@@ -7,8 +6,6 @@ from datetime import datetime, timedelta
 from shadowlands.contract import OpenContractError, ContractConfigError
 from shadowlands.dapp.contracts.ens_auction import EnsAuction
 from shadowlands.dapp.contracts.ens_registry import EnsRegistry
-#from shadowlands.dapp.contracts.ens_resolver import EnsResolver
-#from shadowlands.dapp.contracts.ens_reverse_resolver import EnsReverseResolver
 
 from shadowlands.tui.debug import debug
 import pdb

@@ -2,6 +2,8 @@ from pathlib import Path
 import yaml
 from yaml.constructor import ConstructorError
 import pdb
+import pathlib
+from pathlib import Path
 
 class SLConfig():
 
@@ -19,17 +21,14 @@ class SLConfig():
         'ETH': 'Ξ'
     }
 
-    def __init__(self, config_file_path=None):
+    def __init__(self):
         self._http_uri = ''
         self._websocket_uri = ''
         self._ipc_path = ''
         self._default_method = None
         self._displayed_currency = 'USD' 
-
-        if config_file_path:
-            self._config_file_path = config_file_path
-        else:
-            self._config_file_path = Path.home().joinpath(".shadowlands").joinpath("shadowlands.cfg")
+        self._sl_dapp_path = Path.home().joinpath('sl_dapp')
+        self._config_file_path = Path.home().joinpath(".shadowlands_conf")
 
         if not self._config_file_path.exists():
             self._write_config_file()
@@ -62,7 +61,8 @@ class SLConfig():
             self._websocket_uri = self._options_dict['network_options']['websocket_uri']
             self._ipc_path = self._options_dict['network_options']['ipc_path']
             self._displayed_currency = self._options_dict['displayed_currency']
-           
+            self._sl_dapp_path = self._options_dict['sl_dapp_path']
+
     def _write_config_file(self):
         f = open(str(self._config_file_path), 'w')
         f.write(yaml.dump(self._config_dict()))
@@ -71,6 +71,7 @@ class SLConfig():
     def _config_dict(self):
         return {
             "displayed_currency": self._displayed_currency,
+            "sl_dapp_path": self._sl_dapp_path,
             "network_options": {
                 "default_method": self._default_method,
                 "http_uri": self._http_uri,
@@ -80,12 +81,20 @@ class SLConfig():
         }
 
     @property
+    def sl_dapp_path(self):
+        return self._sl_dapp_path
+
+    @sl_dapp_path.setter
+    def sl_dapp_path(self, new_value):
+        self._sl_dapp_path = new_value
+        self._write_config_file()
+
+    @property
     def default_method(self):
         return self._default_method
 
     @default_method.setter
     def default_method(self, new_value):
-        #pdb.set_trace()
         self._default_method = new_value
         self._write_config_file()
 

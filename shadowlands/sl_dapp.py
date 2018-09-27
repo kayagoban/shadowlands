@@ -60,7 +60,7 @@ class SLDapp(Effect):
     def quit(self):
         # Remove all owned windows
         self._scene.remove_effect(self)
-        raise NextScene
+        raise NextScene(self._scene.name)
 
     def _update():
         pass
@@ -109,11 +109,11 @@ class SLTransactionFrame(TransactionFrame):
             return
 
         self._destroy_window_stack()
-        raise NextScene
+        raise NextScene(self._scene.name)
 
     def _cancel_fn(self):
         self._destroy_window_stack()
-        raise NextScene
+        raise NextScene(self._scene.name)
 
 
 class UnreasonablySpecificException(Exception):
@@ -157,9 +157,15 @@ class SLFrame(Frame):
         layout.add_widget(Label(label_text)) 
         layout.add_widget(Divider(draw_line=False))
 
+    def add_filebrowser(self, on_select_fn, height=15, root='/', on_change_fn=None):
+        layout = Layout([100])
+        self.add_layout(layout)
+        layout_add_widget(FileBrowser(height, root, on_select=on_select_fn, on_change=on_change_fn))
+        layout.add_widget(Divider(draw_line=False))
+
     def close(self):
         self._destroy_window_stack()
-        raise NextScene
+        raise NextScene(self._scene.name)
 
     @property
     def dapp(self):
@@ -170,9 +176,5 @@ class SLFrame(Frame):
 class ExitDapp(Exception):
     pass
 
-class NextFrame(NextScene):
-    pass
-
 class RunDapp(Exception):
     pass
-
