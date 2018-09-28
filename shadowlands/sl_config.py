@@ -28,7 +28,7 @@ class SLConfig():
         self._ipc_path = ''
         self._default_method = None
         self._displayed_currency = 'USD' 
-        self._sl_dapp_path = str(Path.home().joinpath('sl_dapp'))
+        self._sl_dapp_path = str(Path.home().joinpath('.shadowlands').joinpath('example'))
         self._config_file_path = Path.home().joinpath(".shadowlands_conf")
 
         if not self._config_file_path.exists():

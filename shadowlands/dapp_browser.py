@@ -22,7 +22,7 @@ class DappBrowserFrame(SLFrame):
         self.add_button(self.close, "Cancel", layout_distribution=[80, 20], layout_index=1)
 
     def _select_dir_fn(self):
-        self.dapp.add_frame(DirPickerFrame, height=21, width=55, title="Choose local Dapp directory")
+        self.dapp.add_frame(DirPickerFrame, height=21, width=70, title="Choose local Dapp directory")
 
     def add_path_selector(self, button_fn, text):
         layout = Layout([80, 20])

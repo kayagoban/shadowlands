@@ -20,11 +20,6 @@ class SLDapp(Effect):
         self.initialize()
         if destroy_window is not None:
             destroy_window.close()
-            #destroy_window._destroy_window_stack()
-            #raise NextScene(self._scene.name)
-
-            #self._scene.remove_effect(destroy_window.dapp)
-            #destroy_window.dapp.quit()
 
     @property
     def node(self):
