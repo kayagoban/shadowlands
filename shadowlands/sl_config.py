@@ -4,6 +4,7 @@ from yaml.constructor import ConstructorError
 import pdb
 import pathlib
 from pathlib import Path
+import sys
 
 class SLConfig():
 
@@ -27,7 +28,7 @@ class SLConfig():
         self._ipc_path = ''
         self._default_method = None
         self._displayed_currency = 'USD' 
-        self._sl_dapp_path = Path.home().joinpath('sl_dapp')
+        self._sl_dapp_path = str(Path.home().joinpath('sl_dapp'))
         self._config_file_path = Path.home().joinpath(".shadowlands_conf")
 
         if not self._config_file_path.exists():
@@ -61,7 +62,7 @@ class SLConfig():
             self._websocket_uri = self._options_dict['network_options']['websocket_uri']
             self._ipc_path = self._options_dict['network_options']['ipc_path']
             self._displayed_currency = self._options_dict['displayed_currency']
-            self._sl_dapp_path = self._options_dict['sl_dapp_path']
+            self.sl_dapp_path = self._options_dict['sl_dapp_path']
 
     def _write_config_file(self):
         f = open(str(self._config_file_path), 'w')
@@ -82,12 +83,18 @@ class SLConfig():
 
     @property
     def sl_dapp_path(self):
-        return str(self._sl_dapp_path)
+        return self._sl_dapp_path
 
     @sl_dapp_path.setter
     def sl_dapp_path(self, new_value):
-        self._sl_dapp_path = Path(new_value)
+        if sys.path[0] == str(self._sl_dapp_path):
+            sys.path[0] = str(new_value)
+        else:
+            sys.path.insert(0, str(new_value))
+ 
+        self._sl_dapp_path = str(new_value)
         self._write_config_file()
+
 
     @property
     def default_method(self):

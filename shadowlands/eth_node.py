@@ -37,7 +37,6 @@ class Node():
         self._w3 = None
         self._ns = None
         self._ens_domain = None
-        self._nodeVersion = ""
         self._network = None
         self._syncing = None 
         self._best_block = None
@@ -129,7 +128,6 @@ class Node():
                 pass
 
     def _update_status(self):
-            self._nodeVersion = self._w3.version.node
             self._network = self._w3.version.network
             self._best_block = str(self._w3.eth.blockNumber)
             self._syncing = self._w3.eth.syncing

@@ -13,15 +13,10 @@ from shadowlands.tui.debug import debug
 
 #pdb.set_trace()
 
-
-#Credstick.credstick_finder()
-
 # Read from config file
 sl_config = SLConfig()
 
-
 # Start network subsystem
-
 eth_node = Node(sl_config)
 
 # Eth node heartbeat

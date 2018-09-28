@@ -11,13 +11,20 @@ from shadowlands.tui.debug import debug
 import pdb
 
 class SLDapp(Effect):
-    def __init__(self, screen, scene, eth_node, config, price_poller):
+    def __init__(self, screen, scene, eth_node, config, price_poller, destroy_window=None):
         self._screen = screen
         self._scene = scene
         self._node = eth_node
         self._config = config
         self._price_poller = price_poller
         self.initialize()
+        if destroy_window is not None:
+            destroy_window.close()
+            #destroy_window._destroy_window_stack()
+            #raise NextScene(self._scene.name)
+
+            #self._scene.remove_effect(destroy_window.dapp)
+            #destroy_window.dapp.quit()
 
     @property
     def node(self):
