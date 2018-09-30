@@ -51,18 +51,18 @@ ${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b
         #debug(screen._screen); import pdb; pdb.set_trace()
 
         effects = [
-            DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0, refresh_period=220),
-            Materialize(screen, StaticRenderer(['${7,1}N${2,2}etwork:' ]), 41, 0, signal_acceleration_factor=2),
-            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 51, 0, refresh_period=250),
-            Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05),
-            Materialize(screen, StaticRenderer([self.MENU_TOP]), 32, 3, signal_acceleration_factor=1.05),
+            DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0),
+            Materialize(screen, StaticRenderer(['${7,1}N${2,2}etwork:' ]), 41, 0, signal_acceleration_factor=2, stop_frame = 100),
+            DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 51, 0),
+            Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05, stop_frame = 100),
+            Materialize(screen, StaticRenderer([self.MENU_TOP]), 32, 3, signal_acceleration_factor=1.05, stop_frame=100),
             DynamicSourceCursor(screen, CredstickNameRenderer(interface), 3, 3),
-            Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05),
-            Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=10),
-            DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5, refresh_period=200),
-            DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 7, refresh_period=300),
-            DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 9, refresh_period=340),
-            DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9, refresh_period=500),
+            Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05, stop_frame=100),
+            Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=10, stop_frame=100),
+            DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5),
+            DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 7),
+            DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 9),
+            DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9),
             MainMenuListener(screen, interface)
 
 

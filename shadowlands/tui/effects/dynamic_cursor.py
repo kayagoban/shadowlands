@@ -25,10 +25,13 @@ class DynamicSourceCursor(Cursor):
 
 
     def _update(self, frame_no):
+        if not self.need_new_buffer:
+            return
+ 
         if self._refresh_period:
             if frame_no % self._refresh_period == 0:
                 self.reset()
-           
+          
         super(DynamicSourceCursor, self)._update(frame_no)
 
         # Now we overwrite with spaces the difference between the sizes
