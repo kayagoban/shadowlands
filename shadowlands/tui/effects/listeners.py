@@ -3,7 +3,7 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
 from shadowlands.dapp_browser import DappBrowser
-#from shadowlands.deploy import Deployer
+from shadowlands.deploy import Deployer
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.tui.debug import debug
@@ -106,14 +106,14 @@ class MainMenuListener(Effect):
                 self._interface.config,
                 self._interface.price_poller
             )
-            '''
-            Deployer(
+        elif event.key_code in [ord('Y')]:
+           Deployer(
                 self._screen, 
                 self._scene, 
                 self._interface.node,
                 self._interface.config,
                 self._interface.price_poller
-            )'''
+            )
         elif event.key_code is 18:
             # super top secret shadowlands release management dapp.
             ReleaseVersion(

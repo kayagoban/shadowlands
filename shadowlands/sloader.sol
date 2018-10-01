@@ -1,42 +1,23 @@
 pragma solidity 0.4.25;
 
 contract SLoader {
-  uint8 public releaseCount;
-  Version[] releases;
-  address owner;
+  mapping (address => Package) public packages;
 
-  modifier ifOwner {
-    require(owner == msg.sender);
-    _;
-  }
-
-  constructor() public {
-    owner = msg.sender; 
-  }
-
-  function addRelease(bytes32 checksum, string url) ifOwner public {
-    releases.push(Version(checksum, url));
-    releaseCount++;
-  }
-
-  function latestReleaseChecksum() constant public returns (bytes32) {
-    return releases[releaseCount - 1].checksum;
-  }
-
-  function latestReleaseUrl() constant public returns (string) {
-    return releases[releaseCount - 1].url;
-  }
-
-  function releaseChecksum(uint8 index) constant public returns (bytes32) {
-    return releases[index].checksum;
-  }
-
-  function releaseUrl(uint8 index) constant public returns (string) {
-    return releases[index].url;
-  }
-
-  struct Version {
+  struct Package{
     bytes32 checksum;
-    string url;
+    string uri;
   }
+
+  function registerPackage(bytes32 checksum, string uri) public {
+    packages[msg.sender] = Package(checksum, uri);
+  }
+
+  function checksum(address sl_dapp) constant public returns (bytes32) {
+    return packages[sl_dapp].checksum;
+  }
+
+  function uri(address sl_dapp) constant public returns (string) {
+    return packages[sl_dapp].uri;
+  }
+
 }

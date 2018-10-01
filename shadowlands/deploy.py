@@ -5,7 +5,7 @@ import pdb
 from shadowlands.sl_dapp import SLDapp
 
 class Deployer(SLDapp):
-    FILEPATH='shadowlands/sloader.sol'
+    FILEPATH='/shadowlands-core/shadowlands/sloader.sol'
 
     def initialize(self):
         contract_source_code = open(self.FILEPATH, 'r').read()
@@ -21,5 +21,4 @@ class Deployer(SLDapp):
             title="Deploy",
             gas_limit=900000
         )
-
 

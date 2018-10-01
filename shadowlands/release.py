@@ -4,13 +4,15 @@ from eth_utils import decode_hex
 import wget, hashlib
 
 class SLoader(Contract):
-    def add_release(self, checksum, url):
-        fn = self.functions.addRelease(decode_hex(checksum), url)
+    def register_package(self, checksum, url):
+        fn = self.functions.registerPackage(decode_hex(checksum), url)
         return fn
 
-    ROPSTEN='0xfa14f7fDD32c13F8548eD9634a7E770516E743D5'
-    MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
-    ABI='''[{"constant":true,"inputs":[],"name":"latestReleaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint8"}],"name":"releaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"checksum","type":"bytes32"},{"name":"url","type":"string"}],"name":"addRelease","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"index","type":"uint8"}],"name":"releaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"releaseCount","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"latestReleaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]'''
+    #ROPSTEN='0xfa14f7fDD32c13F8548eD9634a7E770516E743D5'
+    #MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
+    MAINNET='0x51d0cFa6Fc1bE1Df18cD4EA38c6e45751908c356'
+    ABI='''[{"constant":true,"inputs":[{"name":"sl_dapp","type":"address"}],"name":"checksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"packages","outputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"name":"registerPackage","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"sl_dapp","type":"address"}],"name":"uri","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]'''
+
 
 
 class ReleaseVersion(SLDapp):
@@ -35,18 +37,10 @@ class ReleaseFrame(SLFrame):
         shasum = filehasher(sl_zipfile)
         
         self.dapp.add_transaction_dialog(
-            tx_fn=lambda: self.dapp.sloader_contract.add_release(
+            tx_fn=lambda: self.dapp.sloader_contract.register_package(
                 shasum,
                 self.url()
             ),
             destroy_window=self
         )
 
-    def no_choice(self):
-        self.dapp.add_transaction_dialog(
-            tx_fn=lambda: self.dapp.sloader_contract.add_release(
-                "c74160a24c9708c0ccd03a57f565d011ecb8d1321bc9df131f35d4707ea01146",
-                "https://github.com/kayagoban/test/releases/download/0.0001a/shadowlands.zip"
-            ),
-            destroy_window=self
-        )
