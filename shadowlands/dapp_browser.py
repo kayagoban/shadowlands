@@ -3,22 +3,39 @@ from asciimatics.widgets import Layout, Label, Button, Divider, TextBox
 from asciimatics.effects import Print
 from asciimatics.renderers import StaticRenderer
 from pathlib import Path
+import pyperclip
 from shadowlands.tui.debug import debug
-import sys, textwrap, os, types, importlib, re
+import sys, textwrap, os, types, importlib, re, shutil, hashlib
 import pdb
 
 class DappBrowser(SLDapp):
     def initialize(self):
+        self.dapp_name = None
         self.add_frame(DappMenuFrame, height=8, width=50, title="Dapps Menu")
+        self.digest = None
+
+    def _dapps_in_path(self):
+        chosen_path = Path(self.config._sl_dapp_path)
+        gl = sorted(chosen_path.glob("*"))
+        return [(x.name, x.name) for x in gl if x.is_dir() and self._is_dapp(x) is True]
+
+    def _is_dapp(self, dirpath):
+        if not dirpath.joinpath('__init__.py').exists():
+            return False
+        file_text = open(dirpath.joinpath('__init__.py'), 'r').read()
+        if re.search(r'class Dapp', file_text) is not None:
+            return True
+        return False
+
 
 
 class DappMenuFrame(SLFrame):
     def initialize(self):
         options = [
-            ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=15, width=61, title="Run network Dapp") ),
             ("Run local dapp", lambda: self.dapp.add_frame(RunLocalDappFrame, height=10, width=50, title="Run local Dapp") ),
             ("Change local dapp directory", lambda: self.dapp.add_frame(DappDirFrame, height=7, width=75, title="Change Dapp Directory") ),
-            ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployDappFrame, height=15, width=61, title="Deploy your Dapp") ),
+            ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployChooseDappFrame, height=10, width=61, title="Deploy your Dapp") ),
+            ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=15, width=61, title="Run network Dapp") ),
         ]
         self._listbox_value = self.add_listbox(4, options, on_select=self._menu_action)
         self.add_button(self.close, "Cancel")
@@ -27,10 +44,76 @@ class DappMenuFrame(SLFrame):
         self._listbox_value()()
         self.close()
 
+
+class DeployChooseDappFrame(SLFrame):
+    def initialize(self):
+        self.add_label("Your Dapps:")
+        options = self.dapp._dapps_in_path
+        self._listbox_value = self.add_listbox(4, options, on_select=self._choose_dapp)
+        self.add_button(self.close, "Cancel")
+ 
+    def _choose_dapp(self):
+        self.dapp.dapp_name = self._listbox_value()
+        self.dapp.add_frame(DeployMenuFrame, height=7, width=45, title="Deploy action")
+        self.close()
+        
+
+class DeployMenuFrame(SLFrame):
+    def initialize(self):
+        options = [
+            ("Create archive", self._create_archive),
+            ("Register archive", self._register_archive)
+        ]
+        self._listbox_value = self.add_listbox(2, options, on_select=self._deploy_action)
+        self.add_button(self.close, "Cancel")
+ 
+    def _deploy_action(self):
+        self._listbox_value()()
+
+    def filehasher(self, sl_zipfile):
+        hasher = hashlib.sha256()
+        with open(str(sl_zipfile), 'rb') as afile:
+            buf = afile.read()
+            hasher.update(buf)
+            return hasher.hexdigest()
+
+    def _create_archive(self):
+        dapp_path = Path(self.dapp.config._sl_dapp_path).joinpath(self.dapp.dapp_name)
+
+        # Remove all cached bytecode, leaving only the code
+        pycaches = dapp_path.glob("**/__pycache__")
+        for cache in pycaches:
+            shutil.rmtree(str(cache))
+
+        archive_path = Path("/tmp").joinpath(self.dapp.dapp_name)
+        shutil.make_archive(str(archive_path), 'zip',  self.dapp.config._sl_dapp_path, self.dapp.dapp_name)
+
+        self.dapp.digest = self.filehasher(str(archive_path)+".zip")   
+
+        #debug(); pdb.set_trace()
+
+        self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Archive is in /tmp.  Copy Sha256 digest to clipboard?")
+        self.close()
+
+    def _register_archive(self):
+        pass
+
+
+class AskClipboardFrame(SLFrame):
+    def initialize(self):
+        self.add_ok_cancel_buttons(self._copy_digest, cancel_fn=self.close)
+
+    def _copy_digest(self):
+        pyperclip.copy(self.dapp.digest)
+        self.dapp.add_message_dialog("Sha256 digest has been copied to your clipboard")
+        self.close()
+
+
+
 class RunLocalDappFrame(SLFrame):
     def initialize(self):
         self.add_label("Your Dapps:")
-        options = self._dapps_in_path
+        options = self.dapp._dapps_in_path
         self._listbox_value = self.add_listbox(4, options, on_select=self._run_dapp)
         self.add_button(self.close, "Cancel")
 
@@ -100,6 +183,7 @@ class DappDirFrame(SLFrame):
 
     def _select_dir_fn(self):
         self.dapp.add_frame(DirPickerFrame, height=21, width=70, title="Choose local Dapp directory")
+        self.close()
 
     def add_path_selector(self, button_fn, text):
         layout = Layout([80, 20])
@@ -107,7 +191,6 @@ class DappDirFrame(SLFrame):
         layout.add_widget(Label(lambda: self.dapp.config.sl_dapp_path), 0)
         layout.add_widget(Button(text, button_fn), 1)
         layout.add_widget(Divider(draw_line=False))
-
 
 
 class DirPickerFrame(SLFrame):
@@ -118,7 +201,6 @@ class DirPickerFrame(SLFrame):
     def _select_fn(self):
         self.dapp.config.sl_dapp_path = self.browser_value()
         self.close()
-
 
 
 class ErrorFrame(SLFrame):

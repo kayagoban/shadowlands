@@ -48,10 +48,6 @@ class SLDapp(Effect):
         preferred_width= len(message) + 6
         self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
 
-    def add_yes_no_dialog(self, question, yes_fn=None, no_frame=None):
-        preferred_width= len(question) + 6
-        self._scene.add_effect( YesNoDialog(self._screen, question, width=preferred_width, destroy_window=None))
-
     def add_transaction_dialog(self, tx_fn=None, tx_value=0, destroy_window=None, title="Sign & Send Transaction", **kwargs):
         #debug(); pdb.set_trace()
         self._scene.add_effect( 
