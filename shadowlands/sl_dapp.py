@@ -153,6 +153,7 @@ class SLTransactionFrame(TransactionFrame):
         self.dapp = dapp
         self._tx_fn = tx_fn
 
+        #debug(); pdb.set_trace()
         if gas_limit is not None:
             self.estimated_gas = gas_limit
         else:
@@ -178,8 +179,8 @@ class SLTransactionFrame(TransactionFrame):
             self.dapp.node.push(
                 self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
             )
-        #except (SignTxError):
-        except UnreasonablySpecificException:
+        except (SignTxError):
+        #except UnreasonablySpecificException:
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
 

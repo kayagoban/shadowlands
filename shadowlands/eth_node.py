@@ -149,8 +149,12 @@ class Node():
             return False
 
         self._w3 = _w3
+
+        # If parity client...
         # Monkey patch the txpool object so we can get parity txPool info
-        self.w3.txpool = ParityCompatibleTxPool(self._w3)
+        # self.w3.txpool = ParityCompatibleTxPool(self._w3)
+        # import pdb; pdb.set_trace()
+
         self._heart_rate = self._heart_rate
         self._connection_type = connection_type
 
@@ -199,7 +203,7 @@ class Node():
         if not custom_uri:
             custom_uri = self._sl_config.websocket_uri
         _w3 = self.w3_websocket(custom_uri)
-        if self.is_connected_with(_w3, 'Custom websocket', 18):
+        if self.is_connected_with(_w3, 'Custom websocket', 2):
             self._sl_config.websocket_uri = custom_uri
             self._sl_config.default_method = self.connect_w3_custom_websocket.__name__
             return True
@@ -234,7 +238,7 @@ class Node():
         if not custom_uri:
             custom_uri = self._sl_config.http_uri
         w3 = Web3(Web3.HTTPProvider(custom_uri))
-        if self.is_connected_with(w3, 'Custom HTTP', 1):
+        if self.is_connected_with(w3, 'Custom HTTP', 2):
             self._sl_config.http_uri = custom_uri
             self._sl_config.default_method = self.connect_w3_custom_http.__name__
             return True

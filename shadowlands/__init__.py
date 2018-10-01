@@ -19,6 +19,10 @@ sl_config = SLConfig()
 # Start network subsystem
 eth_node = Node(sl_config)
 
+
+# test it manually..
+#eth_node.heartbeat()
+
 # Eth node heartbeat
 eth_node.start_heartbeat_thread()
 
