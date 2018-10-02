@@ -105,10 +105,13 @@ The layout is:
 
  
     @classmethod
-    def derive(cls, hdpath="44'/60'/0'/0/0"):
+    def derive(cls, hdpath_base="44'/60'/0'/0", hdpath_index='0', set_address=False):
 
         #address = "44'/60'/0'/0"  # ledger so-called standard
         #address = "44'/60'/0'/0/0"  # BIP44 standard (trezor)
+
+        hdpath = hdpath_base + '/' + hdpath_index
+
         address_n = tools.parse_path(hdpath)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
         response = cls.call_raw(call_obj)
@@ -119,9 +122,12 @@ The layout is:
             return None
         else:
             address = '0x' + binascii.hexlify(response.address).decode('ascii')
-            cls.address = Web3.toChecksumAddress(address)
-            cls.hdpath = hdpath
-            return cls.address
+            derived_address = Web3.toChecksumAddress(address)
+            if set_address is True:
+                cls.address = derived_address
+                cls.hdpath_base = hdpath_base
+                cls.hdpath_index = hdpath_index
+            return derived_address
 
         #result = "0x%s" % binascii.hexlify(address).decode()
         #return result

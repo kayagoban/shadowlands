@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser
+from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons
 from asciimatics.exceptions import NextScene
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
@@ -99,10 +99,12 @@ class SLFrame(Frame):
         layout.add_widget(Button("Cancel", cancel_fn), 3)
  
     # named arguments will be passed on to the asciimatics Text() constructor
-    def add_textbox(self, label_text, **kwargs):
+    def add_textbox(self, label_text, default_value=None, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
         text_widget = Text(label_text, **kwargs)
+        if default_value is not None:
+            text_widget._value = default_value
         layout.add_widget(text_widget)
         layout.add_widget(Divider(draw_line=False))
         return lambda: text_widget._value
@@ -112,10 +114,21 @@ class SLFrame(Frame):
         self.add_layout(layout)
         layout.add_widget(Divider(**kwargs))
 
-    def add_listbox(self, height, options, layout_distribution=[100], layout_index=0, **kwargs):
+    def add_radiobuttons(self, options, default_value=None, layout_distribution=[100], layout_index=0, **kwargs):
         layout = Layout(layout_distribution)
         self.add_layout(layout)
-        list_widget = ListBox(height, options, **kwargs)
+        radiobuttons_widget = RadioButtons(options, **kwargs)
+        layout.add_widget(radiobuttons_widget, layout_index)
+        layout.add_widget(Divider(draw_line=False))
+        if default_value is not None:
+            radiobuttons_widget._value = default_value
+        return lambda: radiobuttons_widget.value
+
+
+    def add_listbox(self, height, options, on_select=None, layout_distribution=[100], layout_index=0, **kwargs):
+        layout = Layout(layout_distribution)
+        self.add_layout(layout)
+        list_widget = ListBox(height, options, on_select=on_select, **kwargs)
         layout.add_widget(list_widget, layout_index)
         layout.add_widget(Divider(draw_line=False))
         return lambda: list_widget.value

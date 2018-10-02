@@ -116,7 +116,14 @@ class LedgerEthDriver(Credstick):
         cls._driver = None
 
     @classmethod
-    def derive(cls, hdpath="44'/60'/0'/0"):
+    def derive(cls, hdpath_base="44'/60'/0'", hdpath_index='0', set_address=False):
+
+        try:
+            hdpath = hdpath_base + '/' + hdpath_index
+        except TypeError as e:
+            raise Exception("{}, {}".format(hdpath_base, hdpath_index))
+
+
         try:
             encodedPath = hd_path(hdpath)
             derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
@@ -127,11 +134,15 @@ class LedgerEthDriver(Credstick):
             result = cls._driver.exchange(apdu)
             offset = 1 + result[0]
             address = result[offset + 1 : offset + 1 + result[offset]]
-        except(CommException, IOError, BaseException):
+        except(CommException, IOError, BaseException) as e:
             raise DeriveCredstickAddressError("Could not derive an address from your credstick." + apdu)
-        cls.address = '0x' + address.decode('ascii')
-        cls.hdpath = hdpath
-        return cls.address
+
+        derived_address = '0x' + address.decode('ascii')
+        if set_address is True:
+            cls.address = derived_address
+            cls.hdpath_base = hdpath_base
+            cls.hdpath_index = hdpath_index
+        return derived_address 
 
     @classmethod
     def version(cls):

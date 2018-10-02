@@ -3,6 +3,7 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
 from shadowlands.dapp_browser import DappBrowser
+from shadowlands.hd_addresses import HDAddressPicker
 from shadowlands.deploy import Deployer
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
@@ -123,5 +124,15 @@ class MainMenuListener(Effect):
                 self._interface.config,
                 self._interface.price_poller
             )
+        elif event.key_code in [ord('A'), ord('a')]:
+            # HD Addresses
+            HDAddressPicker(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )
+ 
         else:
             return None

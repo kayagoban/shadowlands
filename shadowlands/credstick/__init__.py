@@ -39,7 +39,8 @@ class Credstick(object):
     address = None
     detect_thread = None
     detect_thread_shutdown = False
-    hdpath = None
+    hdpath_base = None
+    hdpath_index = None
 
     @classmethod
     def addressStr(cls):
@@ -95,6 +96,10 @@ class Credstick(object):
         cls.detect_thread.join()
 
     @classmethod
+    def hdpath(cls):
+        return hdpath_base + '/' + hdpath_index
+
+    @classmethod
     def credstick_finder(cls):
         not_found = True
 
@@ -102,7 +107,7 @@ class Credstick(object):
             try: 
                 credstick = cls.detect()
                 credstick.open()
-                credstick.derive()
+                credstick.derive(set_address=True)
 
                 timeout = 30 
 
@@ -173,7 +178,7 @@ class Credstick(object):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
-    def derive(cls):
+    def derive(cls, hdpath=None, set_address=False):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
