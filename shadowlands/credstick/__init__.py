@@ -8,8 +8,8 @@ import rlp
 from time import sleep
 
 
-from shadowlands.tui.debug import debug
-import pdb
+#from shadowlands.tui.debug import debug
+#import pdb
 
 
 # TODO
@@ -111,8 +111,8 @@ class Credstick(object):
                 if credstick.address is None:
                     raise DeriveCredstickAddressError
 
-                #debug(); pdb.set_trace()
 
+                #debug(); pdb.set_trace()
                 cls.eth_node.credstick = credstick
                 cls.interface.credstick = credstick
                 not_found = False

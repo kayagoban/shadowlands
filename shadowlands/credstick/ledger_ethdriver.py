@@ -15,7 +15,7 @@ from eth_utils.crypto import keccak
 
 import random, string
 
-from shadowlands.tui.debug import debug
+#from shadowlands.tui.debug import debug
 import pdb
 
 from eth_account.internal.transactions import (
@@ -116,13 +116,19 @@ class LedgerEthDriver(Credstick):
         cls._driver = None
 
     @classmethod
-    def derive(cls, path="44'/60'/0'/0"):
+    def derive(cls, hdpath="44'/60'/0'/0"):
         try:
-            result = cls._driver.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
+            encodedPath = hd_path(hdpath)
+            derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
+            hd_payload = derivationPathCount + encodedPath 
+            payloadSize = (len(hd_payload)).to_bytes(1, 'big')
+            apdu = CLA + INS_OPCODE_GET_ADDRESS + P1_RETURN_ADDRESS + P2_NO_CHAIN_CODE + payloadSize + hd_payload
+            #result = cls._driver.exchange(bytearray.fromhex('e002000011048000002c8000003c8000000000000000'))
+            result = cls._driver.exchange(apdu)
             offset = 1 + result[0]
             address = result[offset + 1 : offset + 1 + result[offset]]
         except(CommException, IOError, BaseException):
-            raise DeriveCredstickAddressError("Could not derive an address from your credstick.")
+            raise DeriveCredstickAddressError("Could not derive an address from your credstick." + apdu)
         cls.address = '0x' + address.decode('ascii')
         return cls.address
 
@@ -131,41 +137,29 @@ class LedgerEthDriver(Credstick):
         apdu = b'\xe0\x06\x00\x00\x00\x04'
         result = cls._driver.exchange(apdu)
 
-
     @classmethod
     def signTx(cls,transaction_dict=EXAMPLE_DICT):
 
         try:
-
-
             transaction_dict = cls.prepare_tx(transaction_dict)
-
-
-       
             tx = UnsignedTransaction.from_dict(transaction_dict)
-
             encodedTx = rlp.encode(tx, UnsignedTransaction)
-
             encodedPath = hd_path()
             # Each path element is 4 bytes.  How many path elements are we sending?
 
             derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
 
-            #derivationPathCount = int_to_big_endian(len(encodedPath) // 4)
-
             # Prepend the byte representing the count of path elements to the path encoding itself.
             encodedPath = derivationPathCount + encodedPath 
-
             dataPayload = encodedPath + encodedTx
 
             # Big thanks to the Geth team for their ledger implementation (and documentation).
             # You guys are stars.
             #
             # To the others reading, the ledger can only take 255 bytes of data payload per apdu exchange.
-            # hence, you have to chunk that shit and use 0x08 for the P1 opcode on subsequent calls.
+            # hence, you have to chunk and use 0x08 for the P1 opcode on subsequent calls.
 
             p1_op = P1_FIRST_TRANS_DATA_BLOCK
-            #pixie_dust = b'\x01\x04'
 
             while len(dataPayload) > 0:
                 chunkSize = 255
@@ -175,6 +169,7 @@ class LedgerEthDriver(Credstick):
                 encodedChunkSize = (chunkSize).to_bytes(1, 'big')
                 apdu = CLA + INS_OPCODE_SIGN_TRANS + p1_op + P2_UNUSED_PARAMETER + encodedChunkSize + dataPayload[:chunkSize] 
 
+                ## Keeping this here commented in case I need to debug it again.
                 #apdufile = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) 
                 #f = open('logs/{}'.format(apdufile), 'wb')
                 #f.write(apdu)
@@ -185,15 +180,12 @@ class LedgerEthDriver(Credstick):
                 dataPayload = dataPayload[chunkSize:]
                 p1_op = P1_SUBSEQUENT_TRANS_DATA_BLOCK
 
-            #debug(); pdb.set_trace()
-
             v = result[0]
             r = int((result[1:1 + 32]).hex(), 16)
             s = int((result[1 + 32: 1 + 32 + 32]).hex(), 16)
 
             stx = cls.signed_tx(transaction_dict, v, r, s)
 
-            #import pdb; pdb.set_trace()
         except CommException as e:
             raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}:  {}".format(apdu, e.message))
         return stx

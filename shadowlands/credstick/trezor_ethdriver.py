@@ -104,10 +104,11 @@ The layout is:
 
  
     @classmethod
-    def derive(cls, path="44'/60'/0'/0/0"):
+    def derive(cls, hdpath="44'/60'/0'/0/0"):
+
         #address = "44'/60'/0'/0"  # ledger so-called standard
         #address = "44'/60'/0'/0/0"  # BIP44 standard (trezor)
-        address_n = tools.parse_path(path)
+        address_n = tools.parse_path(hdpath)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
         response = cls.call_raw(call_obj)
         if response.__class__.__name__ == 'PinMatrixRequest':
