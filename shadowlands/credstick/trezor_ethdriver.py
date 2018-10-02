@@ -14,6 +14,7 @@ from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCr
 from shadowlands.tui.effects.widgets import TextRequestDialog, MessageDialog
 
 from shadowlands.tui.debug import debug
+from web3 import Web3
 import pdb
 
 
@@ -118,7 +119,8 @@ The layout is:
             return None
         else:
             address = '0x' + binascii.hexlify(response.address).decode('ascii')
-            cls.address = cls.eth_node.w3.toChecksumAddress(address)
+            cls.address = Web3.toChecksumAddress(address)
+            cls.hdpath = hdpath
             return cls.address
 
         #result = "0x%s" % binascii.hexlify(address).decode()

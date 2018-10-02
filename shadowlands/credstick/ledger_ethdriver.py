@@ -130,6 +130,7 @@ class LedgerEthDriver(Credstick):
         except(CommException, IOError, BaseException):
             raise DeriveCredstickAddressError("Could not derive an address from your credstick." + apdu)
         cls.address = '0x' + address.decode('ascii')
+        cls.hdpath = hdpath
         return cls.address
 
     @classmethod

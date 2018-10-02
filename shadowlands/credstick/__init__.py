@@ -39,6 +39,7 @@ class Credstick(object):
     address = None
     detect_thread = None
     detect_thread_shutdown = False
+    hdpath = None
 
     @classmethod
     def addressStr(cls):
