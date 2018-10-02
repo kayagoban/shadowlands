@@ -28,6 +28,8 @@ import pdb
 class TrezorEthDriver(Credstick):
     transport = None
     state = None
+    hdpath_base="44'/60'/0'/0"
+    hdpath_index = '0'
 
     @classmethod
     def call_raw(cls, msg):
@@ -109,8 +111,13 @@ The layout is:
 
         #address = "44'/60'/0'/0"  # ledger so-called standard
         #address = "44'/60'/0'/0/0"  # BIP44 standard (trezor)
+        try:
+            hdpath = hdpath_base + '/' + hdpath_index
+        except TypeError as e:
+            raise Exception("{}, {}".format(hdpath_base, hdpath_index))
 
-        hdpath = hdpath_base + '/' + hdpath_index
+
+#        hdpath = hdpath_base + '/' + hdpath_index
 
         address_n = tools.parse_path(hdpath)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)

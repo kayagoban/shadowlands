@@ -98,6 +98,8 @@ def hd_path(pathStr=LEDGER_PATH):
 
 
 class LedgerEthDriver(Credstick):
+    hdpath_base="44'/60'/0'"
+    hdpath_index='0'
     _driver = None
 
     @classmethod
