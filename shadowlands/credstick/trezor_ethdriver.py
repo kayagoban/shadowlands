@@ -109,24 +109,20 @@ The layout is:
     @classmethod
     def derive(cls, hdpath_base="44'/60'/0'/0", hdpath_index='0', set_address=False):
 
-        #address = "44'/60'/0'/0"  # ledger so-called standard
-        #address = "44'/60'/0'/0/0"  # BIP44 standard (trezor)
-        try:
-            hdpath = hdpath_base + '/' + hdpath_index
-        except TypeError as e:
-            raise Exception("{}, {}".format(hdpath_base, hdpath_index))
-
-
-#        hdpath = hdpath_base + '/' + hdpath_index
-
+        hdpath = hdpath_base + '/' + hdpath_index
         address_n = tools.parse_path(hdpath)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
-        response = cls.call_raw(call_obj)
+        try:
+            response = cls.call_raw(call_obj)
+        except TransportException:
+            raise DeriveCredstickAddressError
+
         if response.__class__.__name__ == 'PinMatrixRequest':
             cls.matrix_request_window()
             return None
         elif response.__class__.__name__ == 'Failure':
-            return None
+            raise DeriveCredstickAddressError
+            #return None
         else:
             address = '0x' + binascii.hexlify(response.address).decode('ascii')
             derived_address = Web3.toChecksumAddress(address)
@@ -142,7 +138,7 @@ The layout is:
 
 
     @classmethod
-    def signTx(cls, tx, path="44'/60'/0'/0/0"):
+    def signTx(cls, tx):
 
         def int_to_big_endian(value):
             return value.to_bytes((value.bit_length() + 7) // 8, 'big')
@@ -150,7 +146,7 @@ The layout is:
         tx = cls.prepare_tx(tx)
 
         #n = self._convert_prime(n)
-        address_n = tools.parse_path(path)
+        address_n = tools.parse_path(cls.hdpath())
  
         msg = proto.EthereumSignTx(
             address_n=address_n,

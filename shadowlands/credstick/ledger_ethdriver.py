@@ -83,7 +83,7 @@ EXAMPLE_DICT = {
 }
  
 # import pdb; pdb.set_trace()
-def hd_path(pathStr=LEDGER_PATH):
+def encode_path(pathStr):
     result = b''
     if len(pathStr) == 0:
         return result
@@ -119,15 +119,9 @@ class LedgerEthDriver(Credstick):
 
     @classmethod
     def derive(cls, hdpath_base="44'/60'/0'", hdpath_index='0', set_address=False):
-
         try:
             hdpath = hdpath_base + '/' + hdpath_index
-        except TypeError as e:
-            raise Exception("{}, {}".format(hdpath_base, hdpath_index))
-
-
-        try:
-            encodedPath = hd_path(hdpath)
+            encodedPath = encode_path(hdpath)
             derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
             hd_payload = derivationPathCount + encodedPath 
             payloadSize = (len(hd_payload)).to_bytes(1, 'big')
@@ -137,7 +131,7 @@ class LedgerEthDriver(Credstick):
             offset = 1 + result[0]
             address = result[offset + 1 : offset + 1 + result[offset]]
         except(CommException, IOError, BaseException) as e:
-            raise DeriveCredstickAddressError("Could not derive an address from your credstick." + apdu)
+            raise DeriveCredstickAddressError("Could not derive an address from your credstick.")
 
         derived_address = '0x' + address.decode('ascii')
         if set_address is True:
@@ -158,7 +152,7 @@ class LedgerEthDriver(Credstick):
             transaction_dict = cls.prepare_tx(transaction_dict)
             tx = UnsignedTransaction.from_dict(transaction_dict)
             encodedTx = rlp.encode(tx, UnsignedTransaction)
-            encodedPath = hd_path()
+            encodedPath = encode_path(cls.hdpath())
             # Each path element is 4 bytes.  How many path elements are we sending?
 
             derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')

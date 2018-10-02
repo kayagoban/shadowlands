@@ -97,7 +97,7 @@ class Credstick(object):
 
     @classmethod
     def hdpath(cls):
-        return hdpath_base + '/' + hdpath_index
+        return cls.hdpath_base + '/' + cls.hdpath_index
 
     @classmethod
     def credstick_finder(cls):
@@ -182,9 +182,7 @@ class Credstick(object):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
-    def signTx(cls, transaction_dict, r=None, s=None, v=None):
-
- 
+    def signTx(cls, transaction_dict):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
