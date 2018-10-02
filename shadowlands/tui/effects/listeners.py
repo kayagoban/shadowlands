@@ -29,14 +29,14 @@ class LoadingScreenListener(Effect):
         pass
  
     def process_event(self, event):
+        if type(event) != KeyboardEvent:
+            return event
+
 
         if event.key_code == -1 or event.key_code == 113:
             raise ExitTuiError
         elif event.key_code == ord('N') or event.key_code == ord('n'):
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
-
-        if type(event) != KeyboardEvent:
-            return event
 
         return None
 
