@@ -189,7 +189,6 @@ class SLTransactionFrame(TransactionFrame):
                 self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
             )
         except (SignTxError):
-        #except UnreasonablySpecificException:
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
 
@@ -199,10 +198,6 @@ class SLTransactionFrame(TransactionFrame):
     def _cancel_fn(self):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
-
-
-class UnreasonablySpecificException(Exception):
-    pass
 
 
 

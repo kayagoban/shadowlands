@@ -1,6 +1,5 @@
 from shadowlands.contract import Contract
 from eth_utils import decode_hex, encode_hex
-from web3.exceptions import ValidationError, NameNotFound
 
 from shadowlands.sl_dapp import SLDapp, SLFrame
 from asciimatics.widgets import Layout, Label, Button, Divider, TextBox
@@ -8,6 +7,8 @@ from asciimatics.effects import Print
 from asciimatics.renderers import StaticRenderer
 from pathlib import Path
 import pyperclip
+
+from web3.exceptions import ValidationError, NameNotFound
 import wget, zipfile, zipimport
 
 from shadowlands.tui.debug import debug
@@ -169,18 +170,11 @@ class AskClipboardFrame(SLFrame):
         self.close()
 
 
-class RunNetworkDappFrame(SLFrame):
-    def initialize(self):
-        self.add_label("Ex: ens.shadowlands, '0x5c27053A642B8dCc79385f47fCB25b5e72348feD'")
-        self.textbox_value = self.add_textbox("Dapp location:")
-        #self.add_button(self.run, "Download and Run")
-        self.add_ok_cancel_buttons(self.run)
-
-
-    def run(self):
+class NetworkDappSLFrameMixin():
+    def run_network_dapp(self, dapp_target):
         self.sloader_contract = SLoader(self.dapp.node)
         try:
-            uri, checksum = self.sloader_contract.package(self.textbox_value())
+            uri, checksum = self.sloader_contract.package(dapp_target)
         except DappNotFound:
                 self.dapp.add_message_dialog("Could not find dapp at that address/name.")
                 self.close()
@@ -251,6 +245,18 @@ class RunNetworkDappFrame(SLFrame):
             self.dapp._config,
             self.dapp._price_poller
         )
+        self.close()
+
+
+class RunNetworkDappFrame(SLFrame, NetworkDappSLFrameMixin):
+    def initialize(self):
+        self.add_label("Ex: ens.shadowlands, '0x5c27053A642B8dCc79385f47fCB25b5e72348feD'")
+        self.textbox_value = self.add_textbox("Dapp location:")
+        #self.add_button(self.run, "Download and Run")
+        self.add_ok_cancel_buttons(self.run)
+
+    def run(self):
+        self.run_network_dapp(self.textbox_value())
         self.close()
 
 
