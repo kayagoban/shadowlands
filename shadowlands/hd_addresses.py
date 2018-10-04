@@ -6,7 +6,7 @@ import pdb
 class HDAddressPicker(SLDapp):
     def initialize(self):
         try:
-            self.add_frame(PathPickerFrame, height=20, width=78, title="Select HDPath / Address")
+            self.add_frame(PathPickerFrame, height=20, width=80, title="Select HDPath / Address")
         except DeriveCredstickAddressError:
             self.add_message_dialog("Your credstick refused to generate addresses")
 
@@ -33,20 +33,21 @@ class PathPickerFrame(SLFrame):
     def path_string(self, path_element):
         address = self.dapp.node.credstick.derive( hdpath_base=self.dapp.node.credstick.hdpath_base, hdpath_index=str(path_element))
 
-        
-        '''
-        bal = self.dapp.node.w3.fromWei(self.dapp.node.w3.eth.getBalance(address), 'ether')
-        if bal is not None and bal != 0:
-            bal = "  Ξ" + str(round(bal,5))
-        else: 
+        try:
+            bal = self.dapp.node.w3.fromWei(self.dapp.node.w3.eth.getBalance(address), 'ether')
+            if bal is not None and bal != 0:
+                bal = "  Ξ" + str(round(bal,5))
+            else: 
+                bal = '  Ξnull   ' 
+        except:
             bal = ''
+
         try:
             ens_name = '  ' + self.dapp.node._ns.name(address)
         except:
-            ens_name = ''
-            '''
+            ens_name = '  No ENS'
 
-        return address #+ bal  + ens_name
+        return address + bal + ens_name
 
 # + self.dapp.node.credstick.hdpath_base + '/' +str(path_element)
     def change_base(self):

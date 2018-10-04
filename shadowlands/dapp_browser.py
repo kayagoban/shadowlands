@@ -1,12 +1,59 @@
+from shadowlands.contract import Contract
+from eth_utils import decode_hex, encode_hex
+from web3.exceptions import ValidationError, NameNotFound
+
 from shadowlands.sl_dapp import SLDapp, SLFrame
 from asciimatics.widgets import Layout, Label, Button, Divider, TextBox
 from asciimatics.effects import Print
 from asciimatics.renderers import StaticRenderer
 from pathlib import Path
 import pyperclip
+import wget, zipfile, zipimport
+
 from shadowlands.tui.debug import debug
 import sys, textwrap, os, types, importlib, re, shutil, hashlib
 import pdb
+
+def filehasher(app_zipfile):
+    hasher = hashlib.sha256()
+    with open(str(app_zipfile), 'rb') as afile:
+        buf = afile.read()
+        hasher.update(buf)
+        return hasher.hexdigest()
+
+
+class DappNotFound(Exception):
+    pass
+
+class SLoader(Contract):
+    def package(self, eth_address):
+        try:
+            try: 
+                package = self.functions.packages(eth_address).call()
+            except NameNotFound:
+                # try tacking an .eth on to the address
+                package = self.functions.packages(eth_address + '.eth').call()
+        
+            uri = package[1]
+            checksum = encode_hex(package[0])
+        except (ValidationError, NameNotFound):
+            raise DappNotFound
+
+        if uri == '' or checksum == '0000000000000000000000000000000000000000000000000000000000000000':
+            raise DappNotFound
+
+        return uri, checksum.replace('0x','')
+
+
+    def register_package(self, checksum, url):
+        fn = self.functions.registerPackage(decode_hex(checksum), url)
+        return fn
+
+    #ROPSTEN='0xfa14f7fDD32c13F8548eD9634a7E770516E743D5'
+    #MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
+    MAINNET='0x51d0cFa6Fc1bE1Df18cD4EA38c6e45751908c356'
+    ABI='''[{"constant":true,"inputs":[{"name":"sl_dapp","type":"address"}],"name":"checksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"packages","outputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"name":"registerPackage","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"sl_dapp","type":"address"}],"name":"uri","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]'''
+
 
 class DappBrowser(SLDapp):
     def initialize(self):
@@ -35,7 +82,7 @@ class DappMenuFrame(SLFrame):
             ("Run local dapp", lambda: self.dapp.add_frame(RunLocalDappFrame, height=10, width=50, title="Run local Dapp") ),
             ("Change local dapp directory", lambda: self.dapp.add_frame(DappDirFrame, height=7, width=75, title="Change Dapp Directory") ),
             ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployChooseDappFrame, height=10, width=61, title="Deploy your Dapp") ),
-            ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=15, width=61, title="Run network Dapp") ),
+            ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=8, width=71, title="Run network Dapp") ),
         ]
         self._listbox_value = self.add_listbox(4, options, on_select=self._menu_action)
         self.add_button(self.close, "Cancel")
@@ -70,13 +117,6 @@ class DeployMenuFrame(SLFrame):
     def _deploy_action(self):
         self._listbox_value()()
 
-    def filehasher(self, sl_zipfile):
-        hasher = hashlib.sha256()
-        with open(str(sl_zipfile), 'rb') as afile:
-            buf = afile.read()
-            hasher.update(buf)
-            return hasher.hexdigest()
-
     def _create_archive(self):
         dapp_path = Path(self.dapp.config._sl_dapp_path).joinpath(self.dapp.dapp_name)
 
@@ -88,15 +128,35 @@ class DeployMenuFrame(SLFrame):
         archive_path = Path("/tmp").joinpath(self.dapp.dapp_name)
         shutil.make_archive(str(archive_path), 'zip',  self.dapp.config._sl_dapp_path, self.dapp.dapp_name)
 
-        self.dapp.digest = self.filehasher(str(archive_path)+".zip")   
+        self.dapp.digest = filehasher(str(archive_path)+".zip")   
 
         #debug(); pdb.set_trace()
 
         self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Archive is in /tmp.  Copy Sha256 digest to clipboard?")
-        self.close()
+        #self.close()
 
     def _register_archive(self):
-        pass
+        self.dapp.add_frame(ReleaseFrame, height=7, width=75, title='Register Dapp to current address')
+        self.close()
+
+class ReleaseFrame(SLFrame):
+    def initialize(self):
+        self.sloader_contract = SLoader(self.dapp.node)
+ 
+        self.uri = self.add_textbox("URI:")
+        self.checksum = self.add_textbox("SHA256:")
+        self.add_ok_cancel_buttons(self.ok_choice, lambda: self.close())
+
+    def ok_choice(self):
+        shasum = self.checksum()
+        
+        self.dapp.add_transaction_dialog(
+            tx_fn=lambda: self.sloader_contract.register_package(
+                shasum,
+                self.uri()
+            ),
+        )
+        self.close()
 
 
 class AskClipboardFrame(SLFrame):
@@ -108,6 +168,90 @@ class AskClipboardFrame(SLFrame):
         self.dapp.add_message_dialog("Sha256 digest has been copied to your clipboard")
         self.close()
 
+
+class RunNetworkDappFrame(SLFrame):
+    def initialize(self):
+        self.add_label("Ex: ens.shadowlands, '0x5c27053A642B8dCc79385f47fCB25b5e72348feD'")
+        self.textbox_value = self.add_textbox("Dapp location:")
+        #self.add_button(self.run, "Download and Run")
+        self.add_ok_cancel_buttons(self.run)
+
+
+    def run(self):
+        self.sloader_contract = SLoader(self.dapp.node)
+        try:
+            uri, checksum = self.sloader_contract.package(self.textbox_value())
+        except DappNotFound:
+                self.dapp.add_message_dialog("Could not find dapp at that address/name.")
+                self.close()
+
+        # check to see if anything in the cache meets our requirements.
+        shadowlands_cache_dir = Path.home().joinpath(".shadowlands").joinpath("cache")
+
+        app_zipfile = None
+
+        for cached_file in shadowlands_cache_dir.iterdir():
+            if checksum == filehasher(cached_file):
+                app_zipfile = cached_file
+                break
+
+        if app_zipfile is None:
+
+            try:
+                app_zipfile = wget.download(uri, out=str(shadowlands_cache_dir), bar=None)
+            except:
+                self.dapp.add_message_dialog("Could not download dapp URI.  Aborting.")
+                self.close()
+            if checksum != filehasher(str(app_zipfile)):
+                self.dapp.add_message_dialog("Checksum did not match dapp.  Aborting.")
+                self.close()
+
+            debug(); pdb.set_trace()
+
+            archive = zipfile.ZipFile(str(app_zipfile), 'r')
+            # Assumes only one directory in top of zip, containing dapp.
+            top_level = archive.namelist()[0] 
+
+            try:
+                requirements = archive.read(top_level + 'requirements.txt')
+                reqs = requirements.split()
+            except KeyError:
+                # No requirements.txt.
+                reqs = []
+
+            try:
+                for req in reqs:
+                    call(['pip','install', '-c', shadowlands_requirements,  req])
+            except Exception as e:
+                # Our dependencies were not installed, we have to scrap the file and try again next time.
+                os.remove(str(app_zipfile))
+                self.dapp.add_message_dialog("Error while gathering Shadowlands dependencies.")
+                self.close()
+
+            archive.close()
+        
+        #debug(); pdb.set_trace()
+        # app_zipfile exists and all reqs installed.
+
+        importer = zipimport.zipimporter(str(app_zipfile))
+        archive = zipfile.ZipFile(str(app_zipfile), 'r')
+        module_name = archive.namelist()[0].replace('/', '')
+        dapp_module = importer.load_module(module_name)
+    
+        try:
+            Dapp = getattr(dapp_module, 'Dapp')
+        except AttributeError:
+            self.dapp.add_message_dialog("Possible module name conflict.")
+            return
+
+        Dapp(
+            self.dapp._screen, 
+            self.dapp._scene, 
+            self.dapp._node,
+            self.dapp._config,
+            self.dapp._price_poller
+        )
+        self.close()
 
 
 class RunLocalDappFrame(SLFrame):
