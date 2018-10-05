@@ -87,6 +87,7 @@ class SLDapp(Effect):
 
 
 
+
 class SLFrame(Frame):
     def __init__(self, dapp, height, width, **kwargs):
         self._dapp = dapp
@@ -184,8 +185,9 @@ class SLWaitFrame(SLFrame):
         super(SLWaitFrame, self).__init__(dapp, height, width, **kwargs)
 
     def process_event(self, event):
-        # Swallows every damn thing
+        # Swallows every damn event while the user twiddles his thumbs
         return None
+
 
 class SLTransactionFrame(TransactionFrame):
     def __init__(self, screen, x, y, dapp=None, tx_fn=None, tx_value=0, gas_limit=None, **kwargs):

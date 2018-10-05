@@ -7,7 +7,9 @@ from shadowlands.hd_addresses import HDAddressPicker
 from shadowlands.deploy import Deployer
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
+from shadowlands.sl_network_dapp import SLNetworkDapp
 from shadowlands.tui.debug import debug
+
 import pdb
 import pyperclip
 
@@ -78,6 +80,17 @@ class MainMenuListener(Effect):
         elif event.key_code in [67, 99]:
             pyperclip.copy(self._interface.credstick.addressStr())
             self._scene.add_effect(MessageDialog(self._screen, "Address copied to clipboard", 3, 35) )
+        # E, e for ens
+        elif event.key_code in [ord('e'), ord('E')]:
+            SLNetworkDapp(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller,
+                'ens.shadowlands'
+            )
+
         # N, n for network
         elif event.key_code in [78, 110]:
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
