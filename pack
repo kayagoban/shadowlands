@@ -5,6 +5,8 @@ for i in `find . -name .pyc`; do rm -rf $i; done
 rm -f /tmp/shadowlands*.zip
 VERSION=`cat ./VERSION`
 echo "SL_VERSION='$VERSION'" | cat > shadowlands/version.py
-zip -r /tmp/shadowlands-$VERSION.zip shadowlands/
 git diff
 git commit -a
+zip -r /tmp/shadowlands-$VERSION.zip shadowlands/
+echo "/tmp/shadowlands-$VERSION.zip $(shasum -a 256 /tmp/shadowlands-$VERSION.zip)"
+
