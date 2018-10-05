@@ -6,12 +6,8 @@ from asciimatics.effects import Print
 from asciimatics.renderers import StaticRenderer
 from pathlib import Path
 import pyperclip
-
-from web3.exceptions import ValidationError, NameNotFound
-import wget, zipfile, zipimport
-
 from shadowlands.tui.debug import debug
-import sys, textwrap, os, types, importlib, re, shutil
+import sys, os, types, importlib, re, shutil
 from shadowlands.utils import filehasher
 import pdb
 
@@ -81,7 +77,6 @@ class DeployMenuFrame(SLFrame):
 
     def _create_archive(self):
         dapp_path = Path(self.dapp.config._sl_dapp_path).joinpath(self.dapp.dapp_name)
-
         # Remove all cached bytecode, leaving only the code
         pycaches = dapp_path.glob("**/__pycache__")
         for cache in pycaches:
@@ -89,13 +84,8 @@ class DeployMenuFrame(SLFrame):
 
         archive_path = Path("/tmp").joinpath(self.dapp.dapp_name)
         shutil.make_archive(str(archive_path), 'zip',  self.dapp.config._sl_dapp_path, self.dapp.dapp_name)
-
         self.dapp.digest = filehasher(str(archive_path)+".zip")   
-
-        #debug(); pdb.set_trace()
-
         self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Archive is in /tmp.  Copy Sha256 digest to clipboard?")
-        #self.close()
 
     def _register_archive(self):
         self.dapp.add_frame(ReleaseFrame, height=7, width=75, title='Register Dapp to {}'.format(self.dapp.node.credstick.address))

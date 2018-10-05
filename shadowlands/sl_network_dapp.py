@@ -36,7 +36,6 @@ class SLNetworkDapp(SLDapp):
                 break
 
         if app_zipfile is None:
-
             try:
                 app_zipfile = wget.download(uri, out=str(shadowlands_cache_dir), bar=None)
             except:
