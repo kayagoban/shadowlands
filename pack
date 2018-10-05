@@ -8,5 +8,5 @@ echo "SL_VERSION='$VERSION'" | cat > shadowlands/version.py
 git diff
 git commit -a
 zip -r /tmp/shadowlands-$VERSION.zip shadowlands/
-echo "/tmp/shadowlands-$VERSION.zip $(shasum -a 256 /tmp/shadowlands-$VERSION.zip)"
+echo $(shasum -a 256 /tmp/shadowlands-$VERSION.zip)
 
