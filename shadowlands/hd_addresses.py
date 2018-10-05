@@ -1,15 +1,20 @@
 from shadowlands.sl_dapp import SLDapp, SLFrame
 from shadowlands.tui.debug import debug
 from shadowlands.credstick import DeriveCredstickAddressError
+import threading 
+from time import sleep
 import pdb
 
 class HDAddressPicker(SLDapp):
     def initialize(self):
+        self.show_wait_frame()
+        threading.Thread(target=self._worker).start()
+
+    def _worker(self):
         try:
             self.add_frame(PathPickerFrame, height=20, width=80, title="Select HDPath / Address")
         except DeriveCredstickAddressError:
             self.add_message_dialog("Your credstick refused to generate addresses")
-
 
 class PathPickerFrame(SLFrame):
     def initialize(self):
@@ -20,6 +25,8 @@ class PathPickerFrame(SLFrame):
         self.index_list_value = self.add_listbox(10, self._build_hdpaths(), on_select=self.choose_address)
 
         self.add_button(self.close, "Cancel")
+
+        self.dapp.hide_wait_frame()
 
     def _build_hdpaths(self):
         return [ 

@@ -17,7 +17,13 @@ class SLDapp(Effect):
         self._node = eth_node
         self._config = config
         self._price_poller = price_poller
+        # Prepare a wait frame that we can show and unshow as we please.
+        message = "Cooking up some data..."
+        preferred_width= len(message) + 6
+        self.waitframe = SLWaitFrame(self, message, 3, preferred_width)
+
         self.initialize()
+
         if destroy_window is not None:
             destroy_window.close()
 
@@ -42,7 +48,15 @@ class SLDapp(Effect):
         # we are adding SLFrame effects.  asciimatics can do a lot more
         # than this, but we're hiding away the functionality for the 
         # sake of simplicity.
-        self._scene.add_effect(cls(self, height, width, title=title, **kwargs))
+        frame = cls(self, height, width, title=title, **kwargs)
+        self._scene.add_effect(frame)
+        return frame 
+
+    def show_wait_frame(self):
+        self._scene.add_effect( self.waitframe ) 
+
+    def hide_wait_frame(self):
+        self._scene.remove_effect( self.waitframe ) 
 
     def add_message_dialog(self, message, **kwargs):
         preferred_width= len(message) + 6
@@ -154,7 +168,19 @@ class SLFrame(Frame):
     @property
     def dapp(self):
         return self._dapp
+    
 
+class SLWaitFrame(SLFrame):
+    def initialize(self):
+        self.add_label(self.message)
+
+    def __init__(self, dapp, wait_message, height, width, **kwargs):
+        self.message = wait_message
+        super(SLWaitFrame, self).__init__(dapp, height, width, **kwargs)
+
+    def process_event(self, event):
+        # Swallows every damn thing
+        return None
 
 class SLTransactionFrame(TransactionFrame):
     def __init__(self, screen, x, y, dapp=None, tx_fn=None, tx_value=0, gas_limit=None, **kwargs):

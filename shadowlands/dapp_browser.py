@@ -22,7 +22,6 @@ def filehasher(app_zipfile):
         hasher.update(buf)
         return hasher.hexdigest()
 
-
 class DappNotFound(Exception):
     pass
 
