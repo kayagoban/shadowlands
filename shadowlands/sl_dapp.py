@@ -56,7 +56,12 @@ class SLDapp(Effect):
         self._scene.add_effect( self.waitframe ) 
 
     def hide_wait_frame(self):
-        self._scene.remove_effect( self.waitframe ) 
+        try:
+            self._scene.remove_effect( self.waitframe ) 
+        except:
+            # We need to be able to call this method without consequence
+            pass
+
 
     def add_message_dialog(self, message, **kwargs):
         preferred_width= len(message) + 6
@@ -123,10 +128,10 @@ class SLFrame(Frame):
         layout.add_widget(Divider(draw_line=False))
         return lambda: text_widget._value
 
-    def add_divider(self, **kwargs):
+    def add_divider(self, draw_line=False, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
-        layout.add_widget(Divider(**kwargs))
+        layout.add_widget(Divider(draw_line=draw_line, **kwargs))
 
     def add_radiobuttons(self, options, default_value=None, layout_distribution=[100], layout_index=0, **kwargs):
         layout = Layout(layout_distribution)

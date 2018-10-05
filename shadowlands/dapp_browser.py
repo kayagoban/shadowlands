@@ -7,6 +7,7 @@ from asciimatics.effects import Print
 from asciimatics.renderers import StaticRenderer
 from pathlib import Path
 import pyperclip
+import threading
 
 from web3.exceptions import ValidationError, NameNotFound
 import wget, zipfile, zipimport
@@ -175,8 +176,9 @@ class NetworkDappSLFrameMixin():
         try:
             uri, checksum = self.sloader_contract.package(dapp_target)
         except DappNotFound:
+                self.dapp.hide_wait_frame()
                 self.dapp.add_message_dialog("Could not find dapp at that address/name.")
-                self.close()
+                return
 
         # check to see if anything in the cache meets our requirements.
         shadowlands_cache_dir = Path.home().joinpath(".shadowlands").joinpath("cache")
@@ -193,13 +195,13 @@ class NetworkDappSLFrameMixin():
             try:
                 app_zipfile = wget.download(uri, out=str(shadowlands_cache_dir), bar=None)
             except:
+                self.dapp.hide_wait_frame()
                 self.dapp.add_message_dialog("Could not download dapp URI.  Aborting.")
-                self.close()
+                return
             if checksum != filehasher(str(app_zipfile)):
+                self.dapp.hide_wait_frame()
                 self.dapp.add_message_dialog("Checksum did not match dapp.  Aborting.")
-                self.close()
-
-            debug(); pdb.set_trace()
+                return
 
             archive = zipfile.ZipFile(str(app_zipfile), 'r')
             # Assumes only one directory in top of zip, containing dapp.
@@ -218,8 +220,9 @@ class NetworkDappSLFrameMixin():
             except Exception as e:
                 # Our dependencies were not installed, we have to scrap the file and try again next time.
                 os.remove(str(app_zipfile))
-                self.dapp.add_message_dialog("Error while gathering Shadowlands dependencies.")
-                self.close()
+                self.dapp.hide_wait_frame()
+                self.dapp.add_message_dialog("Error while gathering dependencies.")
+                return
 
             archive.close()
         
@@ -235,7 +238,10 @@ class NetworkDappSLFrameMixin():
             Dapp = getattr(dapp_module, 'Dapp')
         except AttributeError:
             self.dapp.add_message_dialog("Possible module name conflict.")
+            self.dapp.hide_wait_frame()
             return
+
+        self.dapp.hide_wait_frame()
 
         Dapp(
             self.dapp._screen, 
@@ -244,19 +250,24 @@ class NetworkDappSLFrameMixin():
             self.dapp._config,
             self.dapp._price_poller
         )
-        self.close()
+        #self.close()
 
 
 class RunNetworkDappFrame(SLFrame, NetworkDappSLFrameMixin):
     def initialize(self):
-        self.add_label("Ex: ens.shadowlands, '0x5c27053A642B8dCc79385f47fCB25b5e72348feD'")
+        self.add_label("Ex: ens.shadowlands || 0x5c27053A642B8dCc79385f47fCB25b5e72348feD")
         self.textbox_value = self.add_textbox("Dapp location:")
-        #self.add_button(self.run, "Download and Run")
-        self.add_ok_cancel_buttons(self.run)
+        self.add_divider()
+        self.add_ok_cancel_buttons(self.run, ok_text="Download and Run")
 
     def run(self):
-        self.run_network_dapp(self.textbox_value())
+        self.dapp.show_wait_frame()
+        threading.Thread(target=self._worker).start()
         self.close()
+
+    def _worker(self):
+        self.run_network_dapp(self.textbox_value())
+
 
 
 class RunLocalDappFrame(SLFrame):
