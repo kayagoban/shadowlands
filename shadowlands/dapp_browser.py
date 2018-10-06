@@ -185,7 +185,7 @@ class RunLocalDappFrame(SLFrame):
         dapp_name = self._listbox_value()
 
         if dapp_name in sys.modules.keys():
-            self.dapp.add_message_dialog("Module name {} conflicts with a loaded module.".format(dapp_name))
+            self.dapp.add_message_dialog("Module name '{}' conflicts with a loaded module.".format(dapp_name))
             return
 
         dapp_module = importlib.import_module(dapp_name)
