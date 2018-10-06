@@ -183,6 +183,11 @@ class RunLocalDappFrame(SLFrame):
 
     def _run_dapp(self):
         dapp_name = self._listbox_value()
+
+        if dapp_name in sys.modules.keys():
+            self.dapp.add_message_dialog("Module name {} conflicts with a loaded module.".format(dapp_name))
+            return
+
         dapp_module = importlib.import_module(dapp_name)
 
         # we force a reload (twice) in case they just made a change..

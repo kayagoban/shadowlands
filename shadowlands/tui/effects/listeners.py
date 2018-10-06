@@ -8,7 +8,9 @@ from shadowlands.deploy import Deployer
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.sl_network_dapp import SLNetworkDapp
+from shadowlands.credstick import DeriveCredstickAddressError
 from shadowlands.tui.debug import debug
+
 
 import pdb
 import pyperclip
@@ -129,6 +131,14 @@ class MainMenuListener(Effect):
                 self._interface.price_poller
             )
         elif event.key_code in [ord('A'), ord('a')]:
+            # Test to see if we're able to derive before launching this..
+            try:
+                #debug(); pdb.set_trace()
+                address = self._interface.node.credstick.derive()
+            except DeriveCredstickAddressError:
+                self._scene.add_effect(MessageDialog(self._screen, "Cannot derive addresses from Credstick", 3, 44) )
+                return None
+ 
             # HD Addresses
             HDAddressPicker(
                 self._screen, 
