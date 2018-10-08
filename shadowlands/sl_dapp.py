@@ -18,7 +18,7 @@ class SLDapp():
         self._config = config
         self._price_poller = price_poller
         # Prepare a wait frame that we can show and unshow as we please.
-        message = "Cooking up some data..."
+        message = "Please wait a moment..."
         preferred_width= len(message) + 6
         self.waitframe = SLWaitFrame(self, message, 3, preferred_width)
 
