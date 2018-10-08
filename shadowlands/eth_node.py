@@ -134,7 +134,6 @@ class Node():
             if self._syncing:
                 self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
 
-            self._ns = ENS.fromWeb3(self._w3)
 
             if self._credstick:
                 self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
@@ -149,6 +148,7 @@ class Node():
             return False
 
         self._w3 = _w3
+        self._ns = ENS.fromWeb3(self._w3)
 
         # If parity client...
         # Monkey patch the txpool object so we can get parity txPool info

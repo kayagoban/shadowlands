@@ -1,9 +1,5 @@
 
-
 class ContractConfigError(Exception):
-    pass
-
-class OpenContractError(Exception):
     pass
 
 class InvalidW3Error(Exception):
@@ -12,7 +8,7 @@ class InvalidW3Error(Exception):
 
 class Contract():
 
-    def __init__(self, node, provided_address=None, provided_abi=None):
+    def __init__(self, node, address=None, provided_abi=None):
         self._contract = None
         self._node = node
 
@@ -20,20 +16,34 @@ class Contract():
             raise InvalidW3Error('w3 is not connected in the node you passed in to the Contract constructor')
 
         try:
-            if provided_address is None:
+            if address is None:
                 address = self.__class__.__dict__[node.network_name.upper()]
-            else:
-                address = provided_address 
         except:
-            raise ContractConfigError('Could not find a contract address for the current network.')
+            raise ContractConfigError('No address given for contract.  Did you set the address constant?')
 
+        # If on MAINNET, Attempt to resolve
         try:
-            if provided_abi is None:
-                self._contract = node.w3.eth.contract(address, abi=self.ABI)
-            else: 
-                self._contract = node.w3.eth.contract(address, abi=provided_abi)
-        except:
-            raise OpenContractError('Could not open the Dapp contract with the given address and ABI.')
+            # This is the best way to verify the hex string address is actually an address.
+            address = node.w3.toChecksumAddress(address)
+        except ValueError:
+            # if on mainnet, we can attempt to resolve the address if this is really an ENS name.
+            if node.network_name.upper() == 'MAINNET':
+                address = node.ens.address(address)
+                if address is None:
+                    raise ContractConfigError('Could not find a contract address for the current network.')
+            else:
+                raise ContractConfigError("Given contract address '{}' does not appear to be valid.".format(address))
+
+        if self.ABI is None and provided_abi is None:
+            raise ContractConfigError('Could not open the Dapp contract with the given address and ABI.')
+
+        if provided_abi is None:
+            self._contract = node.w3.eth.contract(address, abi=self.ABI)
+        else: 
+            self._contract = node.w3.eth.contract(address, abi=provided_abi)
+
+        if self._contract == None:
+            raise ContractConfigError('Could not open the Dapp contract with the given address and ABI.')
 
     @property
     def w3(self):

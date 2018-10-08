@@ -10,7 +10,7 @@ from decimal import Decimal
 from shadowlands.tui.debug import debug
 import pdb
 
-class SLDapp(Effect):
+class SLDapp():
     def __init__(self, screen, scene, eth_node, config, price_poller, destroy_window=None):
         self._screen = screen
         self._scene = scene

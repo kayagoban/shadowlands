@@ -14,10 +14,8 @@ class HDAddressPicker(SLDapp):
         try:
             self.add_frame(PathPickerFrame, height=20, width=80, title="Select HDPath / Address")
         except DeriveCredstickAddressError:
-            #self.hide_wait_frame()
+            self.hide_wait_frame()
             self.add_message_dialog("Your credstick refused to generate addresses")
-            # adding a message dialog from another thread can cause strange behaviors.
-            #pass
 
 class PathPickerFrame(SLFrame):
     def initialize(self):
@@ -55,7 +53,7 @@ class PathPickerFrame(SLFrame):
         try:
             ens_name = '  ' + self.dapp.node._ns.name(address)
         except:
-            ens_name = '  No ENS'
+            ens_name = '  No Reverse ENS'
 
         return address + bal + ens_name
 

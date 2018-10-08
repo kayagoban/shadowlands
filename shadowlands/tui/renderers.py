@@ -41,7 +41,6 @@ class BlockStatusRenderer(DynamicRenderer):
         else:
             images = [ '[syncing:  ' + str(self.node.blocks_behind) + ' blocks to ' + str(self.node.syncing_hash['highestBlock']) + ']' ]
 
-
         return images, None
 
 class AddressRenderer(DynamicRenderer):
@@ -130,7 +129,7 @@ class ENSRenderer(DynamicRenderer):
     def _render_now(self):
         domain = self._interface.node.ens_domain
         if not domain:
-            domain = 'Service unavailable'
+            domain = 'No Reverse ENS'
 
         return [domain], None
 

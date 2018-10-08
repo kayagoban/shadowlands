@@ -122,7 +122,7 @@ class MainMenuListener(Effect):
                 self._interface.price_poller
             )
         elif event.key_code is 18:
-            # super top secret shadowlands release management dapp.
+            # super top secret shadowlands release management dapp. (ctrl-r)
             ReleaseVersion(
                 self._screen, 
                 self._scene, 
