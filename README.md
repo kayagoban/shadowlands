@@ -4,7 +4,7 @@ A 100% Python, TextUI Dapp platform for ethereum, built on Python3.5+, [web3.py]
 
 ### But why would you do that?
 
-I like to text interfaces, I live in the console, and I like the idea of using Ethereum to its fullest potiential without ever launching a web browser.  Because I think people should be able to make dapps in Python, without needing any CSS, HTML or Javascript.  Because text interfaces can be remarkably efficient and can actually be a better user experience.
+I like text interfaces, I live in the console, and I like the idea of using Ethereum to its fullest potiential without ever launching a web browser.  Because I think people should be able to make dapps in Python, without needing any CSS, HTML or Javascript.  Because text interfaces can be remarkably efficient and can actually be a better user experience.
 
 ### A thrilling demo
 
