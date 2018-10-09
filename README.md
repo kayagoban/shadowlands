@@ -16,7 +16,7 @@ brew tap kayagoban/shadowlands
 brew install shadowlands
 ```
 
-Modern debian-based linux distributions can [use the provided .deb package](https://github.com/kayagoban/shadowlands/releases/download/v0.12a/shadowlands_1_all.deb)
+Modern debian-based linux distributions can use the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
 
 Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how to set up python 3.6 on Ubuntu 16.04 LTS: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
 
@@ -36,9 +36,13 @@ sl_dapp.eth provides the APIs that are used for writing these shadowlands dapps.
 
 You can load the ens.shadowlands dapp by selecting the Dapps menu, choosing "Run Network Dapp", and typing ens.shadowlands as the Dapp location.  It allows you to manage auctions and manipulate your owned ENS domains.
 
+Like the shadowlands app itself, the freshest version of your network dapp is loaded, and checked against its registered sha256 checksum on the sloader.shadowlands contract.
+
 ## You're gonna need a credstick.
 
 Shadowlands requires a credstick (which some people call a hardware wallet) to function.  All major hardware wallets are supported: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.   If you have a local node, you will probably want to run the parity node with ```--no-hardware-wallets``` or your geth node with ```--no-usb``` or else the node may interfere with shadowlands communicating with your hardware.  
+
+Why does shadowlands require a credstick?  Because it's a basic precaution that everyone needs to take, and there's no excuse not to have one - especially if you're downloading software and running it on your computer, which all of us do.
 
 # This is a Proof of Concept release, not production software!
 
