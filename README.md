@@ -36,7 +36,7 @@ You can write, deploy and register your own python based dapp modules that can b
 
 A public repo of the [ens.shadowlands app is available in the example-dapps-shadowlands project. ](https://github.com/kayagoban/example-dapps-shadowlands)
 
-sl_dapp.eth provides the APIs that are used for writing these shadowlands dapps.
+[sl_dapp.eth](https://github.com/kayagoban/shadowlands-core/blob/master/shadowlands/sl_dapp.py) provides the APIs that are used for writing these shadowlands dapps.
 
 You can load the ens.shadowlands dapp by selecting the Dapps menu, choosing "Run Network Dapp", and typing ens.shadowlands as the Dapp location.  It allows you to manage auctions and manipulate your owned ENS domains.
 
@@ -44,7 +44,7 @@ Like the shadowlands app itself, the freshest version of your network dapp is lo
 
 ## You're gonna need a credstick.
 
-Shadowlands requires a credstick (which some people call a hardware wallet) to function.  All major hardware wallets are supported: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.   If you have a local node, you will probably want to run the parity node with ```--no-hardware-wallets``` or your geth node with ```--no-usb``` or else the node may interfere with shadowlands communicating with your hardware.  
+Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.   If you have a local node, you will probably want to run the parity node with ```--no-hardware-wallets``` or your geth node with ```--no-usb``` or else the node may interfere with shadowlands communicating with your hardware.  
 
 Why does shadowlands require a credstick?  Because it's a basic precaution that everyone needs to take, and there's no excuse not to have one - especially if you're downloading software and running it on your computer, which all of us do.
 
