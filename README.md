@@ -26,7 +26,7 @@ Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how
 
 ## How the loading script works
 
-What you see here is a loading script, which creates a virtual python environment in ~/.shadowlands.  The script also bootstraps the Shadowlands application from a very simple package management smart contract at [sloader.shadowlands.eth](https://etherscan.io/address/sloader.shadowlands.eth).   You can find the source code to the shadowlands app itself under [shadowlands-core project](https://github.com/kayagoban/shadowlands-core)
+What you get here is a loading script, which creates a virtual python environment in ~/.shadowlands.  The script also bootstraps the Shadowlands application from a very simple package management smart contract at [sloader.shadowlands.eth](https://etherscan.io/address/sloader.shadowlands.eth).   You can find the source code to the shadowlands app itself under [shadowlands-core project](https://github.com/kayagoban/shadowlands-core)
 
 The script will install dependences from pip into the shadowlands python environment, and then execute the program.  Every time you run shadowlands, the newest version of the software registered to app.shadowlands.eth is downloaded and executed.  This is similar to a website, which allows rapid deployment of new features and bugfixes.  Most of the time, your cached version of shadowlands will match the sha256 checksum registered with sloader.shadowlands.  If it you don't have a cached file that matches, the new version will be retrieved and loaded.
 
