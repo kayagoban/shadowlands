@@ -58,11 +58,11 @@ class BootstrapError(Exception):
 
 try:
     try:
-        import wget, web3
+        import wget, web3, ens
     except ImportError:
         try:
             call(['pip','install', '--upgrade', 'pip'])
-            for req in ['git+https://github.com/kayagoban/python3-wget.git', 'web3==4.7.1', 'eth_utils']:
+            for req in ['git+https://github.com/kayagoban/python3-wget.git', 'web3==4.7.2']:
                 call(['pip','install', req])
         except (KeyboardInterrupt, Exception) as e:
             raise BootstrapError(e)
@@ -70,8 +70,8 @@ try:
     from eth_utils import encode_hex
     import wget
 
-    SLOADER_MAINNET='0x99AF965b51312C8869FAc5f527F47Af92fCCf83C'
-    SLOADER_ABI='''[{"constant":true,"inputs":[],"name":"latestReleaseUrl","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"latestReleaseChecksum","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"}]'''
+    SLOADER_MAINNET='sloader.shadowlands.eth'
+    SLOADER_ABI='''[ {"constant":true,"inputs":[{"name":"","type":"address"}],"name":"packages","outputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"payable":false,"stateMutability":"view","type":"function"} ]'''
 
     try:
         from web3.auto.infura import w3
@@ -84,12 +84,22 @@ try:
 
     print("Connected to " + w3.version.node)
 
-    print("Bootstrapping SLoader contract at " + SLOADER_MAINNET)
-    sloader_contract = w3.eth.contract(SLOADER_MAINNET, abi=SLOADER_ABI)
+    from ens import ENS
 
-    shadowlands_zip_url = sloader_contract.functions.latestReleaseUrl().call()
-    bytes32_checksum = sloader_contract.functions.latestReleaseChecksum().call()
-    shadowlands_checksum = encode_hex(bytes32_checksum).replace('0x','')
+    ns = ENS.fromWeb3(w3)
+
+    sloader_address = ns.address(SLOADER_MAINNET)
+
+    print("Bootstrapping {} at {}".format(SLOADER_MAINNET, sloader_address))
+
+    sloader_contract = w3.eth.contract(sloader_address, abi=SLOADER_ABI)
+
+    print("Collecting package info for app.shadowlands.eth")
+
+    package = sloader_contract.functions.packages('app.shadowlands.eth').call()
+    shadowlands_zip_url = package[1] 
+    shadowlands_checksum = encode_hex(package[0]).replace('0x','')
+
     print("Contract reports latest checksum is " + shadowlands_checksum)
 
     shadowlands_cache_dir = Path.home().joinpath(".shadowlands").joinpath("cache")
@@ -120,16 +130,16 @@ try:
         print("")
 
         archive = zipfile.ZipFile(str(sl_zipfile), 'r')
-        print("Gathering Shadowlands dependencies...")
+        print("*** Gathering Shadowlands dependencies...")
         requirements = archive.read('shadowlands/requirements.txt')
         reqs = requirements.split()
 
         try:
             for req in reqs:
                 call(['pip','install', req])
-            echo "Install examples..."
+            print("Install examples...")
             example_dir = Path.home().joinpath(".shadowlands").joinpath("example")
-            call(['git', 'clone', 'https://github.com/kayagoban/shadowlands-dapp-example.git', example_dir])
+            call(['git', 'clone', 'https://github.com/kayagoban/example-dapps-shadowlands.git', example_dir])
         except (KeyboardInterrupt, Exception) as e:
             # Our dependencies were not installed, we have to scrap the file and try again next time.
             os.remove(str(sl_zipfile))
