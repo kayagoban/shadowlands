@@ -14,11 +14,12 @@ I like the idea of using Ethereum to its fullest potiential without ever launchi
 
 ## Quickstart
 
-On MacOS:
+On MacOS, first you [neeed to install homebrew](https://brew.sh).   Then:
 
 ```
-brew tap kayagoban/shadowlands
-brew install shadowlands
+$ brew tap kayagoban/shadowlands
+$ brew install shadowlands
+$ shadowlands
 ```
 
 Modern debian-based linux distributions can use the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
