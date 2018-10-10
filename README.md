@@ -4,7 +4,7 @@ A 100% Python, TextUI Dapp platform for ethereum, built on Python3.5+, [web3.py]
 
 ### But why would you do that?
 
-I like the idea of using Ethereum to its fullest potiential without ever launching a web browser.  People should be able to make dapps in Python, without needing any CSS, HTML or Javascript.  Text interfaces can be remarkably efficient and can actually create a better user experience.
+I like the idea of using Ethereum to its fullest potiential without ever launching a web browser.  People should be able to make dapps in Python, without needing any CSS, HTML or Javascript.  Text interfaces can be remarkably efficient and can actually create a better user experience.  I believe Shadowlands can become a rapid application development platform; a launching ground and proving ground for Dapps which may later be turned into full Web GUI experiences.
 
 ### A thrilling demo
 
@@ -48,6 +48,10 @@ Like the shadowlands app itself, the freshest version of your network dapp is lo
 Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.   If you have a local node, you will probably want to run the parity node with ```--no-hardware-wallets``` or your geth node with ```--no-usb``` or else the node may interfere with shadowlands communicating with your hardware.  
 
 Why does shadowlands require a credstick?  Because it's a basic precaution that everyone needs to take, and there's no excuse not to have one - especially if you're downloading software and running it on your computer, which all of us do.
+
+## This is a free software project
+
+Every component of Shadowlands is freely available under the MIT license.  This is not a not-for-profit project - its only aim is to create a great new way to interact with Ethereum. 
 
 # This is a Proof of Concept release, not production software!
 
