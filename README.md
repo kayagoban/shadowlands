@@ -8,6 +8,7 @@ I like the idea of using Ethereum to its fullest potiential without ever launchi
 
 ### A thrilling demo
 
+(click on the image below to see a live demo)
  [![Alt text](https://github.com/kayagoban/shadowlands/blob/master/demo_screenshot.png?raw=true)](https://asciinema.org/a/zZeRkHwWUYk7QDOlSBdziUjeR)
  
 
