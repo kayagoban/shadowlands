@@ -14,7 +14,8 @@ I like the idea of using Ethereum to its fullest potiential without ever launchi
 
 ## Quickstart
 
-On MacOS, first you need to [install homebrew](https://brew.sh).   Then:
+#### MacOS
+First, [install homebrew](https://brew.sh).   Then:
 
 ```
 $ brew tap kayagoban/shadowlands
@@ -22,7 +23,8 @@ $ brew install shadowlands
 $ shadowlands
 ```
 
-Modern debian-based linux distributions can use the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
+#### Debian-based linuxes
+Use the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
 
 Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how to set up python 3.6 on Ubuntu 16.04 LTS: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
 
