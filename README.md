@@ -14,7 +14,7 @@ I like the idea of using Ethereum to its fullest potiential without ever launchi
 
 ## Quickstart
 
-On MacOS, first you [neeed to install homebrew](https://brew.sh).   Then:
+On MacOS, first you need to [install homebrew](https://brew.sh).   Then:
 
 ```
 $ brew tap kayagoban/shadowlands
