@@ -139,7 +139,7 @@ try:
                 call(['pip','install', req])
             print("Install examples...")
             example_dir = Path.home().joinpath(".shadowlands").joinpath("example")
-            call(['git', 'clone', 'https://github.com/kayagoban/example-dapps-shadowlands.git', example_dir])
+            call(['git', 'clone', 'https://github.com/kayagoban/example-dapps-shadowlands.git', str(example_dir)])
         except (KeyboardInterrupt, Exception) as e:
             # Our dependencies were not installed, we have to scrap the file and try again next time.
             os.remove(str(sl_zipfile))
