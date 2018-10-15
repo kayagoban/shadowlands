@@ -122,7 +122,7 @@ class Node():
         self._ens_domain = None
         self._w3 = None
  
-        for mod in ['web3', 'web3.auto', 'web3.auto.infura', 'web3.auto.gethdev']:
+        for mod in ['web3', 'web3.auto', 'web3.auto.infura']:
             try:
                 del(sys.modules[mod])
             except KeyError:

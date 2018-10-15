@@ -45,7 +45,6 @@ class GasPricePicker(RadioButtons):
         except TypeError as e:
             print("gas_price_wei from w3.eth.gasPrice was unexpectedly a dict?")
             print(str(gas_price_wei))
-            debug(); pdb.set_trace()
 
         gas_price_gwei = self._interface.node.w3.fromWei(gas_price_wei, 'gwei')
         gas_price_gwei_m20 = self._interface.node.w3.fromWei(gas_price_minus_20_percent, 'gwei')
@@ -144,13 +143,11 @@ class TransactionFrame(Frame):
             self._gas_price_wei = self._interface.node.w3.toWei(gas_price_gwei, 'gwei')
             gastimate_label._text = self._cost_estimate_string(self._gas_price_wei)
         except:
-            #debug(self._screen._screen); import pdb; pdb.set_trace()
             self._gas_price_wei = None
             gastimate_label._text = "" 
 
  
     def _cost_estimate_string(self, gas_price_wei):
-        #debug(); import pdb; pdb.set_trace()
 
         curr = self._interface._config.displayed_currency
         try:
@@ -263,7 +260,6 @@ class NetworkOptions(Frame):
             ('Custom websocket', 'connect_w3_custom_websocket'),
             ('Custom ipc', 'connect_w3_custom_ipc'),
             ('Custom Infura API Key', 'connect_w3_custom_infura'),
-            ('Geth dev PoA', 'connect_w3_gethdev_poa'),
         ]
         radiobuttons = RadioButtons(options,name='netpicker')
 
@@ -316,6 +312,7 @@ class NetworkOptions(Frame):
         self._interface.node.heartbeat_thread.join()
         self._interface.node.thread_shutdown = False
         try:
+            #debug(); pdb.set_trace()
             if arg:
                 return fn(arg)
             else:
