@@ -4,7 +4,11 @@ from asciimatics.event import KeyboardEvent
 from shadowlands.tui.errors import ExitTuiError
 from decimal import Decimal
 from shadowlands.credstick import SignTxError
-from web3.exceptions import StaleBlockchain
+
+from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
+from websockets.exceptions import InvalidStatusCode, ConnectionClosed
+from web3.utils.threads import Timeout
+
 from decimal import InvalidOperation
 from binascii import Error
 import os
@@ -298,11 +302,8 @@ class NetworkOptions(Frame):
         elif connect_fn == 'connect_w3_custom_infura' and no_infura_key:
             self._scene.add_effect( MessageDialog(self._screen, "Set INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
         else:
-            try:
-                connected = self._attempt_connection(connect_fn)
-            except StaleBlockchain:
-                self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected Node", destroy_window=self))
-                return
+            connected = self._attempt_connection(connect_fn)
+
             if connected:
                 connect_str = "{} connected via {}".format(self._interface.node.network_name, self._interface.node.connection_type)
                 self._scene.add_effect( MessageDialog(self._screen, connect_str, destroy_window=self, width=(len(connect_str)+6) ) )
@@ -314,11 +315,35 @@ class NetworkOptions(Frame):
         self._interface.node.thread_shutdown = True
         self._interface.node.heartbeat_thread.join()
         self._interface.node.thread_shutdown = False
-        if arg:
-            return fn(arg)
-        else:
-            return fn()
+        try:
+            if arg:
+                return fn(arg)
+            else:
+                return fn()
+        except StaleBlockchain:
+            self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected Node"))
+            return
+        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError) as e:
+            self._scene.add_effect( MessageDialog(self._screen, "Could not connect to node ({})".format(str(e.__class__))))
+            return
+ 
         self._interface.node.start_heartbeat_thread()
+
+
+    def _continue_function(self, text, calling_frame):
+        network_option = self.find_widget('netpicker')
+        connect_fn = network_option._value
+        try:
+            connected = self._attempt_connection(connect_fn, arg=text)
+        except StaleBlockchain:
+            self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected node", destroy_window=calling_frame))
+            return
+
+        if connected:
+            self._scene.add_effect( MessageDialog(self._screen, "{} connected".format(self._interface.node.network_name), destroy_window=calling_frame))
+        else:
+            self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))
+
 
 
     def _cancel(self):
@@ -377,20 +402,6 @@ class NetworkOptions(Frame):
         )
         self._scene.add_effect(dialog)
 
-
-    def _continue_function(self, text, calling_frame):
-        network_option = self.find_widget('netpicker')
-        connect_fn = network_option._value
-        try:
-            connected = self._attempt_connection(connect_fn, text)
-        except StaleBlockchain:
-            self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected node", destroy_window=calling_frame))
-            return
-
-        if connected:
-            self._scene.add_effect( MessageDialog(self._screen, "{} connected".format(self._interface.node.network_name), destroy_window=calling_frame))
-        else:
-            self._scene.add_effect( MessageDialog(self._screen, "Connection failure", destroy_window=calling_frame))
 
 
 
