@@ -1,8 +1,9 @@
 import sys, time, os
 from decimal import Decimal
-from web3.exceptions import UnhandledRequest, BadFunctionCallOutput
+from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, ValidationError
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 from web3.utils.threads import Timeout
+from web3.middleware import geth_poa_middleware
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
 from ens import ENS
@@ -128,7 +129,6 @@ class Node():
                 pass
 
     def _update_status(self):
-            self._network = self._w3.version.network
             self._best_block = str(self._w3.eth.blockNumber)
             self._syncing = self._w3.eth.syncing
             if self._syncing:
@@ -137,18 +137,26 @@ class Node():
 
             if self._credstick:
                 self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-                try:
-                    self._ens_domain = self._ns.name(self._credstick.addressStr())
-                except BadFunctionCallOutput:
+                if self._network == '1':
+                    try:
+                        self._ens_domain = self._ns.name(self._credstick.addressStr())
+                    except BadFunctionCallOutput:
+                        self._ens_domain = 'Unknown'
+                else:
                     self._ens_domain = 'Unknown'
-
 
     def is_connected_with(self, _w3, connection_type, _heart_rate):
         if not _w3.isConnected():
             return False
 
         self._w3 = _w3
-        self._ns = ENS.fromWeb3(self._w3)
+
+        if self._w3.version.network == '4':
+            self._w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+
+        self._network = self.w3.version.network
+
+        self._ns = ENS.fromWeb3(_w3)
 
         # If parity client...
         # Monkey patch the txpool object so we can get parity txPool info
@@ -164,6 +172,7 @@ class Node():
             return False
 
         return True
+
 
     def connect_config_default(self):
         try:
