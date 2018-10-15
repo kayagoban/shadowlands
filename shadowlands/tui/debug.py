@@ -12,6 +12,16 @@ def debug():
         curses.endwin()
         debugging = True
 
+def end_debug():
+    global debugging 
+
+    stdscr = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    debugging = False
+
+
+
 '''
 def debug(stdscr):
     global debugging

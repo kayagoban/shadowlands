@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons
 from asciimatics.exceptions import NextScene
+from asciimatics.event import KeyboardEvent
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
 from shadowlands.credstick import SignTxError
 from shadowlands.tui.effects.widgets import MessageDialog, TransactionFrame
 from decimal import Decimal
 
-from shadowlands.tui.debug import debug
+from shadowlands.tui.debug import debug, end_debug
 import pdb
 
 class SLDapp():
@@ -104,6 +105,16 @@ class SLFrame(Frame):
         self.initialize()
         self.fix()
 
+    def process_event(self, event):
+
+        # drop to debug console
+        if event.key_code is 4:
+            debug(); pdb.set_trace()
+            end_debug(); raise NextScene(self._scene.name)
+
+        return super(SLFrame, self).process_event(event)
+
+
     def add_button(self, ok_fn, text, layout_distribution=[100], layout_index=0):
         layout = Layout(layout_distribution)
         self.add_layout(layout)
@@ -174,6 +185,8 @@ class SLFrame(Frame):
     @property
     def dapp(self):
         return self._dapp
+
+ 
     
 
 class SLWaitFrame(SLFrame):
