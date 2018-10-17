@@ -9,7 +9,7 @@ from trezorlib.transport import enumerate_devices, get_transport, TransportExcep
 from trezorlib import tools
 from trezorlib import messages as proto 
 import binascii
-
+from eth_utils import decode_hex
 from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 from shadowlands.tui.effects.widgets import TextRequestDialog, MessageDialog
 
@@ -168,8 +168,6 @@ The layout is:
         def int_to_big_endian(value):
             return value.to_bytes((value.bit_length() + 7) // 8, 'big')
 
-        tx = cls.prepare_tx(tx)
-
         address_n = tools.parse_path(cls.hdpath())
  
         msg = proto.EthereumSignTx(
@@ -177,11 +175,11 @@ The layout is:
             nonce=int_to_big_endian(tx['nonce']),
             gas_price=int_to_big_endian(tx['gasPrice']),
             gas_limit=int_to_big_endian(tx['gas']),
-            chain_id=int(cls.eth_node._network),
+            chain_id=int(tx['chainId']),
             value=int_to_big_endian(tx['value']))
 
         if tx['to']:
-            msg.to = tx['to']
+            msg.to = decode_hex(tx['to'])
 
         data = tx['data']
         if data:
@@ -214,14 +212,15 @@ The layout is:
             data_length = response.data_length
             data, chunk = data[data_length:], data[:data_length]
             response = cls.call_raw(proto.EthereumTxAck(data_chunk=chunk))
-        
-        v = response.signature_v
-        r = response.signature_r
-        s = response.signature_s
 
-        stx = cls.signed_tx(tx, v, 
-                            int(r.hex(), 16), 
-                            int(s.hex(), 16)
+        
+        _v = response.signature_v
+        _r = response.signature_r
+        _s = response.signature_s
+
+        stx = cls.signed_tx(tx, _v, 
+                            int(_r.hex(), 16), 
+                            int(_s.hex(), 16)
                            )
         return stx
 
