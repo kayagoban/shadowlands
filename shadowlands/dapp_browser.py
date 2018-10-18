@@ -9,6 +9,7 @@ import pyperclip
 from shadowlands.tui.debug import debug
 import sys, os, types, importlib, re, shutil
 from shadowlands.utils import filehasher
+from solc import compile_source
 import pdb
 
 
@@ -16,7 +17,7 @@ import pdb
 class DappBrowser(SLDapp):
     def initialize(self):
         self.dapp_name = None
-        self.add_frame(DappMenuFrame, height=8, width=50, title="Dapps Menu")
+        self.add_frame(DappMenuFrame, height=10, width=50, title="Dapps Menu")
         self.digest = None
 
     def _dapps_in_path(self):
@@ -41,8 +42,9 @@ class DappMenuFrame(SLFrame):
             ("Change local dapp directory", lambda: self.dapp.add_frame(DappDirFrame, height=7, width=75, title="Change Dapp Directory") ),
             ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployChooseDappFrame, height=10, width=61, title="Deploy your Dapp") ),
             ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=8, width=71, title="Run network Dapp") ),
+            ("Deploy an Ethereum Contract", lambda: self.dapp.add_frame(DeployContractDappFrame, height=21, width=76, title="Choose contract to compile and deploy") ),
         ]
-        self._listbox_value = self.add_listbox(4, options, on_select=self._menu_action)
+        self._listbox_value = self.add_listbox(6, options, on_select=self._menu_action)
         self.add_button(self.close, "Cancel")
 
     def _menu_action(self):
@@ -236,6 +238,39 @@ class DirPickerFrame(SLFrame):
     def _select_fn(self):
         self.dapp.config.sl_dapp_path = self.browser_value()
         self.close()
+
+
+class DeployContractDappFrame(SLFrame):
+    def initialize(self):
+        self.browser_value = self.add_file_browser(self._select_fn, path=Path.cwd(), height=17)
+        self.add_button(self.close, "Cancel")
+
+    def _select_fn(self):
+        contract_path = self.browser_value()
+
+        contract_source_code = open(contract_path, 'r').read()
+        compiled_sol = compile_source(contract_source_code, optimize=True) # Compiled source code
+
+        #contract_interface = compiled_sol['<stdin>:SLoader']
+        compiled_sol_values = list(compiled_sol.values())
+        contract_interface = compiled_sol_values[0]
+
+        #debug(); pdb.set_trace()
+        new_contract = self.dapp.node.w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
+
+        # copy abi to the clipboard
+        pyperclip.copy(str(contract_interface['abi']))
+
+        self.dapp.add_transaction_dialog(
+            lambda: new_contract.constructor(),
+            title="Deploy",
+            gas_limit=900000
+        )
+
+        self.dapp.add_message_dialog("The contract ABI has been copied to your clipboard")
+
+        self.close()
+
 
 
 class ErrorFrame(SLFrame):

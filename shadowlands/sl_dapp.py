@@ -221,7 +221,7 @@ class SLTransactionFrame(TransactionFrame):
         self.prepend_layout(layout)
 
         self.tx_value = Decimal(tx_value)
-        layout.add_widget(Label("You will send {} ETH.format".format(self.tx_value)))
+        layout.add_widget(Label("You will send {} ETH".format(self.tx_value)))
         layout.add_widget(Divider(draw_line=False))
         layout.add_widget(Label("Estimated Gas for Tx: {}".format(self.estimated_gas)))
         layout.add_widget(Divider(draw_line=False))
