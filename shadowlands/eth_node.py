@@ -301,14 +301,14 @@ class Node():
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        return rx
+        return encode_hex(rx)
 
 
     def send_ether(self,destination, amount, gas_price):
         tx_dict = self.build_send_tx(amount, destination, gas_price)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-
+        return encode_hex(rx)
 
     def build_send_tx(self,amt, recipient, gas_price):
         return  dict(

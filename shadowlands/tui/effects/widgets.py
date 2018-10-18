@@ -4,6 +4,7 @@ from asciimatics.event import KeyboardEvent
 from shadowlands.tui.errors import ExitTuiError
 from decimal import Decimal
 from shadowlands.credstick import SignTxError
+import pyperclip
 
 from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
@@ -195,7 +196,7 @@ class SendBox(TransactionFrame):
             errors.append("No Gas Price set")
 
         try:
-            chaddr =  self._interface.node.w3.toChecksumAddress(address)
+            chaddr = self._interface.node.w3.toChecksumAddress(address)
         except:
             errors.append("Invalid send-to Address")
 
@@ -222,14 +223,14 @@ class SendBox(TransactionFrame):
             return
 
         try:
-            self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei)
+            rx = self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei)
+            pyperclip.copy(rx)
+            self._scene.add_effect( MessageDialog(self._screen,"Tx submitted.  TxHash copied to clipboard.", width = 45))
         except SignTxError:
             self._scene.add_effect( MessageDialog(self._screen,"Credstick refused to sign Tx"))
-        except ValueError:
-            self._scene.add_effect( MessageDialog(self._screen,"GasPrice too low to replace pending Tx", width = 45))
-            return
+        except ValueError as e:
+            self._scene.add_effect( MessageDialog(self._screen, str(e), width = 70))
 
-        #debug(self._screen._screen); import pdb; pdb.set_trace()
         self._scene.remove_effect(self)
         raise NextScene
 
@@ -237,7 +238,7 @@ class SendBox(TransactionFrame):
         self._scene.remove_effect(self)
         raise NextScene
 
-
+        #debug(self._screen._screen); import pdb; pdb.set_trace()
  
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
@@ -482,11 +483,6 @@ class YesNoDialog(Frame):
         layout2.add_widget(Button("Yes", yes_callback), 1)
         layout2.add_widget(Button("No", no_callback), 0)
         self.fix()
-
-    #def _cancel(self):
-    #    self._destroy_window_stack()
-    #    raise NextScene(self._next_scene)
-
 
 
 class QuitDialog(YesNoDialog):

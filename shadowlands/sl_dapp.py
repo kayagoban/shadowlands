@@ -7,6 +7,7 @@ from asciimatics.effects import Effect
 from shadowlands.credstick import SignTxError
 from shadowlands.tui.effects.widgets import MessageDialog, TransactionFrame
 from decimal import Decimal
+import pyperclip
 
 from shadowlands.tui.debug import debug, end_debug
 import pdb
@@ -69,7 +70,6 @@ class SLDapp():
         self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
 
     def add_transaction_dialog(self, tx_fn=None, tx_value=0, destroy_window=None, title="Sign & Send Transaction", **kwargs):
-        #debug(); pdb.set_trace()
         self._scene.add_effect( 
             SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, tx_value=tx_value, **kwargs) 
         )
@@ -223,21 +223,21 @@ class SLTransactionFrame(TransactionFrame):
         self.tx_value = Decimal(tx_value)
         layout.add_widget(Label("You will send {} ETH.format".format(self.tx_value)))
         layout.add_widget(Divider(draw_line=False))
-
         layout.add_widget(Label("Estimated Gas for Tx: {}".format(self.estimated_gas)))
         layout.add_widget(Divider(draw_line=False))
- 
         self.fix()
+
 
     def _ok_fn(self, gas_price_wei):
         try:
-            self.dapp.node.push(
+            self.dapp.rx = self.dapp.node.push(
                 self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
             )
         except (SignTxError):
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
 
+        self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Tx Submitted.  Copy TxHash to clipboard?")
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
@@ -245,6 +245,14 @@ class SLTransactionFrame(TransactionFrame):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
+
+class AskClipboardFrame(SLFrame):
+    def initialize(self):
+        self.add_ok_cancel_buttons(self._copy_digest, cancel_fn=self.close)
+    def _copy_digest(self):
+        pyperclip.copy(self.dapp.rx)
+        self.dapp.rx = None
+        self.close()
 
 
 class ExitDapp(Exception):
