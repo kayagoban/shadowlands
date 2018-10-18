@@ -59,7 +59,7 @@ class DeployChooseDappFrame(SLFrame):
  
     def _choose_dapp(self):
         self.dapp.dapp_name = self._listbox_value()
-        self.dapp.add_frame(DeployMenuFrame, height=7, width=45, title="Choose dapp to deploy")
+        self.dapp.add_frame(DeployMenuFrame, height=7, width=50, title="Deploy {}".format(self.dapp.dapp_name))
         self.close()
         
 
