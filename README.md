@@ -55,11 +55,10 @@ Like the shadowlands app itself, the freshest version of your network dapp is lo
 ## You're gonna need a credstick.
 
 
-Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.   [note: passphrase feature is not yet supported on the Trezor]
+Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.
 
 
 If you have a local node, you will probably want to run the parity node with ```--no-hardware-wallets``` or your geth node with ```--no-usb``` or else the node may interfere with shadowlands communicating with your hardware.  
-
 
 
 Why does shadowlands require a credstick?  Because it's a basic precaution that everyone needs to take, and there's no excuse not to have one - especially if you're downloading software and running it on your computer, which all of us do.
