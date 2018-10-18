@@ -7,7 +7,6 @@ class InvalidW3Error(Exception):
 
 
 class Contract():
-
     def __init__(self, node, address=None, provided_abi=None):
         self._contract = None
         self._node = node
@@ -19,7 +18,11 @@ class Contract():
             if address is None:
                 address = self.__class__.__dict__[node.network_name.upper()]
         except:
-            raise ContractConfigError('No address given for contract.  Did you set the address constant?')
+            raise ContractConfigError(
+                'No address given for contract on this network.  Did you set the address constant for {}?'.format(
+                    node.network_name.upper()
+                )
+            )
 
         # If on MAINNET, Attempt to resolve
         try:
@@ -30,7 +33,7 @@ class Contract():
             if node.network_name.upper() == 'MAINNET':
                 address = node.ens.address(address)
                 if address is None:
-                    raise ContractConfigError('Could not find a contract address for the current network.')
+                    raise ContractConfigError('Attempt to resolve contract address from ENS failed.')
             else:
                 raise ContractConfigError("Given contract address '{}' does not appear to be valid.".format(address))
 
