@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons
 from asciimatics.exceptions import NextScene
-from asciimatics.event import KeyboardEvent
+from asciimatics.event import KeyboardEvent, MouseEvent
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
 from shadowlands.credstick import SignTxError
@@ -105,11 +105,18 @@ class SLFrame(Frame):
         self.initialize()
         self.fix()
 
-    def process_event(self, event):
 
-        # drop to debug console
+    # Ctrl-d drops you into a pdb session.
+    # look around, have fun.
+    # executing the next line will get you back to the dapp.
+    def process_event(self, event):
+        if isinstance(event, MouseEvent):
+            return None
+
         if event.key_code is 4:
+            # drop to debug console
             debug(); pdb.set_trace()
+            # go back to the dapp
             end_debug(); raise NextScene(self._scene.name)
 
         return super(SLFrame, self).process_event(event)
