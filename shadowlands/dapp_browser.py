@@ -10,7 +10,17 @@ from shadowlands.tui.debug import debug
 import sys, os, types, importlib, re, shutil
 from shadowlands.utils import filehasher
 from solc import compile_source
+import threading
+from subprocess import call, DEVNULL
 import pdb
+
+def _is_dapp(dirpath):
+    if not dirpath.joinpath('__init__.py').exists():
+        return False
+    file_text = open(dirpath.joinpath('__init__.py'), 'r').read()
+    if re.search(r'class Dapp', file_text) is not None:
+        return True
+    return False
 
 
 
@@ -23,16 +33,7 @@ class DappBrowser(SLDapp):
     def _dapps_in_path(self):
         chosen_path = Path(self.config._sl_dapp_path)
         gl = sorted(chosen_path.glob("*"))
-        return [(x.name, x.name) for x in gl if x.is_dir() and self._is_dapp(x) is True]
-
-    def _is_dapp(self, dirpath):
-        if not dirpath.joinpath('__init__.py').exists():
-            return False
-        file_text = open(dirpath.joinpath('__init__.py'), 'r').read()
-        if re.search(r'class Dapp', file_text) is not None:
-            return True
-        return False
-
+        return [(x.name, x.name) for x in gl if x.is_dir() and _is_dapp(x) is True]
 
 
 class DappMenuFrame(SLFrame):
@@ -149,19 +150,6 @@ class RunLocalDappFrame(SLFrame):
         self._listbox_value = self.add_listbox(4, options, on_select=self._run_dapp)
         self.add_button(self.close, "Cancel")
 
-    def _dapps_in_path(self):
-        chosen_path = Path(self.dapp.config._sl_dapp_path)
-        gl = sorted(chosen_path.glob("*"))
-        return [(x.name, x.name) for x in gl if x.is_dir() and self._is_dapp(x) is True]
-
-    def _is_dapp(self, dirpath):
-        if not dirpath.joinpath('__init__.py').exists():
-            return False
-        file_text = open(dirpath.joinpath('__init__.py'), 'r').read()
-        if re.search(r'class Dapp', file_text) is not None:
-            return True
-        return False
-
     def reload_package(self, package):
         assert(hasattr(package, "__package__"))
         fn = package.__file__
@@ -182,13 +170,25 @@ class RunLocalDappFrame(SLFrame):
 
         return reload_recursive_ex(package)
 
-
     def _run_dapp(self):
+        self.dapp.show_wait_frame()
+        threading.Thread(target=self._dapp_thread).start()
+        self.close()
+
+    def _dapp_thread(self):
         dapp_name = self._listbox_value()
 
         if dapp_name in sys.modules.keys() and 'site-packages' in sys.modules[dapp_name].__path__[0]:
             self.dapp.add_message_dialog("Module name '{}' conflicts with an installed module.".format(dapp_name))
             return
+
+        #debug(); pdb.set_trace()
+
+        # Install pip dependencies
+        requirements_file = Path(self.dapp.config.sl_dapp_path).joinpath(dapp_name).joinpath('requirements.txt')
+        requirements = open(str(requirements_file)).read().split()
+        pipbin = Path.home().joinpath('.shadowlands').joinpath('bin').joinpath('pip')
+        call([str(pipbin), 'install'] + requirements, stdout=DEVNULL)
 
         dapp_module = importlib.import_module(dapp_name)
 
@@ -202,13 +202,15 @@ class RunLocalDappFrame(SLFrame):
             self.dapp.add_message_dialog("Possible module name conflict.")
             return
 
+        self.dapp.hide_wait_frame()
+
+
         Dapp(
             self.dapp._screen, 
             self.dapp._scene, 
             self.dapp._node,
             self.dapp._config,
-            self.dapp._price_poller,
-            destroy_window=self
+            self.dapp._price_poller
         )
 
 

@@ -4,6 +4,7 @@ from pathlib import Path
 import threading
 import wget, zipfile, zipimport
 import sys, textwrap, os, types, importlib, re, shutil
+from subprocess import call, DEVNULL
 from shadowlands.utils import filehasher
 
 class SLNetworkDapp(SLDapp):
@@ -15,6 +16,7 @@ class SLNetworkDapp(SLDapp):
         super(SLNetworkDapp, self).__init__(screen, scene, eth_node, config, price_poller, destroy_window=None)
         self.show_wait_frame()
         threading.Thread(target=self.run_network_dapp, args=[self.dapp_location]).start()
+        #self.run_network_dapp(self.dapp_location)
 
     def run_network_dapp(self, dapp_target):
         self.sloader_contract = SLoader(self.node)
@@ -59,8 +61,9 @@ class SLNetworkDapp(SLDapp):
                 reqs = []
 
             try:
-                for req in reqs:
-                    call(['pip','install', '-c', shadowlands_requirements,  req])
+                pipbin = Path.home().joinpath('.shadowlands').joinpath('bin').joinpath('pip')
+                call([str(pipbin), 'install'] + reqs, stdout=DEVNULL)
+
             except Exception as e:
                 # Our dependencies were not installed, we have to scrap the file and try again next time.
                 os.remove(str(app_zipfile))
