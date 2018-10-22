@@ -1,4 +1,4 @@
-git+https://github.com/kayagoban/asciimatics.git
+git+https://github.com/kayagoban/asciimatics.git@09b20157f63c53ad8e24212b8b97660baebfb91e
 attrdict==2.0.0
 bitcoin==1.1.42
 certifi==2018.8.24
@@ -31,7 +31,6 @@ parsimonious==0.8.0
 pathlib==1.0.1
 pbkdf2==1.3
 Pillow==5.2.0
-pkg-resources==0.0.0
 protobuf==3.6.1
 py-solc==3.1.0
 pyblake2==1.1.2
