@@ -249,7 +249,11 @@ class DeployContractDappFrame(SLFrame):
         contract_path = self.browser_value()
 
         contract_source_code = open(contract_path, 'r').read()
-        compiled_sol = compile_source(contract_source_code, optimize=True) # Compiled source code
+        try:
+            compiled_sol = compile_source(contract_source_code, optimize=True) # Compiled source code
+        except FileNotFoundError:
+            self.dapp.add_message_dialog("Compile failed.  Do you have solc installed?")
+            self.close()
 
         #contract_interface = compiled_sol['<stdin>:SLoader']
         compiled_sol_values = list(compiled_sol.values())
