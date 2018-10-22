@@ -62,8 +62,7 @@ try:
     except ImportError:
         try:
             call(['pip','install', '--upgrade', 'pip'])
-            for req in ['git+https://github.com/kayagoban/python3-wget.git', 'web3==4.7.2']:
-                call(['pip','install', req])
+            call(['pip','install', 'git+https://github.com/kayagoban/python3-wget.git', 'web3==4.7.2'])
         except (KeyboardInterrupt, Exception) as e:
             raise BootstrapError(e)
 
@@ -135,8 +134,7 @@ try:
         reqs = requirements.split()
 
         try:
-            for req in reqs:
-                call(['pip','install', req])
+            call(['pip','install'] + reqs)
             print("Install examples...")
             example_dir = Path.home().joinpath(".shadowlands").joinpath("example")
             call(['git', 'clone', 'https://github.com/kayagoban/example-dapps-shadowlands.git', str(example_dir)])
