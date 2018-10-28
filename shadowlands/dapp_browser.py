@@ -183,13 +183,14 @@ class RunLocalDappFrame(SLFrame):
             self.dapp.add_message_dialog("Module name '{}' conflicts with an installed module.".format(dapp_name))
             return
 
-        #debug(); pdb.set_trace()
 
         # Install pip dependencies
         requirements_file = Path(self.dapp.config.sl_dapp_path).joinpath(dapp_name).joinpath('requirements.txt')
-        requirements = open(str(requirements_file)).read().split()
-        pipbin = Path.home().joinpath('.shadowlands').joinpath('bin').joinpath('pip')
-        call([str(pipbin), 'install'] + requirements, stdout=DEVNULL)
+
+        if requirements_file.exists():
+            requirements = open(str(requirements_file)).read().split()
+            pipbin = Path.home().joinpath('.shadowlands').joinpath('bin').joinpath('pip')
+            call([str(pipbin), 'install'] + requirements, stdout=DEVNULL)
 
         dapp_module = importlib.import_module(dapp_name)
 
