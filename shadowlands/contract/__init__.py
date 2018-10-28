@@ -17,6 +17,8 @@ class Contract():
         try:
             if address is None:
                 address = self.__class__.__dict__[node.network_name.upper()]
+                if address is '':
+                    raise
         except:
             raise ContractConfigError(
                 'No address given for contract on this network.  Did you set the address constant for {}?'.format(

@@ -171,8 +171,9 @@ class RunLocalDappFrame(SLFrame):
         return reload_recursive_ex(package)
 
     def _run_dapp(self):
-        self.dapp.show_wait_frame()
-        threading.Thread(target=self._dapp_thread).start()
+        #self.dapp.show_wait_frame()
+        #threading.Thread(target=self._dapp_thread).start()
+        self._dapp_thread()
         self.close()
 
     def _dapp_thread(self):
