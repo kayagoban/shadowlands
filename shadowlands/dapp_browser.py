@@ -246,7 +246,9 @@ class DirPickerFrame(SLFrame):
 
 class DeployContractDappFrame(SLFrame):
     def initialize(self):
-        self.browser_value = self.add_file_browser(self._select_fn, path=Path.cwd(), height=17)
+        #debug(); pdb.set_trace()
+
+        self.browser_value = self.add_file_browser(self._select_fn, path=self.dapp.config.sl_dapp_path, height=17)
         self.add_button(self.close, "Cancel")
 
     def _select_fn(self):
@@ -263,7 +265,6 @@ class DeployContractDappFrame(SLFrame):
         compiled_sol_values = list(compiled_sol.values())
         contract_interface = compiled_sol_values[0]
 
-        #debug(); pdb.set_trace()
         new_contract = self.dapp.node.w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
 
         # copy abi to the clipboard
