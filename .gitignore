@@ -3,4 +3,5 @@ detritus
 __pycache__
 shadow.log
 asciimatics
+qrcode
 *.pyc

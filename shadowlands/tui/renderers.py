@@ -1,8 +1,9 @@
 from asciimatics.renderers import DynamicRenderer
+from asciimatics.screen import Screen
 from decimal import Decimal
 from shadowlands.tui.errors import PriceError
 from shadowlands.eth_node import NodeConnectionError
-
+import qrcode
 from shadowlands.tui.debug import debug
 import pdb
 
@@ -55,6 +56,20 @@ class AddressRenderer(DynamicRenderer):
         addr = self._interface.credstick.addressStr()
         return [addr], None
 
+
+class HDPathRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(HDPathRenderer, self).__init__(1, 32)
+        self._interface = interface
+
+    def _render_now(self):
+        if not self._interface.credstick:
+            return ['Unknown'], None
+
+        hdpath = self._interface.credstick.hdpath_base + '/' + self._interface.credstick.hdpath_index
+        return [hdpath], None
+
+
 class CredstickNameRenderer(DynamicRenderer):
     def __init__(self, interface):
         super(CredstickNameRenderer, self).__init__(1, 9)
@@ -71,6 +86,37 @@ class CredstickNameRenderer(DynamicRenderer):
 
             
         return [name], None
+
+class QRCodeRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(QRCodeRenderer, self).__init__(17, 31)
+        self._interface = interface
+
+    def _render_now(self):
+        if not self._interface.credstick:
+            qr_image = ['No QR Data']
+            colour_map = [None, 0, 0]
+        else:
+
+            #debug(); pdb.set_trace()
+            qr = qrcode.QRCode(
+                version=1,
+                box_size=4,
+                border=1,
+            )
+
+            #debug(); pdb.set_trace()
+            qr.add_data(self._interface.credstick.addressStr())
+            qr.make(fit=True)
+            qr_string = qr.print_ascii(string_only=True)
+
+            qr_image = qr_string.split('\n')
+            #debug(); pdb.set_trace()
+            colour_map = [[(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(self._width)]
+                          for _ in range(self._height)]
+        return qr_image, colour_map
+
+
 
 class EthBalanceRenderer(DynamicRenderer):
     def __init__(self, interface):

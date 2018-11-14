@@ -3,6 +3,7 @@ from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
 from shadowlands.dapp_browser import DappBrowser
+from shadowlands.qrcode import QRCodeDisplay 
 from shadowlands.hd_addresses import HDAddressPicker
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
@@ -81,6 +82,14 @@ class MainMenuListener(Effect):
         elif event.key_code in [67, 99]:
             pyperclip.copy(self._interface.credstick.addressStr())
             self._scene.add_effect(MessageDialog(self._screen, "Address copied to clipboard", 3, 35) )
+        elif event.key_code in [ord('r'), ord('R')]:
+            QRCodeDisplay(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )
         # E, e for ens
         elif event.key_code in [ord('e'), ord('E')]:
             SLNetworkDapp(
@@ -91,7 +100,6 @@ class MainMenuListener(Effect):
                 self._interface.price_poller,
                 'ens.shadowlands'
             )
-
         # N, n for network
         elif event.key_code in [78, 110]:
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
@@ -121,7 +129,7 @@ class MainMenuListener(Effect):
                 self._interface.config,
                 self._interface.price_poller
             )
-        elif event.key_code in [ord('A'), ord('a')]:
+        elif event.key_code in [ord('H'), ord('h')]:
             # Test to see if we're able to derive before launching this..
             try:
                 #debug(); pdb.set_trace()

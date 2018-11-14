@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox
+from asciimatics.widgets import (
+    Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox, QRCode
+)
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent, MouseEvent
 from asciimatics.scene import Scene
@@ -127,6 +129,11 @@ class SLFrame(Frame):
         self.add_layout(layout)
         layout.add_widget(Button(text, ok_fn), layout_index)
         layout.add_widget(Divider(draw_line=False))
+
+    def add_qrcode(self, data):
+        layout = Layout([100])
+        self.add_layout(layout)
+        layout.add_widget(QRCode(data))
 
     def add_checkbox(self, text, label=None, name=None, on_change=None, **kwargs):
         layout = Layout([100])

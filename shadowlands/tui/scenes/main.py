@@ -1,14 +1,21 @@
 from asciimatics.renderers import StaticRenderer
 from asciimatics.widgets import Frame, Layout, Text, Button
 from asciimatics.scene import Scene
+from asciimatics.effects import Print
 from shadowlands.tui.effects.materialize import Materialize
 from shadowlands.tui.effects.dynamic_cursor import DynamicSourceCursor
 from shadowlands.tui.effects.listeners import MainMenuListener
-from shadowlands.tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, ENSRenderer
+from shadowlands.tui.renderers import (
+    BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, 
+    CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, 
+    ENSRenderer, QRCodeRenderer, HDPathRenderer
+)
+
 from shadowlands.tui.debug import debug
+import pdb
 
 
-#debug(screen._screen); import pdb; pdb.set_trace()
+
 #from tui.effects.cursor import LoadingScreenCursor
 class MainScene(Scene):
     #MENU_TOP='''══════════════════════════════════════════════════════════════╗'''
@@ -17,38 +24,43 @@ class MainScene(Scene):
     MENU_FRAME = '''
 ╔═
 ║
-║  ${7,1}A${2,2}ddress:
+║  Ethereum Address:
+║
+║  ${7,1}H${2,2}D Path:
+║
+║  Reverse ${7,1}E${2,2}NS:
 ║
 ║  Ξth:
 ║
 ║  ${7,1}V${2,2}alue:
-╚═════════════════════════════════════╩════════════════════════════════════════╝
+║
+║
+╠════════════════════════════╗
+║ ${7,1}C${2,2}opy address to clipboard
+║ ${7,1}S${2,2}end Ether or tokens
+║ ${7,1}D${2,2}apps menu
+║ ${7,1}Q${2,2}uit
+╚
 '''
+#╚══════════════════════════════════════════════════════════════════════════════╝
+#╚═════════════════════════════════════╩════════════════════════════════════════╝
     ENS='''║  ${7,1}E${2,2}NS:'''
 
     MENU_ITEMS='''
-   ${7,1}S${2,2} ║ ${7,1}C${2,2} ║ ${7,1}D${2,2} 
-   e ║ o ║ a
-   n ║ p ║ p
-   d ║ y ║ p
-         ║ s
-      
+   Q ${7,1}C${2,2} ║ ${7,1}S${2,2} ║ ${7,1}D${2,2} 
+   R ║ o ║ e ║ a
+   c ║ p ║ n ║ p
+   o ║ y ║ d ║ p
+   d        ║ s
+   e   
 '''
-
-
-    TXDISPLAY='''
-T${7,1}x${2,2}
-─╖
-${7,1}0${2,2}║  0x80fbe87fc0221221644987b1d67837be4a30b1c3cc3461554c314b8a72d47ba0
-─╢
-${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b2e00
-'''
-
 
 
     def __init__(self, screen, _name, interface):
 
         #debug(screen._screen); import pdb; pdb.set_trace()
+
+        #debug(); pdb.set_trace()
 
         effects = [
             DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0),
@@ -57,12 +69,14 @@ ${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b
             Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05, stop_frame = 100),
             Materialize(screen, StaticRenderer([self.MENU_TOP]), 32, 3, signal_acceleration_factor=1.05, stop_frame=100),
             DynamicSourceCursor(screen, CredstickNameRenderer(interface), 3, 3),
-            Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05, stop_frame=100),
-            Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=10, stop_frame=100),
-            DynamicSourceCursor(screen, AddressRenderer(interface), 12, 5),
-            DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 7),
-            DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 9),
-            DynamicSourceCursor(screen, ENSRenderer(interface), 46, 9),
+            #Materialize(screen, StaticRenderer([self.ENS]), 38, 9, signal_acceleration_factor=1.05, stop_frame=100),
+            #Materialize(screen, StaticRenderer([self.MENU_ITEMS]), 65, 3, signal_acceleration_factor=1.05, start_frame=10, stop_frame=100),
+            Materialize(screen, QRCodeRenderer(interface), 48, 7, signal_acceleration_factor=1.2, stop_frame=120),
+            DynamicSourceCursor(screen, AddressRenderer(interface), 22, 5),
+            DynamicSourceCursor(screen, HDPathRenderer(interface), 13, 7),
+            DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 11),
+            DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
+            DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
             MainMenuListener(screen, interface)
 
 
@@ -79,5 +93,6 @@ ${7,1}1${2,2}║  0x99ea696d40c0b4e9f765612969a52d5a477cbabc0eb11370a8814d640e6b
 
         #debug(screen._screen); import pdb; pdb.set_trace()
 
+ 
 
 

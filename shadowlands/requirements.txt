@@ -1,4 +1,5 @@
-git+https://github.com/kayagoban/asciimatics.git@09b20157f63c53ad8e24212b8b97660baebfb91e
+git+https://github.com/kayagoban/asciimatics.git
+git+https://github.com/kayagoban/python-qrcode.git
 attrdict==2.0.0
 bitcoin==1.1.42
 certifi==2018.8.24
@@ -43,7 +44,7 @@ pysha3==1.0.2
 python-u2flib-host==3.0.3
 PyYAML==3.13
 repoze.lru==0.7
-requests==2.19.1
+requests>=2.20.0
 rlp==1.0.2
 scrypt==0.8.6
 semantic-version==2.6.0
