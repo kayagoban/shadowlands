@@ -1,29 +1,37 @@
 #!/bin/bash -l
 
+SHADOWLANDS=app.shadowlands.eth
+
 while [[ $# -gt 0 ]]
 do
-key="$1"
+  key="$1"
 
-case $key in
-    --help)
-    echo
-    echo "Usage: shadowlands [arg]"
-    echo
-    echo "arguments:"
-    echo "            --clean    Removes the installation at ~/.shadowlands."
-    echo "            --help     This message"
-    exit
-    ;;
-    --clean)
-    echo "Removing virtual python environment at ~/.shadowlands"
-    rm -rf ~/.shadowlands
-    exit
-    ;;
-    *)  
-    echo "Unrecognized option; try 'shadowlands --help'"
-    exit
-    ;;
-esac
+
+  case $key in
+      --help)
+      echo
+      echo "Usage: shadowlands [arg]"
+      echo
+      echo "arguments:"
+      echo "            --clean    Removes the installation at ~/.shadowlands."
+      echo "            --staging  Run the version of shadowlands at staging.shadowlands.eth. (not recommended)"
+      echo "            --help     This message"
+      exit
+      ;;
+      --clean)
+      echo "Removing virtual python environment at ~/.shadowlands"
+      rm -rf ~/.shadowlands
+      exit
+      ;;
+      --staging)
+      SHADOWLANDS=staging.shadowlands.eth
+      break
+      ;;
+      *)  
+      echo "Unrecognized option; try 'shadowlands --help'"
+      exit
+      ;;
+  esac
 done
 
 if [ ! -d ~/.shadowlands ]; then
@@ -93,9 +101,9 @@ try:
 
     sloader_contract = w3.eth.contract(sloader_address, abi=SLOADER_ABI)
 
-    print("Collecting package info for app.shadowlands.eth")
+    print("Collecting package info for $SHADOWLANDS")
 
-    package = sloader_contract.functions.packages('app.shadowlands.eth').call()
+    package = sloader_contract.functions.packages("$SHADOWLANDS").call()
     shadowlands_zip_url = package[1] 
     shadowlands_checksum = encode_hex(package[0]).replace('0x','')
 
