@@ -67,6 +67,10 @@ Why does shadowlands require a credstick?  Because it's a basic precaution that 
 
 Every component of Shadowlands is freely available under the MIT license.  This is not a not-for-profit project - its only aim is to create a great new way to interact with Ethereum. 
 
+## Security Audit (v0.16a)
+
+Christopher M. Hobbs of Ascia Technologies performed a security audit on Shadowlands; [here is the report.](https://github.com/kayagoban/shadowlands/shadowlands_v0.16a_audit.md)
+
 # This is a Proof of Concept release, not production software!
 
 Many things need to be done and added.  Among them:
