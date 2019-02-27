@@ -4,11 +4,12 @@
    contain the root `toctree` directive.
 
 Shadowlands
-===========
+=============
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+
+   SLDapp
 
 
 
