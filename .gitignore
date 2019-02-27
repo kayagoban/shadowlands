@@ -5,4 +5,4 @@ shadow.log
 asciimatics
 qrcode
 *.pyc
-shadowlands/doc/_build/*
+doc/_build/*
