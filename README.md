@@ -4,6 +4,8 @@
 
 A 100% Python, TextUI Dapp platform for ethereum, built on Python3.5+, [web3.py](https://github.com/ethereum/web3.py) and [asciimatics](https://github.com/peterbrittain/asciimatics)
 
+API documentation (in progress) is available at [ReadTheDocs](https://shadowlands-core.readthedocs.io).
+
 ### But why would you do that?
 
 I like the idea of using Ethereum to its fullest potiential without ever launching a web browser.  People should be able to make dapps in Python, without needing any CSS, HTML or Javascript.  Text interfaces can be remarkably efficient and can actually create a better user experience.  I believe Shadowlands can become a rapid application development platform; a launching ground and proving ground for Dapps which may later be turned into full Web GUI experiences.
