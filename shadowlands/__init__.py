@@ -17,7 +17,7 @@ from shadowlands.tui.debug import debug
 sl_config = SLConfig()
 
 # Start network subsystem
-eth_node = Node(sl_config)
+eth_node = Node(sl_config=sl_config)
 
 # Eth node heartbeat
 eth_node.start_heartbeat_thread()

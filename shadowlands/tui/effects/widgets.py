@@ -8,7 +8,8 @@ import pyperclip
 
 from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
-from web3.utils.threads import Timeout
+#from web3.utils import threads
+#from threads import Timeout
 
 from decimal import InvalidOperation
 from binascii import Error
@@ -321,7 +322,7 @@ class NetworkOptions(Frame):
         except StaleBlockchain:
             self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected Node"))
             return
-        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError) as e:
+        except (AttributeError, UnhandledRequest, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError) as e: #Timeout
             self._scene.add_effect( MessageDialog(self._screen, "Could not connect to node ({})".format(str(e.__class__))))
             return
  

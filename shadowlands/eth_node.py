@@ -1,6 +1,6 @@
 import sys, time, os
 from decimal import Decimal
-from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, ValidationError
+from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, ValidationError, StaleBlockchain
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 from web3.utils.threads import Timeout
 from web3.middleware import geth_poa_middleware
@@ -9,8 +9,13 @@ from eth_utils import decode_hex, encode_hex
 from ens import ENS
 import threading
 
+import logging
+
+
 import pdb
 from shadowlands.tui.debug import debug
+
+logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.eth_node.log")
 
 #debug(); #pdb.set_trace()
    
@@ -129,6 +134,7 @@ class Node():
                 pass
 
     def _update_status(self):
+            logging.debug("eth_node update_status")
             self._best_block = str(self._w3.eth.blockNumber)
             self._syncing = self._w3.eth.syncing
             if self._syncing:
@@ -136,6 +142,7 @@ class Node():
 
 
             if self._credstick:
+                #logging.debug("Query eth.getBalance")
                 self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
                 if self._network == '1':
                     try:
@@ -212,7 +219,7 @@ class Node():
         if not custom_uri:
             custom_uri = self._sl_config.websocket_uri
         _w3 = self.w3_websocket(custom_uri)
-        if self.is_connected_with(_w3, 'Custom websocket', 2):
+        if self.is_connected_with(_w3, 'Custom websocket', 1):
             self._sl_config.websocket_uri = custom_uri
             self._sl_config.default_method = self.connect_w3_custom_websocket.__name__
             return True
@@ -264,32 +271,43 @@ class Node():
 
 
     def poll(self):
+        logging.debug("eth_node poll()")
         #pdb.set_trace()
         try: 
             self._w3.isConnected()
             self._update_status()
 
-        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError):
+        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain):
             self.connect_config_default() or self.connect_w3_local() or self.connect_w3_public_infura()
+        except ValueError:
+            logging.debug("eth_node: Value Error in poll()")
+            self.stop_thread()
+            exit()
+
 
 
     def heartbeat(self):
+        logging.debug("eth_node heartbeat()")
         while True:
             try:
+                logging.debug("eth_node call poll() from  hearttbeat()")
                 self.poll()
             except Timeout:
-                pass
+                logging.debug("eth_node timeout in hearttbeat()")
 
             for i in range(self._heart_rate):
                 time.sleep(1)
                 if self._thread_shutdown:
+                    logging.debug("eth_node thread_shutdown")
                     return
 
     def start_heartbeat_thread(self):
+        logging.debug("eth_node start_heartbeat_thread()")
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self._heartbeat_thread.start()
 
     def stop_thread(self):
+        logging.debug("eth_node stop_thread()")
         if self._heartbeat_thread == None:
             return
 
