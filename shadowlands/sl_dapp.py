@@ -71,9 +71,9 @@ class SLDapp():
         preferred_width= len(message) + 6
         self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
 
-    def add_transaction_dialog(self, tx_fn=None, tx_value=0, destroy_window=None, title="Sign & Send Transaction", **kwargs):
+    def add_transaction_dialog(self, tx_fn, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=None, **kwargs):
         self._scene.add_effect( 
-            SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, tx_value=tx_value, **kwargs) 
+            SLTransactionFrame(self._screen, 16, 59, self, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         )
 
     def quit(self):
@@ -242,6 +242,7 @@ class SLTransactionFrame(TransactionFrame):
         layout = Layout([100])
         self.prepend_layout(layout)
 
+        # TODO raise an exception if tx_value is not already a Decimal
         self.tx_value = Decimal(tx_value)
         layout.add_widget(Label("You will send {} ETH".format(self.tx_value)))
         layout.add_widget(Divider(draw_line=False))
