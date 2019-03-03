@@ -11,7 +11,7 @@ First Steps
 -----------
 
 First, subclass ``SLDapp``, overriding the ``initialize()`` method, and do any necessary 
-preperation within.  Then, add an ``SLFrame`` instance with ``add_frame()``, which will 
+preperation within.  Then, add an ``SLFrame`` with ``add_frame()``, which will 
 begin the user interface.
 
     .. code-block:: python
@@ -46,7 +46,7 @@ Methods
 
 .. py:method:: SLDapp.add_frame(cls, height=None, width=None, title=None, **kwargs)
   
-    Display a custom frame.  cls is the Class name of a subclassed instance of ``SLFrame``.  
+    Display a custom frame.  cls is the Class name of a subclass of ``SLFrame``.  
     ``height`` and ``width`` are integers (reasonable defaults if none given).  
     ``title`` is a string. You may pass in kwargs which apply to ``asciimatics.Frame``.
 
@@ -84,4 +84,8 @@ Methods
 .. py:method:: SLDapp.hide_wait_frame()
 
     Remove the wait message frame.  If it is not currently displayed, this method is a no-op.
+
+.. py:method:: SLDapp.quit()
+
+    Destroy the SLDapp object and return to the Shadowlands main screen.
 
