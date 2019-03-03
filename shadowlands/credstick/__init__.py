@@ -42,6 +42,7 @@ class Credstick(object):
     detect_thread_shutdown = False
     hdpath_base = None
     hdpath_index = None
+    mock_address = None
 
     @classmethod
     def addressStr(cls):
@@ -56,6 +57,10 @@ class Credstick(object):
     # usage pages '0xf1d0', '0xff00'
     @classmethod
     def detect(cls):
+        if cls.mock_address is not None:
+            from shadowlands.credstick.mock_ethdriver import MockEthDriver
+            return MockEthDriver
+
         for hidDevice in hid.enumerate(0, 0):
             #import pdb; pdb.set_trace()
             #import pdb; pdb.set_trace()

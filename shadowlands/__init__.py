@@ -13,41 +13,43 @@ from shadowlands.tui.debug import debug
 
 #pdb.set_trace()
 
-# Read from config file
-sl_config = SLConfig()
+def main(mock_address=None):
+    if mock_address:
+        Credstick.mock_address = mock_address
 
-# Start network subsystem
-eth_node = Node(sl_config=sl_config)
+    # Read from config file
+    sl_config = SLConfig()
 
-# Eth node heartbeat
-eth_node.start_heartbeat_thread()
+    # Start network subsystem
+    eth_node = Node(sl_config=sl_config)
 
-# price import thread
-price_poller = PricePoller(sl_config)
-price_poller.start_thread()
+    # Eth node heartbeat
+    eth_node.start_heartbeat_thread()
 
-# create user interface 
-interface = Interface(eth_node, price_poller, sl_config)
+    # price import thread
+    price_poller = PricePoller(sl_config)
+    price_poller.start_thread()
 
+    # create user interface 
+    interface = Interface(eth_node, price_poller, sl_config)
 
-# Begin interface
-interface.load()
+    # Begin interface
+    interface.load()
 
-# Shut it all down.
-if interface.credstick is not None:
-    interface.credstick.close()
+    # Shut it all down.
+    if interface.credstick is not None:
+        interface.credstick.close()
 
-print("Closing credstick poller...")
-Credstick.stop_detect_thread()
+    print("Closing credstick poller...")
+    Credstick.stop_detect_thread()
 
-print("Closing price poller...")
-price_poller.stop_thread()
+    print("Closing price poller...")
+    price_poller.stop_thread()
 
-print("Closing connection to ethereum node...")
-eth_node.stop_thread()
+    print("Closing connection to ethereum node...")
+    eth_node.stop_thread()
 
-
-sys.exit(0)
+    sys.exit(0)
 
 
 
