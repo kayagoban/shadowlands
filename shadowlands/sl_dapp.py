@@ -135,10 +135,10 @@ class SLFrame(Frame):
         self.add_layout(layout)
         layout.add_widget(QRCode(data))
 
-    def add_checkbox(self, text, label=None, name=None, on_change=None, **kwargs):
+    def add_checkbox(self, text, on_change=None, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
-        box = CheckBox(text, label, name, on_change, **kwargs)
+        box = CheckBox(text, None, None, on_change, **kwargs)
         layout.add_widget(box)
         return lambda: box._value
  
