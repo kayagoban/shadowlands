@@ -194,7 +194,7 @@ class RunLocalDappFrame(SLFrame):
 
         dapp_module = importlib.import_module(dapp_name)
 
-        # we force a reload (twice) in case they just made a change..
+        # we force a reload (twice) in case they just made a change.
         self.reload_package(dapp_module)
         self.reload_package(dapp_module)
 
@@ -205,7 +205,6 @@ class RunLocalDappFrame(SLFrame):
             return
 
         self.dapp.hide_wait_frame()
-
 
         Dapp(
             self.dapp._screen, 

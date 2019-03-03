@@ -13,9 +13,16 @@ from shadowlands.tui.debug import debug
 
 #pdb.set_trace()
 
-def main(mock_address=None):
+load_dapp = None
+
+def main(mock_address=None, dapp=None):
     if mock_address:
         Credstick.mock_address = mock_address
+
+    global load_dapp
+        
+    if load_dapp:
+       load_dapp = dapp
 
     # Read from config file
     sl_config = SLConfig()
@@ -31,7 +38,7 @@ def main(mock_address=None):
     price_poller.start_thread()
 
     # create user interface 
-    interface = Interface(eth_node, price_poller, sl_config)
+    interface = Interface(eth_node, price_poller, sl_config, preloaded_dapp=dapp)
 
     # Begin interface
     interface.load()

@@ -13,13 +13,14 @@ import sys
 
 class Interface():
     
-    def __init__(self, _eth_node, price_poller, config):
+    def __init__(self, _eth_node, price_poller, config, preloaded_dapp=None):
         self._node = _eth_node
         self._config = config
         self._screen = None
         self._price_poller = price_poller
         self._credstick = None
         self._loading_scene = True
+        self._load_dapp = preloaded_dapp
 
     @property
     def credstick(self):
@@ -40,7 +41,6 @@ class Interface():
     @property
     def price_poller(self):
         return self._price_poller
-
 
 
     def tui(self, screen):

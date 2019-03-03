@@ -10,6 +10,7 @@ from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.sl_network_dapp import SLNetworkDapp
 from shadowlands.credstick import DeriveCredstickAddressError
 from shadowlands.tui.debug import debug
+import importlib
 
 
 import pdb
@@ -36,7 +37,6 @@ class LoadingScreenListener(Effect):
         if type(event) != KeyboardEvent:
             return event
 
-
         if event.key_code == -1 or event.key_code == 113:
             raise ExitTuiError
         elif event.key_code == ord('N') or event.key_code == ord('n'):
@@ -55,6 +55,23 @@ class MainMenuListener(Effect):
         pass
 
     def reset(self):
+        #debug(); pdb.set_trace()
+        if not self._interface._load_dapp:
+            return
+
+        dapp_module = importlib.import_module(self._interface._load_dapp)
+        try:
+            Dapp = getattr(dapp_module, 'Dapp')
+        except AttributeError:
+            self.dapp.add_message_dialog("Possible module name conflict.")
+            return
+        Dapp(
+            self._screen, 
+            self._scene, 
+            self._interface.node,
+            self._interface.config,
+            self._interface.price_poller
+        )
         pass
 
 
