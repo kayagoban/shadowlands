@@ -190,7 +190,7 @@ class RunLocalDappFrame(SLFrame):
         if requirements_file.exists():
             requirements = open(str(requirements_file)).read().split()
             pipbin = Path.home().joinpath('.shadowlands').joinpath('bin').joinpath('pip')
-            call([str(pipbin), 'install'] + requirements, stdout=DEVNULL)
+            call([str(pipbin), 'install'] + requirements, stderr=DEVNULL, stdout=DEVNULL)
 
         dapp_module = importlib.import_module(dapp_name)
 

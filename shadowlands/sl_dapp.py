@@ -124,11 +124,12 @@ class SLFrame(Frame):
         return super(SLFrame, self).process_event(event)
 
 
-    def add_button(self, ok_fn, text, layout_distribution=[100], layout_index=0):
+    def add_button(self, ok_fn, text, layout_distribution=[100], layout_index=0, add_divider=True):
         layout = Layout(layout_distribution)
         self.add_layout(layout)
         layout.add_widget(Button(text, ok_fn), layout_index)
-        layout.add_widget(Divider(draw_line=False))
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
 
     def add_qrcode(self, data):
         layout = Layout([100])
@@ -141,15 +142,14 @@ class SLFrame(Frame):
         box = CheckBox(text, None, None, on_change, **kwargs)
         layout.add_widget(box)
         return lambda: box._value
- 
 
-    def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK"):
+    def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK", cancel_text="Cancel", ok_index=0, cancel_index=3):
         layout = Layout([1, 1, 1, 1])
         self.add_layout(layout)
-        layout.add_widget(Button(ok_text, ok_fn), 0)
+        layout.add_widget(Button(ok_text, ok_fn), ok_index)
         if cancel_fn is None:
             cancel_fn = self.close
-        layout.add_widget(Button("Cancel", cancel_fn), 3)
+        layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
  
     # named arguments will be passed on to the asciimatics Text() constructor
     def add_textbox(self, label_text, default_value=None, **kwargs):
@@ -186,11 +186,31 @@ class SLFrame(Frame):
         layout.add_widget(Divider(draw_line=False))
         return lambda: list_widget.value
          
-    def add_label(self, label_text, layout_distribution=[100], layout_index=0,):
+    def add_label(self, label_text, layout_distribution=[100], layout_index=0, add_divider=True):
         layout = Layout(layout_distribution)
         self.add_layout(layout)
         layout.add_widget(Label(label_text), layout_index) 
-        layout.add_widget(Divider(draw_line=False))
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
+
+    def add_label_pair(self, label0_text, label1_text, add_divider=True):
+        layout = Layout([1, 1])
+        self.add_layout(layout)
+        layout.add_widget(Label(label0_text), 0) 
+        layout.add_widget(Label(label1_text), 1) 
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
+
+    def add_label_quad(self, label0_text, label1_text, label2_text, label3_text, add_divider=True):
+        layout = Layout([1, 1, 1, 1])
+        self.add_layout(layout)
+        layout.add_widget(Label(label0_text), 0) 
+        layout.add_widget(Label(label1_text), 1) 
+        layout.add_widget(Label(label2_text), 2) 
+        layout.add_widget(Label(label3_text), 3) 
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
+
 
     def add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None):
         layout = Layout([100])
