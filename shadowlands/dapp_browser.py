@@ -17,7 +17,7 @@ import pdb
 def _is_dapp(dirpath):
     if not dirpath.joinpath('__init__.py').exists():
         return False
-    file_text = open(dirpath.joinpath('__init__.py'), 'r').read()
+    file_text = open(str(dirpath.joinpath('__init__.py')), 'r').read()
     if re.search(r'class Dapp', file_text) is not None:
         return True
     return False

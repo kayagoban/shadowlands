@@ -62,9 +62,15 @@ class Contract():
     def functions(self):
         return self._contract.functions
 
+    @property
+    def address(self):
+        return self._contract.address 
+
     def toWei(self, amount, denomination):
         return self._node.w3.toWei(amount, denomination)
 
     def fromWei(self, amount, denomination):
         return self._node.w3.fromWei(amount, denomination)
+
+    
     
