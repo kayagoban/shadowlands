@@ -322,6 +322,12 @@ class Node():
         return encode_hex(rx)
 
 
+    def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
+        rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
+        self.w3.eth.waitForTransactionReceipt(rx)
+        debug(); pdb.set_trace()
+
+
     def send_ether(self,destination, amount, gas_price):
         tx_dict = self.build_send_tx(amount, destination, gas_price)
         signed_tx = self._credstick.signTx(tx_dict)
