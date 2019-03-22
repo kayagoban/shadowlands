@@ -20,7 +20,6 @@ class SLTransactionFrame(TransactionFrame):
         self.dapp = dapp
         self._tx_fn = tx_fn
 
-        #debug(); pdb.set_trace()
         if gas_limit is not None:
             self.estimated_gas = gas_limit
         else:
@@ -63,10 +62,11 @@ class SLTransactionFrame(TransactionFrame):
 
 class SLTransactionWaitFrame(SLTransactionFrame):
 
-    def __init__(self, dapp, x, y,  wait_message, tx_fn=None, tx_value=0, gas_limit=None, **kwargs):
-        super(SLTransactionWaitFrame, self).__init__(dapp, x, y, tx_fn=tx_fn, **kwargs) 
+    def __init__(self, dapp, x, y,  wait_message, tx_fn=None, tx_value=0, gas_limit=None, receipt_func=None, **kwargs):
+        super(SLTransactionWaitFrame, self).__init__(dapp, x, y, tx_fn=tx_fn, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
  
         self.wait_message = wait_message
+        self.receipt_func = receipt_func
  
     def _ok_fn(self, gas_price_wei):
         self.dapp.show_wait_frame(self.wait_message)
@@ -76,18 +76,19 @@ class SLTransactionWaitFrame(SLTransactionFrame):
     def _transaction_thread(self, gas_price_wei=None):
         try:
             value = self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
-            self.dapp.rx = self.dapp.node.push_wait_for_receipt(
+            rxo = self.dapp.node.push_wait_for_receipt(
                 self._tx_fn(), gas_price_wei, 
                 self.estimated_gas, value=value
             )
+            self.receipt_func(rxo)
+
 
         except (SignTxError):
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
 
         self.dapp.hide_wait_frame()
-        self._destroy_window_stack()
-        raise NextScene(self._scene.name)
+        self.close()
 
 
 
