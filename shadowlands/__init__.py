@@ -15,11 +15,16 @@ from shadowlands.tui.debug import debug
 
 load_dapp = None
 
-def main(mock_address=None, dapp=None):
+def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     if mock_address:
         Credstick.mock_address = mock_address
 
     global load_dapp
+
+    # Skip to hd path on detect credstick
+    if hdpath_base and hdpath_index:
+        Credstick.hdpath_base = hdpath_base
+        Credstick.hdpath_index = hdpath_index
         
     if load_dapp:
        load_dapp = dapp

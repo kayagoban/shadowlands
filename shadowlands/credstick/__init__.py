@@ -113,7 +113,12 @@ class Credstick(object):
             try: 
                 credstick = cls.detect()
                 credstick.open()
-                credstick.derive(set_address=True)
+
+                if Credstick.hdpath_base and Credstick.hdpath_index:
+                    credstick.derive(set_address=True, hdpath_base=Credstick.hdpath_base, hdpath_index=Credstick.hdpath_index)
+                else:
+
+                    credstick.derive(set_address=True)
 
                 timeout = 30 
 
@@ -123,8 +128,6 @@ class Credstick(object):
                 if credstick.address is None:
                     raise DeriveCredstickAddressError
 
-
-                #debug(); pdb.set_trace()
                 cls.eth_node.credstick = credstick
                 cls.interface.credstick = credstick
                 not_found = False
@@ -137,11 +140,6 @@ class Credstick(object):
 
     @classmethod
     def signed_tx(cls, transaction_dict, v, r, s):
-        #tx = UnsignedTransaction.from_dict(transaction_dict)
-
-        #trx = Transaction(tx.nonce, tx.gasPrice, tx.gas, tx.to, tx.value, tx.data, v, r, s)
-        #enctx = rlp.encode(trx)
-
         enctx = encode_transaction(transaction_dict, (v, r, s))
         transaction_hash = keccak(enctx)
 
