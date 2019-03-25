@@ -62,14 +62,18 @@ class SLTransactionFrame(TransactionFrame):
 
 class SLTransactionWaitFrame(SLTransactionFrame):
 
-    def __init__(self, dapp, x, y,  wait_message, tx_fn=None, tx_value=0, gas_limit=None, receipt_func=None, **kwargs):
+    def __init__(self, dapp, x, y,  wait_message, tx_fn=None, tx_value=0, gas_limit=None, receipt_proc=None, **kwargs):
         super(SLTransactionWaitFrame, self).__init__(dapp, x, y, tx_fn=tx_fn, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
  
         self.wait_message = wait_message
-        self.receipt_func = receipt_func
+        self.receipt_proc = receipt_proc
  
     def _ok_fn(self, gas_price_wei):
         self.dapp.show_wait_frame(self.wait_message)
+
+        self._transaction_thread(gas_price_wei=gas_price_wei)
+
+        
         threading.Thread(target=self._transaction_thread, kwargs={'gas_price_wei': gas_price_wei}).start()
 
 
@@ -80,7 +84,7 @@ class SLTransactionWaitFrame(SLTransactionFrame):
                 self._tx_fn(), gas_price_wei, 
                 self.estimated_gas, value=value
             )
-            self.receipt_func(rxo)
+            self.receipt_proc(rxo)
 
 
         except (SignTxError):
