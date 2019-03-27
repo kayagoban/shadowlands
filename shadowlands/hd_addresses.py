@@ -7,6 +7,9 @@ import pdb
 
 class HDAddressPicker(SLDapp):
     def initialize(self):
+        self.range_base = 0
+        self.range_index = 10
+
         self.show_wait_frame()
         threading.Thread(target=self._worker).start()
 
@@ -22,20 +25,46 @@ class PathPickerFrame(SLFrame):
         self.pathbox_value = self.add_textbox("HD Path Base", default_value=self.dapp.node.credstick.hdpath_base)
         self.add_button(self.change_base, "Change HDPath base")
 
-        self.add_label("HD Paths [0-9]:")
-        self.index_list_value = self.add_listbox(10, self._build_hdpaths(), on_select=self.choose_address)
+        self.add_label(
+            "HD Paths [{}-{}]:".format(
+                self.dapp.range_base, 
+                self.dapp.range_index - 1
+            ) 
+        )
+        self.index_list_value = self.add_listbox(
+            10, 
+            self._build_hdpaths(
+                range(
+                    self.dapp.range_base, 
+                    self.dapp.range_index
+                )
+            ), 
+            on_select=self.choose_address
+        )
 
-        self.add_button(self.close, "Cancel")
+        #self.add_button(self.close, "Cancel")
+        self.add_ok_cancel_buttons(
+            self.next_10, 
+            ok_text="Next 10",
+            ok_index=2
+        )
 
         self.dapp.hide_wait_frame()
 
-    def _build_hdpaths(self):
+    def next_10(self):
+        self.dapp.range_base += 10
+        self.dapp.range_index += 10
+        self.dapp.show_wait_frame()
+        threading.Thread(target=self.dapp._worker).start()
+        self.close()
+
+    def _build_hdpaths(self, index_range):
         return [ 
             (
                 self.path_string(path_element), 
                 str(path_element)
             )
-            for path_element in range(10)
+            for path_element in index_range 
         ]
 
     def path_string(self, path_element):
