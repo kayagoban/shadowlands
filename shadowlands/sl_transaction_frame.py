@@ -16,7 +16,7 @@ from decimal import Decimal
 
 class SLTransactionFrame(TransactionFrame):
     def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=None, **kwargs):
-        super(SLTransactionFrame, self).__init__(dapp._screen, x, y, dapp, self._ok_fn, self._cancel_fn, **kwargs) 
+        super(SLTransactionFrame, self).__init__(dapp._screen, x, y, dapp, self._ok_fn, self.close, **kwargs) 
         self.dapp = dapp
         self._tx_fn = tx_fn
 
@@ -42,9 +42,17 @@ class SLTransactionFrame(TransactionFrame):
 
     def _ok_fn(self, gas_price_wei):
         try:
+            self.dapp.show_wait_frame("Verify transaction on your device.")
+            #debug(); pdb.set_trace()
+
             self.dapp.rx = self.dapp.node.push(
-                self._tx_fn(), gas_price_wei, self.estimated_gas, value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
+                self._tx_fn, 
+                gas_price_wei, 
+                self.estimated_gas, 
+                value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
             )
+
+            self.dapp.hide_wait_frame()
 
         except (SignTxError):
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
@@ -54,9 +62,11 @@ class SLTransactionFrame(TransactionFrame):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
-    def _cancel_fn(self):
+    def close(self):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
+
+
 
 
 
@@ -70,12 +80,9 @@ class SLTransactionWaitFrame(SLTransactionFrame):
  
     def _ok_fn(self, gas_price_wei):
         self.dapp.show_wait_frame(self.wait_message)
-
         self._transaction_thread(gas_price_wei=gas_price_wei)
-
-        
-        threading.Thread(target=self._transaction_thread, kwargs={'gas_price_wei': gas_price_wei}).start()
-
+        #threading.Thread(target=self._transaction_thread, kwargs={'gas_price_wei': gas_price_wei}).start()
+        self.close()
 
     def _transaction_thread(self, gas_price_wei=None):
         try:
@@ -92,7 +99,6 @@ class SLTransactionWaitFrame(SLTransactionFrame):
             return
 
         self.dapp.hide_wait_frame()
-        self.close()
 
 
 
