@@ -50,7 +50,6 @@ class PathPickerFrame(SLFrame):
         self.add_divider(draw_line=False)
 
         self.pathbox_value = self.add_textbox("HD Path Base", default_value=self.dapp.node.credstick.hdpath_base)
-        #self.add_button(self.change_base, "Change HDPath base", layout_distribution=[1, 1, 1, 1])
 
         self.add_button_row(
             [
@@ -58,15 +57,6 @@ class PathPickerFrame(SLFrame):
                 ("Cancel", self.close, 3)
             ]
         )
-
-
-        #self.add_button(self.close, "Cancel")
-
-        #self.add_ok_cancel_buttons(
-        #    self.next_10, 
-        #    ok_text="Next 10",
-        #    ok_index=2
-        #)
 
         self.dapp.hide_wait_frame()
 

@@ -2,16 +2,13 @@ from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, 
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
 from shadowlands.tui.errors import ExitTuiError
-from decimal import Decimal
 from shadowlands.credstick import SignTxError
-import pyperclip
 
 from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 #from web3.utils import threads
 #from threads import Timeout
 
-from decimal import InvalidOperation
 from binascii import Error
 
 

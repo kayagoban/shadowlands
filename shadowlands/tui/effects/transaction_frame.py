@@ -1,5 +1,6 @@
 from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, ListBox, RadioButtons, Label
 from shadowlands.tui.effects.gas_price_picker import GasPricePicker
+from decimal import Decimal, InvalidOperation
 
 # This has everything you need for a base transaction widget collection
 # most importantly, all the hoopla that takes care of gas prices

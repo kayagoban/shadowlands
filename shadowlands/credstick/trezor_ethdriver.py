@@ -11,8 +11,8 @@ from trezorlib import messages as proto
 import binascii
 from eth_utils import decode_hex
 from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
-from shadowlands.tui.effects.widgets import TextRequestDialog, MessageDialog
-
+from shadowlands.tui.effects.message_dialog import MessageDialog 
+from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
 from shadowlands.tui.debug import debug
 from web3 import Web3
 import pdb
