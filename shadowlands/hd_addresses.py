@@ -10,7 +10,7 @@ class HDAddressPicker(SLDapp):
         self.range_base = 0
         self.range_index = 10
 
-        self.show_wait_frame()
+        self.show_wait_frame("Deriving Addresses...")
         threading.Thread(target=self._worker).start()
 
     def _worker(self):
@@ -21,6 +21,7 @@ class HDAddressPicker(SLDapp):
             self.add_message_dialog("Your credstick refused to generate addresses")
 
 class PathPickerFrame(SLFrame):
+       
     def initialize(self):
         self.pathbox_value = self.add_textbox("HD Path Base", default_value=self.dapp.node.credstick.hdpath_base)
         self.add_button(self.change_base, "Change HDPath base")
@@ -58,6 +59,16 @@ class PathPickerFrame(SLFrame):
         threading.Thread(target=self.dapp._worker).start()
         self.close()
 
+    def prev_10(self):
+        if self.range_base < 1:
+            return
+
+        self.dapp.range_base -= 10
+        self.dapp.range_index -= 10
+        self.dapp.show_wait_frame()
+        threading.Thread(target=self.dapp._worker).start()
+        self.close()
+
     def _build_hdpaths(self, index_range):
         return [ 
             (
@@ -84,18 +95,26 @@ class PathPickerFrame(SLFrame):
         except:
             ens_name = '  No Reverse ENS'
 
-        return address + bal + ens_name
+        return str(path_element) +  ' ' + address + bal + ens_name
 
-# + self.dapp.node.credstick.hdpath_base + '/' +str(path_element)
     def change_base(self):
         try:
+            # if the credstick hdpathbase is different from what's
+            # in the pathbox, derive.
+            if self.dapp.node.credstick.hdpath_base == self.pathbox_value():
+                self.close()
+                return
+
             self.dapp.node.credstick.derive(
                 hdpath_base=self.pathbox_value(),
                 hdpath_index=self.dapp.node.credstick.hdpath_index,
                 set_address=True
             )
+
+            self.dapp.config.hd_base_path = self.pathbox_value()
         except DeriveCredstickAddressError:
             self.dapp.add_message_dialog("Could not derive address from your credstick")
+
         self.close()
 
     def choose_address(self):
@@ -108,6 +127,7 @@ class PathPickerFrame(SLFrame):
         except DeriveCredstickAddressError:
             self.dapp.add_message_dialog("Could not derive address from your credstick")
         self.close()
+
 
 
 '''44'/60'/0'/0/0

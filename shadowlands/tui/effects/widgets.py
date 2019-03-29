@@ -16,9 +16,6 @@ from binascii import Error
 
 
 from shadowlands.tui.debug import debug
-from shadowlands.tui.effects.transaction_frame import TransactionFrame
-import pdb
-
 # Make sure the widget frame is_modal or claimed_focus.
 # otherwise the text is not swallowed and our menus are buggered.
 # "return None if claimed_focus or self._is_modal else old_event" - widgets.py:882

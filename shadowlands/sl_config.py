@@ -23,6 +23,7 @@ class SLConfig():
     }
 
     def __init__(self):
+        self._hd_base_path = ''
         self._http_uri = ''
         self._websocket_uri = ''
         self._ipc_path = ''
@@ -62,7 +63,8 @@ class SLConfig():
             self._websocket_uri = self._options_dict['network_options']['websocket_uri']
             self._ipc_path = self._options_dict['network_options']['ipc_path']
             self._displayed_currency = self._options_dict['displayed_currency']
-            self.sl_dapp_path = self._options_dict['sl_dapp_path']
+            self._sl_dapp_path = self._options_dict['sl_dapp_path']
+            self._hd_base_path = self._options_dict['hd_base_path']
 
     def _write_config_file(self):
         f = open(str(self._config_file_path), 'w')
@@ -73,6 +75,7 @@ class SLConfig():
         return {
             "displayed_currency": self._displayed_currency,
             "sl_dapp_path": self._sl_dapp_path,
+            "hd_base_path": self._hd_base_path,
             "network_options": {
                 "default_method": self._default_method,
                 "http_uri": self._http_uri,
@@ -95,6 +98,14 @@ class SLConfig():
         self._sl_dapp_path = str(new_value)
         self._write_config_file()
 
+    @property
+    def hd_base_path(self):
+        return self._hd_base_path
+
+    @hd_base_path.setter
+    def hd_base_path(self, new_value):
+        self._hd_base_path = str(new_value)
+        self._write_config_file()
 
     @property
     def default_method(self):

@@ -35,6 +35,7 @@ class SignTxError(Exception):
 class Credstick(object):
     interface = None
     eth_node = None
+    config = None
     manufacturer = None
     product = None
     address = None
@@ -115,7 +116,7 @@ class Credstick(object):
                 credstick.open()
 
                 if Credstick.hdpath_base and Credstick.hdpath_index:
-                    credstick.derive(set_address=True, hdpath_base=Credstick.hdpath_base, hdpath_index=Credstick.hdpath_index)
+                    credstick.derive(set_address=True, hdpath_base=cls.hd_path_base_default(), hdpath_index=Credstick.hdpath_index)
                 else:
 
                     credstick.derive(set_address=True)
@@ -136,6 +137,7 @@ class Credstick(object):
 
             if cls.detect_thread_shutdown:
                 break
+
 
 
     @classmethod
@@ -178,4 +180,8 @@ class Credstick(object):
     def open(cls):
         raise NotImplementedError(optional_error_message)
 
-
+    @classmethod
+    def hd_path_base_default(cls):
+        # If the config has no setting, use the class default
+        return (cls.config.hd_base_path or cls.hdpath_base)
+ 

@@ -23,6 +23,7 @@ class CredstickWatcher(Effect):
             # done this in a better place.
             Credstick.interface = self._interface
             Credstick.eth_node = self._interface._node
+            Credstick.config = self._interface._config
             Credstick.start_detect_thread()
             self.detect_thread_started = True
 
