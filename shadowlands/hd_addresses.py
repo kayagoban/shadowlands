@@ -23,9 +23,6 @@ class HDAddressPicker(SLDapp):
 class PathPickerFrame(SLFrame):
        
     def initialize(self):
-        self.pathbox_value = self.add_textbox("HD Path Base", default_value=self.dapp.node.credstick.hdpath_base)
-        self.add_button(self.change_base, "Change HDPath base")
-
         self.add_label(
             "HD Paths [{}-{}]:".format(
                 self.dapp.range_base, 
@@ -43,29 +40,50 @@ class PathPickerFrame(SLFrame):
             on_select=self.choose_address
         )
 
-        #self.add_button(self.close, "Cancel")
-        self.add_ok_cancel_buttons(
-            self.next_10, 
-            ok_text="Next 10",
-            ok_index=2
+        self.add_button_row(
+            [
+                ("Prev 10", self.prev_10, 2),
+                ("Next 10", self.next_10, 3),
+            ]
         )
+
+        self.add_divider(draw_line=False)
+
+        self.pathbox_value = self.add_textbox("HD Path Base", default_value=self.dapp.node.credstick.hdpath_base)
+        #self.add_button(self.change_base, "Change HDPath base", layout_distribution=[1, 1, 1, 1])
+
+        self.add_button_row(
+            [
+                ("Change HDPath base", self.change_base, 0),
+                ("Cancel", self.close, 3)
+            ]
+        )
+
+
+        #self.add_button(self.close, "Cancel")
+
+        #self.add_ok_cancel_buttons(
+        #    self.next_10, 
+        #    ok_text="Next 10",
+        #    ok_index=2
+        #)
 
         self.dapp.hide_wait_frame()
 
     def next_10(self):
         self.dapp.range_base += 10
         self.dapp.range_index += 10
-        self.dapp.show_wait_frame()
+        self.dapp.show_wait_frame("Deriving addresses...")
         threading.Thread(target=self.dapp._worker).start()
         self.close()
 
     def prev_10(self):
-        if self.range_base < 1:
+        if self.dapp.range_base < 1:
             return
 
         self.dapp.range_base -= 10
         self.dapp.range_index -= 10
-        self.dapp.show_wait_frame()
+        self.dapp.show_wait_frame("Deriving addresses...")
         threading.Thread(target=self.dapp._worker).start()
         self.close()
 

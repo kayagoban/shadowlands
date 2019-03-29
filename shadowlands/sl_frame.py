@@ -68,6 +68,12 @@ class SLFrame(Frame):
         if cancel_fn is None:
             cancel_fn = self.close
         layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
+
+    def add_button_row(self, buttons, layout=[1, 1, 1, 1]):
+        lyt = Layout(layout)
+        self.add_layout(lyt)
+        for b in buttons:
+            lyt.add_widget(Button(b[0], b[1]), b[2])
  
     # named arguments will be passed on to the asciimatics Text() constructor
     def add_textbox(self, label_text, default_value=None, **kwargs):
