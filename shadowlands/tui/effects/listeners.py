@@ -1,7 +1,10 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from shadowlands.tui.effects.widgets import SendBox, QuitDialog, MessageDialog, NetworkOptions, ValueOptions
+from shadowlands.tui.effects.widgets import QuitDialog, ValueOptions
+from shadowlands.tui.effects.send_box import SendBox 
+from shadowlands.tui.effects.message_dialog import MessageDialog
+from shadowlands.tui.effects.network_options import NetworkOptions
 from shadowlands.dapp_browser import DappBrowser
 from shadowlands.qrcode import QRCodeDisplay 
 from shadowlands.hd_addresses import HDAddressPicker

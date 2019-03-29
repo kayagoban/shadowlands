@@ -1,4 +1,5 @@
-from shadowlands.tui.effects.widgets import MessageDialog, TransactionFrame
+from shadowlands.tui.effects.message_dialog import MessageDialog
+from shadowlands.tui.effects.transaction_frame import TransactionFrame
 
 from shadowlands.tui.debug import debug
 from shadowlands.credstick import SignTxError

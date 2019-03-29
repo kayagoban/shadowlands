@@ -7,7 +7,8 @@ from asciimatics.event import KeyboardEvent, MouseEvent
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
 from shadowlands.credstick import SignTxError
-from shadowlands.tui.effects.widgets import MessageDialog, TransactionFrame
+from shadowlands.tui.effects.transaction_frame import TransactionFrame
+from shadowlands.tui.effects.message_dialog import MessageDialog
 from decimal import Decimal
 import pyperclip
 
