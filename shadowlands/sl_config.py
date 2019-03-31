@@ -63,7 +63,11 @@ class SLConfig():
             self._websocket_uri = self._options_dict['network_options']['websocket_uri']
             self._ipc_path = self._options_dict['network_options']['ipc_path']
             self._displayed_currency = self._options_dict['displayed_currency']
-            self._sl_dapp_path = self._options_dict['sl_dapp_path']
+            # sl_dapp_path should probably be _sl_dapp_path.
+            # But I tried that and THE UNIVERSE BROKE.
+            # I don't know why it works and doesn't work.
+            # I am re-examining my life.
+            self.sl_dapp_path = self._options_dict['sl_dapp_path']
             self._hd_base_path = self._options_dict['hd_base_path']
 
     def _write_config_file(self):
