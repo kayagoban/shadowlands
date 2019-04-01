@@ -72,5 +72,6 @@ class Contract():
     def fromWei(self, amount, denomination):
         return self._node.w3.fromWei(amount, denomination)
 
-    
-    
+    def bytes32(self, an_int):
+        return (an_int).to_bytes(32, byteorder='big')
+
