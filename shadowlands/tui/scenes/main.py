@@ -80,8 +80,6 @@ class MainScene(Scene):
             MainMenuListener(screen, interface)
 
 
-
-
             #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
  
             #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),

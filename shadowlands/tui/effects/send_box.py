@@ -6,6 +6,7 @@ from asciimatics.exceptions import NextScene
 from shadowlands.credstick import SignTxError
 import pyperclip
 
+from shadowlands.tui.debug import debug
 import pdb
 
 class SendBox(TransactionFrame):

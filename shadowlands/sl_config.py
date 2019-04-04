@@ -2,6 +2,7 @@ from pathlib import Path
 import yaml
 from yaml.constructor import ConstructorError
 import pdb
+from collections import deque
 import pathlib
 from pathlib import Path
 import sys
@@ -31,6 +32,7 @@ class SLConfig():
         self._displayed_currency = 'USD' 
         self._sl_dapp_path = str(Path.home().joinpath('.shadowlands').joinpath('example'))
         self._config_file_path = Path.home().joinpath(".shadowlands_conf")
+        self._txqueue = deque()
 
         if not self._config_file_path.exists():
             self._write_config_file()
@@ -63,6 +65,7 @@ class SLConfig():
             self._websocket_uri = self._options_dict['network_options']['websocket_uri']
             self._ipc_path = self._options_dict['network_options']['ipc_path']
             self._displayed_currency = self._options_dict['displayed_currency']
+            self._txqueue = self._options_dict['txqueue']
             # sl_dapp_path should probably be _sl_dapp_path.
             # But I tried that and THE UNIVERSE BROKE.
             # I don't know why it works and doesn't work.
@@ -80,6 +83,7 @@ class SLConfig():
             "displayed_currency": self._displayed_currency,
             "sl_dapp_path": self._sl_dapp_path,
             "hd_base_path": self._hd_base_path,
+            "txqueue": self._txqueue,
             "network_options": {
                 "default_method": self._default_method,
                 "http_uri": self._http_uri,
@@ -100,6 +104,19 @@ class SLConfig():
             sys.path.insert(0, str(new_value))
  
         self._sl_dapp_path = str(new_value)
+        self._write_config_file()
+
+    @property
+    def txqueue(self):
+        return self._txqueue
+
+    @property
+    def newest_tx(self):
+        return self._txqueue[0]
+
+    @newest_tx.setter
+    def newest_tx(self, new_value):
+        self._txqueue.appendleft(new_value)
         self._write_config_file()
 
     @property

@@ -56,6 +56,10 @@ class Node():
         self._thread_shutdown = False
 
     @property
+    def config(self):
+        return self._sl_config
+
+    @property
     def w3(self):
         return self._w3
 
@@ -183,7 +187,7 @@ class Node():
 
     def connect_config_default(self):
         try:
-            fn = self.__getattribute__(self._sl_config.default_method)
+            fn = self.__getattribute__(self.config.default_method)
         except (AttributeError, TypeError):
             return False
         return fn()
@@ -194,7 +198,7 @@ class Node():
         self.cleanout_w3()
         from web3.auto import w3
         if self.is_connected_with(w3, 'Local node', 1):
-            self._sl_config.default_method = self.connect_w3_local.__name__
+            self.config.default_method = self.connect_w3_local.__name__
             return True
         return False
 
@@ -208,7 +212,7 @@ class Node():
         self.cleanout_w3()
         _w3 = self.w3_websocket("wss://mainnet.infura.io/ws")
         if self.is_connected_with(_w3, 'Public infura', 18):
-            self._sl_config.default_method = self.connect_w3_public_infura.__name__
+            self.config.default_method = self.connect_w3_public_infura.__name__
             return True
         return False
 
@@ -217,11 +221,11 @@ class Node():
         #debug(); pdb.set_trace()
         self.cleanout_w3()
         if not custom_uri:
-            custom_uri = self._sl_config.websocket_uri
+            custom_uri = self.config.websocket_uri
         _w3 = self.w3_websocket(custom_uri)
         if self.is_connected_with(_w3, 'Custom websocket', 1):
-            self._sl_config.websocket_uri = custom_uri
-            self._sl_config.default_method = self.connect_w3_custom_websocket.__name__
+            self.config.websocket_uri = custom_uri
+            self.config.default_method = self.connect_w3_custom_websocket.__name__
             return True
         return False
 
@@ -230,7 +234,7 @@ class Node():
         self.cleanout_w3()
         from web3.auto.infura import w3
         if self.is_connected_with(w3, 'Custom infura', 18):
-            self._sl_config.default_method = self.connect_w3_custom_infura.__name__
+            self.config.default_method = self.connect_w3_custom_infura.__name__
             return True
         return False
 
@@ -239,11 +243,11 @@ class Node():
         self.cleanout_w3()
         from web3 import Web3
         if not path:
-            path = self._sl_config.ipc_path
+            path = self.config.ipc_path
         w3 = Web3(Web3.IPCProvider(path))
         if self.is_connected_with(w3, 'Custom IPC', 1):
-            self._sl_config.ipc_path = path
-            self._sl_config.default_method = self.connect_w3_custom_ipc.__name__
+            self.config.ipc_path = path
+            self.config.default_method = self.connect_w3_custom_ipc.__name__
             return True
         return False
 
@@ -252,11 +256,11 @@ class Node():
         self.cleanout_w3()
         from web3 import Web3
         if not custom_uri:
-            custom_uri = self._sl_config.http_uri
+            custom_uri = self.config.http_uri
         w3 = Web3(Web3.HTTPProvider(custom_uri))
         if self.is_connected_with(w3, 'Custom HTTP', 2):
-            self._sl_config.http_uri = custom_uri
-            self._sl_config.default_method = self.connect_w3_custom_http.__name__
+            self.config.http_uri = custom_uri
+            self.config.default_method = self.connect_w3_custom_http.__name__
             return True
         return False
 
@@ -265,7 +269,7 @@ class Node():
         self.cleanout_w3()
         from web3.auto.gethdev import w3
         if self.is_connected_with(w3, 'Gethdev PoA', 1):
-            self._sl_config.default_method = self.connect_w3_gethdev_poa.__name__
+            self.config.default_method = self.connect_w3_gethdev_poa.__name__
             return True
         return False
 
@@ -315,21 +319,25 @@ class Node():
         self._heartbeat_thread.join()
 
     def push(self, contract_function, gas_price, gas_limit=None, value=0):
-
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        rxo = self.w3.eth.getTransactionReceipt(rx)
+        self.config.newest_tx = rxo
         return encode_hex(rx)
-
 
     def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
         rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
+        rxo = self.w3.eth.waitForTransactionReceipt(rx)
+        self.config.newest_tx = rxo
         return self.w3.eth.waitForTransactionReceipt(rx)
 
     def send_ether(self,destination, amount, gas_price):
         tx_dict = self.build_send_tx(amount, destination, gas_price)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        rxo = self.w3.eth.getTransactionReceipt(rx)
+        self.config.newest_tx = rxo
         return encode_hex(rx)
 
     def build_send_tx(self,amt, recipient, gas_price):
