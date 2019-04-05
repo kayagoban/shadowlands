@@ -69,6 +69,26 @@ class HDPathRenderer(DynamicRenderer):
         hdpath = self._interface.credstick.hdpath_base + '/' + self._interface.credstick.hdpath_index
         return [hdpath], None
 
+class TxQueueRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(TxQueueRenderer, self).__init__(1, 32)
+        self._interface = interface
+
+    def _render_now(self):
+        tx_str = "        0) Send Ether     "
+        return [tx_str], None
+
+class TxQueueHashRenderer(DynamicRenderer):
+    def __init__(self, interface):
+        super(TxQueueHashRenderer, self).__init__(1, 32)
+        self._interface = interface
+
+    def _render_now(self):
+        tx_str = "TXs:  ║ 0xdeadbeef... ║"
+
+        return [tx_str], None
+
+
 
 class CredstickNameRenderer(DynamicRenderer):
     def __init__(self, interface):

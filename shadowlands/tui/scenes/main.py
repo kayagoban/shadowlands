@@ -8,7 +8,8 @@ from shadowlands.tui.effects.listeners import MainMenuListener
 from shadowlands.tui.renderers import (
     BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, 
     CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, 
-    ENSRenderer, QRCodeRenderer, HDPathRenderer
+    ENSRenderer, QRCodeRenderer, HDPathRenderer,
+    TxQueueRenderer, TxQueueHashRenderer
 )
 
 from shadowlands.tui.debug import debug
@@ -77,14 +78,9 @@ class MainScene(Scene):
             DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 11),
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
             DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
-            MainMenuListener(screen, interface)
-
-
-            #Materialize(screen, StaticRenderer([self.CREDSTICK_DISPLAY]), 0, 14, signal_acceleration_factor=1.05),
- 
-            #Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.1, start_frame=15),
-            #Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\tv0 . 0 1']), 10, 9, signal_acceleration_factor=1.0005,start_frame=35),
-            #LoadingScreenCursor(screen, StaticRenderer([PROMPT]), 0, 13, start_frame=75, speed=4, no_blink=False, thread=True)
+            MainMenuListener(screen, interface),
+            DynamicSourceCursor(screen, TxQueueRenderer(interface), 0, 22),
+            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23)
         ]
 
         super(MainScene, self).__init__(effects, -1, name=_name)
