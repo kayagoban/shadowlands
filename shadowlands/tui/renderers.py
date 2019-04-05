@@ -72,16 +72,40 @@ class HDPathRenderer(DynamicRenderer):
 
         return img_colour_map(image)
 
+def txqueue(self):
+    return [
+        {
+            'tx_hash': '0x36283e1c4d5ce3d671597ed05812a7562b05157b3559e264f4ab473a62dc5720',
+            'description': 'Send Ether'
+        },
+        {
+            'tx_hash': '0x291e0c845afd6dd2a21f4933ce374c5b86db5358b1b6576829b22d30a582e2bd',
+            'description': 'Generate DAI'
+        },
+        {
+           'tx_hash': '0x4c8bc0842ca19d90f4c1047a3961687ea494a1d8645df02f575be863ccb9d89c',
+            'description': 'Lock Ether'
+        }
+    ]
+
+
+
+
+
 class TxQueueRenderer(DynamicRenderer):
     def __init__(self, interface):
         super(TxQueueRenderer, self).__init__(1, 32)
         self._interface = interface
 
     def _render_now(self):
-        image = [ "       0x8e4dbE2f4Ca5    " ]
+        image = "      " 
+
+        for index, tx in enumerate(txqueue()):
+            image += " {} ".format(tx['tx_hash'])
+
         #tx_str = "     │ 0x8e4dbE2f4Ca5  │ "
         #tx_str = "     ╽ 0x8e4dbE2f4Ca5  ╽ "
-        return img_colour_map(image)
+        return img_colour_map([image])
 
 class TxQueueHashRenderer(DynamicRenderer):
 
@@ -90,7 +114,11 @@ class TxQueueHashRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        tx_str = "TXs: ║ 0) Send Ether   ║"
+        image = "TXs: " 
+
+        for index, tx in enumerate(txqueue()):
+            image += " ║ {}) {}".format(index, tx['description'])
+
         #tx_str = "TXs: ┃ 0) Send Ether   ┃"
         #tx_str = "TXs: ╿ 0) Send Ether   ╿"
         image = [tx_str]
