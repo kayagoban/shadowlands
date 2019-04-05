@@ -72,7 +72,7 @@ class HDPathRenderer(DynamicRenderer):
 
         return img_colour_map(image)
 
-def txqueue(self):
+def txqueue():
     return [
         {
             'tx_hash': '0x36283e1c4d5ce3d671597ed05812a7562b05157b3559e264f4ab473a62dc5720',
@@ -98,10 +98,11 @@ class TxQueueRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        image = "      " 
+        image = "       " 
 
         for index, tx in enumerate(txqueue()):
-            image += " {} ".format(tx['tx_hash'])
+            image += " {:<8} ".format(tx['tx_hash'][0:8])
+            #'{:<30}'.format('left aligned')
 
         #tx_str = "     │ 0x8e4dbE2f4Ca5  │ "
         #tx_str = "     ╽ 0x8e4dbE2f4Ca5  ╽ "
@@ -115,24 +116,25 @@ class TxQueueHashRenderer(DynamicRenderer):
 
     def _render_now(self):
         image = "TXs: " 
+        color_map = [(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(len(image)) ]
 
         for index, tx in enumerate(txqueue()):
-            image += " ║ {}) {}".format(index, tx['description'])
+            n = " ║ {}) {}".format(index, tx['description'])
+            n_map = [(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(len(n)) ] 
+            n_map[3] = (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK) 
+            image += n
+            color_map += n_map
+
 
         #tx_str = "TXs: ┃ 0) Send Ether   ┃"
         #tx_str = "TXs: ╿ 0) Send Ether   ╿"
-        image = [tx_str]
-        image_height = len(image)
-        image_width = len(image[0])
-        #colour_map = [[(None, 0, 0) for _ in range(image_width)] ]
+        #img_colour_map([tx_str])
+        #altered_map[1][0][7] = 
 
-        colour_map = [[(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(image_width)]]
+        #debug(); pdb.set_trace()
 
-        colour_map[0][7] = (Screen.COLOUR_WHITE, 
-                            Screen.A_BOLD, 
-                            Screen.COLOUR_BLACK)
-        
-        return image, colour_map
+        return [image], [color_map]
+        #return img_colour_map([image])
 
 
 

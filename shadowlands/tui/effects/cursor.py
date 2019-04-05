@@ -65,14 +65,19 @@ class Cursor(Effect):
             #logging.info('in for loop')
             #logging.info([self.char, len(image[self.image_index])])
 
-
             char_colour = self._colour
 
             if colours is not None:
                 char_colour = colours[self.image_index][self.char] or self._colour
 
-
-            self._screen.print_at(image[self.image_index][self.char], self._x, self._y, colour=char_colour[0], attr=char_colour[1], bg=char_colour[2])
+            self._screen.print_at(
+                image[self.image_index][self.char], 
+                self._x, 
+                self._y, 
+                colour=char_colour[0], 
+                attr=char_colour[1], 
+                bg=char_colour[2]
+            )
 
             self._x += 1
             self.char += 1
