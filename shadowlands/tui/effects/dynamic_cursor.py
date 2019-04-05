@@ -1,10 +1,15 @@
 from shadowlands.tui.effects.cursor import Cursor
+from shadowlands.tui.debug import debug
+import pdb
+
 
 class DynamicSourceCursor(Cursor):
     def __init__(self, screen, renderer, x, y, refresh_period=None, **kwargs):
         super(DynamicSourceCursor, self).__init__(screen, renderer, x, y, **kwargs)
         self._previous_buffer = ['']
         self._current_buffer = ['']
+        self._previous_colours = [()]
+        self._current_colours = [()]
         self._refresh_period = refresh_period
 
     def need_new_buffer(self):
@@ -19,9 +24,14 @@ class DynamicSourceCursor(Cursor):
             image, colours = self._renderer.rendered_text
             self._previous_buffer = self._current_buffer
             self._current_buffer = image
+            self._previous_colours = self._current_colours
+            self._current_colours = colours
             self.reset()
 
-        return self._current_buffer
+
+        #debug(); pdb.set_trace()
+
+        return self._current_buffer, self._current_colours
 
 
     def _update(self, frame_no):
@@ -42,7 +52,14 @@ class DynamicSourceCursor(Cursor):
         if size_difference > 0:
             #spaces = ' ' * size_difference
             for i in range(size_difference):
-                self._screen.print_at(' ', self._x+i, self._y, self._colour)
+                self.print_space(i)
                 if i < size_difference - 1:
-                    self._screen.print_at(self.CURSOR, self._x+i+1, self._y, self._colour)
+                    self.print_cursor(i)
+
+    def print_space(self, i):
+        self._screen.print_at(' ', self._x+i, self._y, self._colour)
+
+    def print_cursor(self, i):
+        self._screen.print_at(self.CURSOR, self._x+i+1, self._y, self._colour)
+
  

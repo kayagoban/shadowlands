@@ -9,6 +9,8 @@ import pdb
 
 
 #debug(); pdb.set_trace()
+def img_colour_map(image):
+    return image, [[(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(len(image[0])) ] ]
 
 class NetworkStatusRenderer(DynamicRenderer):
     def __init__(self, _node):
@@ -17,9 +19,11 @@ class NetworkStatusRenderer(DynamicRenderer):
 
     def _render_now(self):
         if self.node.connection_type and self.node.network_name:
-            return ["{},  {}".format(self.node.connection_type, self.node.network_name)], None
+            image =  ["{},  {}".format(self.node.connection_type, self.node.network_name)]
+        else:
+            image = ['No ethereum connection']
 
-        return ['No ethereum connection'], None
+        return img_colour_map(image)
 
 
 class BlockStatusRenderer(DynamicRenderer):
@@ -30,19 +34,16 @@ class BlockStatusRenderer(DynamicRenderer):
 
     def _render_now(self):
         syncing = self.node.syncing_hash
-        if not ( syncing or self.node.best_block):
-            return [ '[No blocks available]' ], None
 
+        if syncing is None or not ( syncing or self.node.best_block):
+            return img_colour_map([ '[No blocks available]' ])
 
-        if syncing == None:
-            return [ '[No blocks available]' ], None
         elif syncing.__class__ == bool and syncing == False:
-            images = ['[synced: block ' + str(self.node.best_block) + ']'
-                     ]
+            images = ['[synced: block ' + str(self.node.best_block) + ']']
         else:
             images = [ '[syncing:  ' + str(self.node.blocks_behind) + ' blocks to ' + str(self.node.syncing_hash['highestBlock']) + ']' ]
 
-        return images, None
+        return img_colour_map(images)
 
 class AddressRenderer(DynamicRenderer):
     def __init__(self, interface):
@@ -51,10 +52,11 @@ class AddressRenderer(DynamicRenderer):
 
     def _render_now(self):
         if not self._interface.credstick:
-            return ['Unknown'], None
+            image = ['Unknown']
+        else:
+            image = [ self._interface.credstick.addressStr() ]
 
-        addr = self._interface.credstick.addressStr()
-        return [addr], None
+        return img_colour_map(image)
 
 
 class HDPathRenderer(DynamicRenderer):
@@ -64,10 +66,11 @@ class HDPathRenderer(DynamicRenderer):
 
     def _render_now(self):
         if not self._interface.credstick:
-            return ['Unknown'], None
+            image = ['Unknown']
+        else:
+            image = [ self._interface.credstick.hdpath_base + '/' + self._interface.credstick.hdpath_index ]
 
-        hdpath = self._interface.credstick.hdpath_base + '/' + self._interface.credstick.hdpath_index
-        return [hdpath], None
+        return img_colour_map(image)
 
 class TxQueueRenderer(DynamicRenderer):
     def __init__(self, interface):
@@ -75,18 +78,33 @@ class TxQueueRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        tx_str = "        0) Send Ether     "
-        return [tx_str], None
+        image = [ "       0x8e4dbE2f4Ca5    " ]
+        #tx_str = "     │ 0x8e4dbE2f4Ca5  │ "
+        #tx_str = "     ╽ 0x8e4dbE2f4Ca5  ╽ "
+        return img_colour_map(image)
 
 class TxQueueHashRenderer(DynamicRenderer):
+
     def __init__(self, interface):
         super(TxQueueHashRenderer, self).__init__(1, 32)
         self._interface = interface
 
     def _render_now(self):
-        tx_str = "TXs:  ║ 0xdeadbeef... ║"
+        tx_str = "TXs: ║ 0) Send Ether   ║"
+        #tx_str = "TXs: ┃ 0) Send Ether   ┃"
+        #tx_str = "TXs: ╿ 0) Send Ether   ╿"
+        image = [tx_str]
+        image_height = len(image)
+        image_width = len(image[0])
+        #colour_map = [[(None, 0, 0) for _ in range(image_width)] ]
 
-        return [tx_str], None
+        colour_map = [[(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(image_width)]]
+
+        colour_map[0][7] = (Screen.COLOUR_WHITE, 
+                            Screen.A_BOLD, 
+                            Screen.COLOUR_BLACK)
+        
+        return image, colour_map
 
 
 
@@ -98,14 +116,13 @@ class CredstickNameRenderer(DynamicRenderer):
     def _render_now(self):
         space_available = 29 
         if not self._interface.credstick:
-            name = 'Unknown'
+            image =  ['Unknown']
         else:
             name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
             padding = '═' * (space_available - len(name))
-            name = "{} {}".format(name,padding)
-
+            image =  [ "{} {}".format(name,padding) ]
             
-        return [name], None
+        return img_colour_map(image)
 
 class QRCodeRenderer(DynamicRenderer):
     def __init__(self, interface):
@@ -117,7 +134,6 @@ class QRCodeRenderer(DynamicRenderer):
             qr_image = ['No QR Data']
             colour_map = [None, 0, 0]
         else:
-
             #debug(); pdb.set_trace()
             qr = qrcode.QRCode(
                 version=1,
@@ -147,13 +163,16 @@ class EthBalanceRenderer(DynamicRenderer):
         try:
             bal = self._interface.node.eth_balance
         except AttributeError:
-            return ['Unknown'], None
+            return img_colour_map(['Unknown'])
+
+        bal_str = 'Unknown'
 
         if bal:
             bal_str = str( bal )
-        else:
-            bal_str = 'Unknown'
-        return [bal_str], None
+
+        image  = [bal_str]
+
+        return img_colour_map(image)
 
 
 class EthValueRenderer(DynamicRenderer):
@@ -166,15 +185,15 @@ class EthValueRenderer(DynamicRenderer):
         try:
             currency_val = Decimal(self._interface._price_poller.eth_price)
         except (TypeError, KeyError, PriceError):
-            return ['Unavailable'], None
+            return img_colour_map(['Unavailable'])
 
         try:
             eth = self._interface.node.eth_balance
         except AttributeError:
-            return ['Unavailable'], None
+            return img_colour_map(['Unavailable'])
 
         if not eth:
-            return ['Unavailable'], None
+            return img_colour_map(['Unavailable'])
 
         if curr == 'BTC':
             decimal_places = 6
@@ -182,9 +201,9 @@ class EthValueRenderer(DynamicRenderer):
             decimal_places = 2
 
         val = str(round(currency_val * eth, decimal_places))
-        val = "{} {} {}".format(curr, self._interface._config.curr_symbol, val)
+        image = [ "{} {} {}".format(curr, self._interface._config.curr_symbol, val) ]
 
-        return [val], None
+        return img_colour_map(image)
 
 
 class ENSRenderer(DynamicRenderer):
@@ -197,7 +216,9 @@ class ENSRenderer(DynamicRenderer):
         if not domain:
             domain = 'No Reverse ENS'
 
-        return [domain], None
+        image = [domain]
+
+        return img_colour_map(image)
 
 
 

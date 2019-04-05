@@ -60,11 +60,20 @@ class Cursor(Effect):
         #logging.info([self.char, len(image[self.image_index])])
 
 
-    def render_multiple_chars(self, image):
+    def render_multiple_chars(self, image, colours):
         for i in range(self._speed):
             #logging.info('in for loop')
             #logging.info([self.char, len(image[self.image_index])])
-            self._screen.print_at(image[self.image_index][self.char], self._x, self._y, self._colour)
+
+
+            char_colour = self._colour
+
+            if colours is not None:
+                char_colour = colours[self.image_index][self.char] or self._colour
+
+
+            self._screen.print_at(image[self.image_index][self.char], self._x, self._y, colour=char_colour[0], attr=char_colour[1], bg=char_colour[2])
+
             self._x += 1
             self.char += 1
 
@@ -102,12 +111,12 @@ class Cursor(Effect):
 
     def get_buffer(self):
         image, colours = self._renderer.rendered_text
-        return image
+        return image, colours
 
 
     def _update_thread(self, frame_no):
         
-        image = self.get_buffer()
+        image, colours = self.get_buffer()
 
         # Exit if we are already at the end of the line
         # otherwise, blink if you wanna
@@ -120,7 +129,7 @@ class Cursor(Effect):
 
         self.wrap_if_needed()
 
-        self.render_multiple_chars(image)
+        self.render_multiple_chars(image, colours)
             
 
     
