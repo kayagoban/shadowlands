@@ -322,22 +322,20 @@ class Node():
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        rxo = self.w3.eth.getTransactionReceipt(rx)
-        self.config.newest_tx = rxo
+        self.config.newest_tx = self.w3.eth.getTransaction(rx)
         return encode_hex(rx)
 
     def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
         rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
-        rxo = self.w3.eth.waitForTransactionReceipt(rx)
-        self.config.newest_tx = rxo
-        return self.w3.eth.waitForTransactionReceipt(rx)
+        self.config.newest_tx = self.w3.eth.getTransaction(rx)
+        return encode_hex(rx)
 
     def send_ether(self,destination, amount, gas_price):
         tx_dict = self.build_send_tx(amount, destination, gas_price)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        rxo = self.w3.eth.getTransactionReceipt(rx)
-        self.config.newest_tx = rxo
+        self.config.newest_tx = self.w3.eth.getTransaction(rx)
+
         return encode_hex(rx)
 
     def build_send_tx(self,amt, recipient, gas_price):

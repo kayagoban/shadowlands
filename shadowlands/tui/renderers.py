@@ -7,6 +7,48 @@ import qrcode
 from shadowlands.tui.debug import debug
 import pdb
 
+SL_COLOR = (Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK)
+
+
+def sl_color_map(image):
+    return [SL_COLOR for _ in range(len(image))]
+
+
+class TxQueueHashRenderer(DynamicRenderer):
+
+    def __init__(self, interface):
+        super(TxQueueHashRenderer, self).__init__(1, 32)
+        self._interface = interface
+
+    @property
+    def txqueue(self):
+        return self._interface.config.txqueue
+
+    def _render_now(self):
+        if len(self.txqueue) < 1:
+            return [''], [()]
+
+        image = "TXs: " 
+        color_map = sl_color_map(image)
+
+        for index, tx in enumerate(self.txqueue):
+            #debug(); pdb.set_trace()
+
+            if index > 0 and index < len(self.txqueue):
+                image += '║'
+                color_map += [SL_COLOR]
+                
+            tx_image = " {}) {} ".format(index, tx.hash.hex()[0:9])
+            tx_map = sl_color_map(tx_image) 
+            tx_map[1] = (Screen.COLOUR_WHITE, 
+                         Screen.A_BOLD, 
+                         Screen.COLOUR_BLACK) 
+            image += tx_image 
+            color_map += tx_map
+
+        #debug(); pdb.set_trace()
+        return [image], [color_map]
+
 
 #debug(); pdb.set_trace()
 def img_colour_map(image):
@@ -112,42 +154,6 @@ class TxQueueDescRenderer(DynamicRenderer):
             image += " {} ".format(tx['tx_hash'][0:desc_len])
 
         return img_colour_map([image])
-
-SL_COLOR = (Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK)
-
-def sl_color_map(image):
-    return [SL_COLOR for _ in range(len(image))]
-
-class TxQueueHashRenderer(DynamicRenderer):
-
-    def __init__(self, interface):
-        super(TxQueueHashRenderer, self).__init__(1, 32)
-        self._interface = interface
-
-    def _render_now(self):
-        if len(txqueue()) < 1:
-            return [''], [()]
-
-        image = "TXs: " 
-
-        color_map = sl_color_map(image)
-
-        for index, tx in enumerate(txqueue()):
-
-            if index > 0 and index < len(txqueue()):
-                image += '║'
-                color_map += [SL_COLOR]
-                
-            tx_image = " {}) {} ".format(index, tx['tx_hash'][0:9])
-            tx_map = sl_color_map(tx_image) 
-            tx_map[1] = (Screen.COLOUR_WHITE, 
-                         Screen.A_BOLD, 
-                         Screen.COLOUR_BLACK) 
-            image += tx_image 
-            color_map += tx_map
-
-        #debug(); pdb.set_trace()
-        return [image], [color_map]
 
 
 
