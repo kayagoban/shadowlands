@@ -73,6 +73,7 @@ class HDPathRenderer(DynamicRenderer):
         return img_colour_map(image)
 
 def txqueue():
+    #return []
     return [
         {
             'tx_hash': '0x36283e1c4d5ce3d671597ed05812a7562b05157b3559e264f4ab473a62dc5720',
@@ -84,15 +85,21 @@ def txqueue():
         },
         {
            'tx_hash': '0x4c8bc0842ca19d90f4c1047a3961687ea494a1d8645df02f575be863ccb9d89c',
-            'description': 'Lock Ether'
+            'description': 'Materialize'
+        },
+        {
+           'tx_hash': '0x961687ea494a1d8645df02f575be863ccb9d89c',
+            'description': 'Materialize'
+        },
+        {
+           'tx_hash': '0x5df02f575be863ccb9d89c',
+            'description': 'Materialize'
         }
+ 
     ]
 
 
-
-
-
-class TxQueueRenderer(DynamicRenderer):
+class TxQueueDescRenderer(DynamicRenderer):
     def __init__(self, interface):
         super(TxQueueRenderer, self).__init__(1, 32)
         self._interface = interface
@@ -101,12 +108,15 @@ class TxQueueRenderer(DynamicRenderer):
         image = "       " 
 
         for index, tx in enumerate(txqueue()):
-            image += " {:<8} ".format(tx['tx_hash'][0:8])
-            #'{:<30}'.format('left aligned')
+            desc_len = len(tx['description'])
+            image += " {} ".format(tx['tx_hash'][0:desc_len])
 
-        #tx_str = "     │ 0x8e4dbE2f4Ca5  │ "
-        #tx_str = "     ╽ 0x8e4dbE2f4Ca5  ╽ "
         return img_colour_map([image])
+
+SL_COLOR = (Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK)
+
+def sl_color_map(image):
+    return [SL_COLOR for _ in range(len(image))]
 
 class TxQueueHashRenderer(DynamicRenderer):
 
@@ -115,26 +125,29 @@ class TxQueueHashRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
+        if len(txqueue()) < 1:
+            return [''], [()]
+
         image = "TXs: " 
-        color_map = [(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(len(image)) ]
+
+        color_map = sl_color_map(image)
 
         for index, tx in enumerate(txqueue()):
-            n = " ║ {}) {}".format(index, tx['description'])
-            n_map = [(Screen.COLOUR_GREEN, Screen.A_NORMAL, Screen.COLOUR_BLACK) for _ in range(len(n)) ] 
-            n_map[3] = (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK) 
-            image += n
-            color_map += n_map
 
-
-        #tx_str = "TXs: ┃ 0) Send Ether   ┃"
-        #tx_str = "TXs: ╿ 0) Send Ether   ╿"
-        #img_colour_map([tx_str])
-        #altered_map[1][0][7] = 
+            if index > 0 and index < len(txqueue()):
+                image += '║'
+                color_map += [SL_COLOR]
+                
+            tx_image = " {}) {} ".format(index, tx['tx_hash'][0:9])
+            tx_map = sl_color_map(tx_image) 
+            tx_map[1] = (Screen.COLOUR_WHITE, 
+                         Screen.A_BOLD, 
+                         Screen.COLOUR_BLACK) 
+            image += tx_image 
+            color_map += tx_map
 
         #debug(); pdb.set_trace()
-
         return [image], [color_map]
-        #return img_colour_map([image])
 
 
 

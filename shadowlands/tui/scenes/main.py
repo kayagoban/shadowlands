@@ -9,7 +9,7 @@ from shadowlands.tui.renderers import (
     BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, 
     CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, 
     ENSRenderer, QRCodeRenderer, HDPathRenderer,
-    TxQueueRenderer, TxQueueHashRenderer
+    TxQueueHashRenderer
 )
 
 from shadowlands.tui.debug import debug
@@ -77,14 +77,13 @@ class MainScene(Scene):
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
             DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
             MainMenuListener(screen, interface),
-            DynamicSourceCursor(screen, TxQueueRenderer(interface), 0, 22),
             DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23)
         ]
 
         super(MainScene, self).__init__(effects, -1, name=_name)
 
         #debug(screen._screen); import pdb; pdb.set_trace()
-
+ 
  
 
 
