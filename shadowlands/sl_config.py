@@ -110,6 +110,15 @@ class SLConfig():
     def txqueue(self):
         return self._txqueue
 
+    @txqueue.setter
+    def txqueue(self, new_value):
+        self._txqueue = new_value
+        self._write_config_file()
+
+    def txqueue_remove(self, item):
+        self._txqueue.remove(item)
+        self._write_config_file()
+
     @property
     def newest_tx(self):
         return self._txqueue[0]

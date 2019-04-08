@@ -8,14 +8,14 @@ from enum import Enum
 from eth_utils import decode_hex, encode_hex
 from ens import ENS
 import threading
-
-import logging
-
-
+import asyncio
+from shadowlands.block_listener import BlockListener
 import pdb
 from shadowlands.tui.debug import debug
 
-logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.eth_node.log")
+
+import logging
+logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
 #debug(); #pdb.set_trace()
    
@@ -54,6 +54,7 @@ class Node():
         self._connection_type = None
         self._localNode = None
         self._thread_shutdown = False
+        self._block_listener = None
 
     @property
     def config(self):
@@ -156,11 +157,20 @@ class Node():
                 else:
                     self._ens_domain = 'Unknown'
 
+
     def is_connected_with(self, _w3, connection_type, _heart_rate):
         if not _w3.isConnected():
             return False
 
         self._w3 = _w3
+
+        logging.info("start block listener")
+        if self._block_listener is None:
+            self._block_listener = BlockListener(self, self.config)
+            
+            threading.Thread(target=self._block_listener.listen, args=([12])).start()
+
+        logging.info("finished start block listener")
 
         if self._w3.version.network == '4':
             self._w3.middleware_stack.inject(geth_poa_middleware, layer=0)
@@ -288,8 +298,6 @@ class Node():
             self.stop_thread()
             exit()
 
-
-
     def heartbeat(self):
         logging.debug("eth_node heartbeat()")
         while True:
@@ -307,33 +315,39 @@ class Node():
 
     def start_heartbeat_thread(self):
         logging.debug("eth_node start_heartbeat_thread()")
+        #self.heartbeat()
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
-        self._heartbeat_thread.start()
+        self.heartbeat_thread.start()
 
     def stop_thread(self):
         logging.debug("eth_node stop_thread()")
-        if self._heartbeat_thread == None:
-            return
 
-        self._thread_shutdown = True
-        self._heartbeat_thread.join()
+        if self._block_listener is not None:
+            self._block_listener.shutdown = True
+
+        if self._heartbeat_thread is not None:
+            self._thread_shutdown = True
+            self._heartbeat_thread.join()
 
     def push(self, contract_function, gas_price, gas_limit=None, value=0):
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         self.config.newest_tx = self.w3.eth.getTransaction(rx)
+        logging.info("%s | added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
     def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
         rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
         self.config.newest_tx = self.w3.eth.getTransaction(rx)
+        logging.info("%s |  added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
     def send_ether(self,destination, amount, gas_price):
         tx_dict = self.build_send_tx(amount, destination, gas_price)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        logging.info("%s | added tx %s", time.ctime(), rx.hex())
         self.config.newest_tx = self.w3.eth.getTransaction(rx)
 
         return encode_hex(rx)

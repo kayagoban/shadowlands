@@ -2,6 +2,7 @@ from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, 
 import os
 from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
 from shadowlands.tui.effects.message_dialog import MessageDialog
+from asciimatics.exceptions import NextScene
 
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
