@@ -1,6 +1,7 @@
 import sys, time, os
 from decimal import Decimal
 from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, ValidationError, StaleBlockchain
+from requests.exceptions import ConnectionError
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 from web3.utils.threads import Timeout
 from web3.middleware import geth_poa_middleware
@@ -182,7 +183,6 @@ class Node():
         # If parity client...
         # Monkey patch the txpool object so we can get parity txPool info
         # self.w3.txpool = ParityCompatibleTxPool(self._w3)
-        # import pdb; pdb.set_trace()
 
         self._heart_rate = self._heart_rate
         self._connection_type = connection_type
@@ -228,7 +228,6 @@ class Node():
 
 
     def connect_w3_custom_websocket(self, custom_uri=None):
-        #debug(); pdb.set_trace()
         self.cleanout_w3()
         if not custom_uri:
             custom_uri = self.config.websocket_uri
@@ -286,12 +285,11 @@ class Node():
 
     def poll(self):
         logging.debug("eth_node poll()")
-        #pdb.set_trace()
         try: 
             self._w3.isConnected()
             self._update_status()
 
-        except (AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain):
+        except (ConnectionError, AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain):
             self.connect_config_default() or self.connect_w3_local() or self.connect_w3_public_infura()
         except ValueError:
             logging.debug("eth_node: Value Error in poll()")

@@ -11,6 +11,7 @@ from shadowlands.hd_addresses import HDAddressPicker
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.sl_network_dapp import SLNetworkDapp
+from shadowlands.tx_inspector import TxInspector
 from shadowlands.credstick import DeriveCredstickAddressError
 from shadowlands.tui.debug import debug
 import importlib
@@ -167,5 +168,25 @@ class MainMenuListener(Effect):
                 self._interface.price_poller
             )
  
+        elif event.key_code in [ 
+            ord('0'), ord('1'), ord('2'), ord('3'), ord('4')
+        ]:
+            ''' 
+            TODO allow ctrl-0 through ctrl-4, and pass through
+            these chars on SLDapp API frames, so that txs can
+            be inspected even when using 3rd party dapps.
+            '''
+            TxInspector(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller,
+                int(chr(event.key_code))
+            )
+
         else:
             return None
+
+
+

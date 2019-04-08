@@ -17,6 +17,9 @@ from shadowlands.tui.debug import debug
 from web3 import Web3
 import pdb
 
+import logging
+logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
+
 
 # The Trezor protocol is a dumpster fire of shitty design
 # caused by the inability to authenticate without client
@@ -32,16 +35,22 @@ class TrezorEthDriver(Credstick):
     hdpath_index = '0'
 
     @classmethod
-    def call_raw(cls, msg):
+    def call_raw(cls, msg, atomic=True):
         #__tracebackhide__ = True  # pytest traceback hiding - this function won't appear in tracebacks
-        cls.transport.session_begin()
+
+        cls.transport.begin_session()
+        logging.info("call_raw transport.write(msg): %s", msg)
         cls.transport.write(msg)
         response = cls.transport.read()
-        cls.transport.session_end()
+
+        if atomic:
+            cls.transport.end_session()
+
         return response
 
     @classmethod
     def open(cls):
+        #pdb.set_trace()
         try:
             cls.transport = get_transport(None, prefix_search=False)
         except StopIteration as e:
@@ -54,7 +63,8 @@ class TrezorEthDriver(Credstick):
 
         try:
             cls.features = cls.call_raw(init_msg)
-        except TransportException:
+            logging.info("call_raw transport.write(msg): %s", init_msg)
+        except (TransportException):
             raise OpenCredstickError("Error opening Trezor")
 
     #self.features = expect(proto.Features)(self.call)(init_msg)
@@ -136,34 +146,40 @@ The layout is:
  
     @classmethod
     def derive(cls, hdpath_base="44'/60'/0'/0", hdpath_index='0', set_address=False):
+        logging.info("Attempting to derive %s/%s", hdpath_base, hdpath_index)
 
         hdpath = hdpath_base + '/' + hdpath_index
         address_n = tools.parse_path(hdpath)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
         try:
             response = cls.call_raw(call_obj)
+
+            while response.__class__.__name__ == 'ButtonRequest':
+                response = cls.call_raw(proto.ButtonAck())
+
+            if response.__class__.__name__ == 'PinMatrixRequest':
+                cls.matrix_request_window()
+            elif response.__class__.__name__ == 'PassphraseRequest':
+                cls.passphrase_request_window()
+            elif response.__class__.__name__ == 'Failure':
+                raise DeriveCredstickAddressError
+            else:
+                logging.info("trezor response address: 0x%s", response)
+                address = response.address
+                if set_address is True:
+                    cls.address = address
+                    cls.hdpath_base = hdpath_base
+                    cls.hdpath_index = hdpath_index
+                return address
+
         except TransportException:
             raise DeriveCredstickAddressError
-
-        if response.__class__.__name__ == 'PinMatrixRequest':
-            cls.matrix_request_window()
-        elif response.__class__.__name__ == 'PassphraseRequest':
-            cls.passphrase_request_window()
-        elif response.__class__.__name__ == 'Failure':
-            raise DeriveCredstickAddressError
-        else:
-            address = '0x' + binascii.hexlify(response.address).decode('ascii')
-            derived_address = Web3.toChecksumAddress(address)
-            if set_address is True:
-                cls.address = derived_address
-                cls.hdpath_base = hdpath_base
-                cls.hdpath_index = hdpath_index
-            return derived_address
 
 
 
     @classmethod
     def signTx(cls, tx):
+
 
         def int_to_big_endian(value):
             return value.to_bytes((value.bit_length() + 7) // 8, 'big')
@@ -179,7 +195,8 @@ The layout is:
             value=int_to_big_endian(tx['value']))
 
         if tx['to']:
-            msg.to = decode_hex(tx['to'])
+            #msg.to = decode_hex(tx['to'])
+            msg.to = tx['to']
 
         data = tx['data']
         if data:
@@ -188,8 +205,10 @@ The layout is:
             msg.data_initial_chunk = chunk
 
         try:
-            response = cls.call_raw(msg)
 
+            #debug(); pdb.set_trace()
+            response = cls.call_raw(msg, atomic=False)
+    
             # Confused?   Ask trezor why.  I don't know why.
             # ButtonAck is a no-op afaict.  But you still have to send it.
             # Punch the monkey.
@@ -211,25 +230,36 @@ The layout is:
         while response.data_length is not None:
             data_length = response.data_length
             data, chunk = data[data_length:], data[:data_length]
-            response = cls.call_raw(proto.EthereumTxAck(data_chunk=chunk))
+            response = cls.call_raw(
+                proto.EthereumTxAck(data_chunk=chunk), 
+                atomic=False
+            )
 
-        
+        # above, we were calling out with atomic=False to 
+        # prevent the session from being terminated.
+        cls.transport.end_session()
+
         _v = response.signature_v
         _r = response.signature_r
         _s = response.signature_s
 
-        stx = cls.signed_tx(tx, _v, 
-                            int(_r.hex(), 16), 
-                            int(_s.hex(), 16)
-                           )
+        # NOTE This is a hack to satisfy eth_account
+        class AsDictableDict(dict):
+            def as_dict(self):
+                return self
+
+        tx = AsDictableDict(tx)
+
+        stx = cls.signed_tx(tx, _v, int(_r.hex(), 16), int(_s.hex(), 16))
         return stx
 
     #debug(); pdb.set_trace()
 
     @classmethod
     def close(cls):
-        if cls.transport:
-            cls.transport.close()
+        pass
+        #if cls.transport:
+            #cls.transport.end_session()
 
 
 class SomeException(Exception):

@@ -11,6 +11,11 @@ from shadowlands.tui.tui import Interface
 import pdb
 from shadowlands.tui.debug import debug
 
+
+from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
+from decimal import Decimal
+from time import sleep
+
 #pdb.set_trace()
 
 load_dapp = None
@@ -25,12 +30,13 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     if hdpath_base and hdpath_index:
         Credstick.hdpath_base = hdpath_base
         Credstick.hdpath_index = hdpath_index
-        
+
     if load_dapp:
        load_dapp = dapp
 
     # Read from config file
     sl_config = SLConfig()
+
 
     # Start network subsystem
     eth_node = Node(sl_config=sl_config)
