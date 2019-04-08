@@ -355,7 +355,7 @@ class Node():
     def build_send_tx(self,amt, recipient, gas_price):
         return  dict(
             chainId=int(self._network),
-            nonce=self.w3.eth.getTransactionCount(self.credstick.addressStr()),
+            nonce=self.next_nonce(),
             gasPrice=gas_price,
             gas=100000,
             to=recipient,
@@ -366,13 +366,27 @@ class Node():
     def defaultTxDict(self, gas_price, gas_limit=None, value=0):
         txdict = dict(
             chainId=int(self._network),
-            nonce=self.w3.eth.getTransactionCount(self.credstick.addressStr()),
+            nonce=self.next_nonce(),
             gasPrice=int(gas_price),
             value=value
         ) 
         if gas_limit:
             txdict['gas'] = gas_limit
         return txdict
+
+    '''
+    Find next nonce (according to our internally kept txqueue)
+    '''
+    def next_nonce(self):
+        address = self.credstick.addressStr()
+        pending_txs = [x for x in self.config.txqueue if x['from'] == address] 
+
+        if len(pending_txs) > 0:
+            sorted_txs = sorted(pending_txs, key=lambda x: x.nonce)
+            return sorted_txs[0]['nonce'] + 1
+
+        return self.w3.eth.getTransactionCount(address)
+
 
 
     def find_parity_tx(self, tx_hash):
