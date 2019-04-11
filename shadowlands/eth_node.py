@@ -92,6 +92,12 @@ class Node():
         return self.NETWORKDICT[self._network]
 
     @property
+    def network(self):
+        if self._network is None:
+            return None
+        return self._network
+
+    @property
     def connection_type(self):
         return self._connection_type
 
@@ -165,14 +171,6 @@ class Node():
 
         self._w3 = _w3
 
-        logging.info("start block listener")
-        if self._block_listener is None:
-            self._block_listener = BlockListener(self, self.config)
-            
-            threading.Thread(target=self._block_listener.listen, args=([12])).start()
-
-        logging.info("finished start block listener")
-
         if self._w3.version.network == '4':
             self._w3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
@@ -191,6 +189,14 @@ class Node():
             self._update_status()
         except UnhandledRequest:
             return False
+
+        logging.info("start block listener")
+        if self._block_listener is None:
+            self._block_listener = BlockListener(self, self.config)
+            
+            threading.Thread(target=self._block_listener.listen, args=([12])).start()
+
+        logging.info("finished start block listener")
 
         return True
 
@@ -331,13 +337,13 @@ class Node():
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        self.config.newest_tx = self.w3.eth.getTransaction(rx)
+        self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
     def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
         rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
-        self.config.newest_tx = self.w3.eth.getTransaction(rx)
+        self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
         logging.info("%s |  added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
@@ -346,7 +352,7 @@ class Node():
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
-        self.config.newest_tx = self.w3.eth.getTransaction(rx)
+        self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
 
         return encode_hex(rx)
 
@@ -377,7 +383,7 @@ class Node():
     '''
     def next_nonce(self):
         address = self.credstick.addressStr()
-        pending_txs = [x for x in self.config.txqueue if x['from'] == address] 
+        pending_txs = [x for x in self.config.txqueue(self.network) if x['from'] == address] 
 
         if len(pending_txs) > 0:
             sorted_txs = sorted(pending_txs, key=lambda x: x.nonce)

@@ -25,13 +25,13 @@ class TxQueueHashRenderer(DynamicRenderer):
         return self._interface.config.txqueue
 
     def _render_now(self):
-        if len(self.txqueue) < 1:
+        if len(self.txqueue(self._interface.node.network)) < 1:
             return [''], [()]
 
         image = "TXs: " 
         color_map = sl_color_map(image)
 
-        for index, tx in enumerate(self.txqueue):
+        for index, tx in enumerate(self.txqueue(self._interface.node.network)):
             #debug(); pdb.set_trace()
 
             if index > 0 and index < len(self.txqueue):

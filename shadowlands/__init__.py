@@ -37,7 +37,6 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     # Read from config file
     sl_config = SLConfig()
 
-
     # Start network subsystem
     eth_node = Node(sl_config=sl_config)
 

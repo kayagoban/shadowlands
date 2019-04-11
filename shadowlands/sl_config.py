@@ -6,6 +6,9 @@ from collections import deque
 import pathlib
 from pathlib import Path
 import sys
+import pdb
+from shadowlands.tui.debug import debug
+
 
 class SLConfig():
 
@@ -33,6 +36,7 @@ class SLConfig():
         self._sl_dapp_path = str(Path.home().joinpath('.shadowlands').joinpath('example'))
         self._config_file_path = Path.home().joinpath(".shadowlands_conf")
         self._txqueue = deque()
+        self._txqueues = {}
 
         if not self._config_file_path.exists():
             self._write_config_file()
@@ -44,6 +48,9 @@ class SLConfig():
         except (KeyError, TypeError):
             self._clobber_bad_file()
             # formatting error, possibly an incompatible cfg file.  We overwrite to fix this problem, better to lose some configs than die with an exception.
+
+        
+
     def _clobber_bad_file(self):
         self._write_config_file()
         self._read_yaml()
@@ -106,26 +113,22 @@ class SLConfig():
         self._sl_dapp_path = str(new_value)
         self._write_config_file()
 
-    @property
-    def txqueue(self):
-        return self._txqueue
+    def txqueue(self, chain_id):
+        return [x for x in self._txqueue if x.chainId == chain_id]
 
-    @txqueue.setter
-    def txqueue(self, new_value):
-        self._txqueue = new_value
-        self._write_config_file()
+    #@txqueue.setter
+    #def txqueue(self, new_value):
+    #    self._txqueue = new_value
+    #    self._write_config_file()
 
-    def txqueue_remove(self, item):
+    def txqueue_remove(self, chain_id, item):
+        item = item.__class__(item, chainId=chain_id)
         self._txqueue.remove(item)
         self._write_config_file()
 
-    @property
-    def newest_tx(self):
-        return self._txqueue[0]
-
-    @newest_tx.setter
-    def newest_tx(self, new_value):
-        self._txqueue.appendleft(new_value)
+    def txqueue_add(self, chain_id, item):
+        item = item.__class__(item, chainId=chain_id)
+        self._txqueue.appendleft(item)
         self._write_config_file()
 
     @property

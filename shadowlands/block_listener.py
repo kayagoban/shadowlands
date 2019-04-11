@@ -8,6 +8,9 @@ import logging
 import time
 logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
+from shadowlands.tui.debug import debug
+import pdb
+
 
 class BlockListener():
 
@@ -21,84 +24,49 @@ class BlockListener():
         # have been confirmed whilst we were 
         # away.  If so, clean out the txqueue
         # appropriately.
-        #pdb.set_trace()
-
         self.remove_mined_txs()
-
-        #pdb.set_trace()
-        #logging.info("new event loop")
-        #loop = asyncio.new_event_loop()
-        #loop = asyncio.get_event_loop()
-        #asyncio.set_event_loop(loop)
-        
-        #try:
-        #    loop.run_until_complete(
-        #        asyncio.gather(
-        #            self.log_loop(block_filter, 12)
-        #        ))
-        #except Exception as e:
-        #    pdb.set_trace()
-        #    print(e)
-        #
-        #finally:
-        #    loop.close()
 
 
     def remove_mined_txs(self):
         mined_txs = []
-        #pdb.set_trace()
 
-        #rgging.info("removing tx")
-        for tx in self.config.txqueue:
+        for tx in self.config.txqueue(self.node.network):
             fresh_tx = self.node.w3.eth.getTransaction(tx.hash)
 
             if fresh_tx is None:
                 continue
             elif fresh_tx.blockNumber is not None:
                 mined_txs.append(tx)
-                #for tx in self.config.txqueue:
-                #    if tx.hash == fresh_tx.hash:
-                #        self.config.txqueue_remove(tx) 
-                #self.config.txqueue.remove(tx)
 
         for tx in mined_txs:
-            self.config.txqueue_remove(tx)
+            self.config.txqueue_remove(self.node.network, tx)
             logging.info("removing tx")
-
-        #pdb.set_trace()
-        #fresh_tx.block
-                
-        #config.clean_txqueue(
-        #    [x.hash for x in config.txqueue ]
-        #)
-
 
     ''' 
     This method cleans the txqueue of txs which have been confirmed or which are no longer possible to confirm.
     new_txs is a list of tx hashes which have been mined.
     '''
     def clean_txqueue(self, new_txs):
-        intersection = [x for x in self.config.txqueue if x.hash in new_txs] 
+        intersection = [x for x in self.config.txqueue(self.node.network) if x.hash in new_txs] 
 
         for match in intersection:
             nonce = match.nonce
             address = match["from"]
 
-            # grabs all txs in txqueue with same 'from address' as mined tx, and the same nonce or lower.
-            #pdb.set_trace()
+            # grabs all txs in txqueue with same 'from address' as 
+            # mined txs, and the same nonce or lower.
             smaller_nonces = [
                 x for x 
-                in self.config.txqueue 
+                in self.config.txqueue(self.node.network)
                 if x['from'] == address
                 and x.nonce <= nonce
             ] 
 
             for x in smaller_nonces:
-                self.config.txqueue_remove(x)
+                self.config.txqueue_remove(self.node.network, x)
                 logging.info("removing tx")
 
     def handle_event(self, event):
-        #pdb.set_trace()
         be = self.node.w3.eth.getBlock(event)
         txs = be['transactions']
         self.clean_txqueue(txs)
