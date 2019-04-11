@@ -5,7 +5,8 @@ from eth_utils import decode_hex, encode_hex
 from eth_utils.crypto import keccak
 from eth_account.datastructures import AttributeDict
 from eth_account.internal.transactions import encode_transaction
- 
+
+
 import rlp
 from time import sleep
 
@@ -141,8 +142,8 @@ class Credstick(object):
 
 
     @classmethod
-    def signed_tx(cls, transaction_dict, v, r, s):
-        enctx = encode_transaction(transaction_dict, (v, r, s))
+    def signed_tx(cls, sutx, v, r, s):
+        enctx = encode_transaction(sutx, (v, r, s))
         transaction_hash = keccak(enctx)
 
         attr_dict =  AttributeDict({

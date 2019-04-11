@@ -24,9 +24,6 @@ class TxDetail(SLFrame):
         #self.add_label("Tx Hash:", add_divider=False)
         self.add_label(self.dapp.tx.hash.hex(), add_divider=False)
         self.add_divider(draw_line=True)
-        self.add_label("Chain: {}".format(
-            self.dapp.node.NETWORKDICT[self.dapp.tx.chainId.replace('0x','')]
-        ))
         self.add_label("From: {}".format(self.dapp.tx['from']))
         self.add_label("To: {}".format(self.dapp.tx.to))
         self.add_label("Nonce: {}".format(self.dapp.tx.nonce))

@@ -10,6 +10,9 @@ from trezorlib import tools
 from trezorlib import messages as proto 
 import binascii
 from eth_utils import decode_hex
+
+from eth_account.internal.transactions import serializable_unsigned_transaction_from_dict
+
 from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 from shadowlands.tui.effects.message_dialog import MessageDialog 
 from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
@@ -243,23 +246,14 @@ The layout is:
         _r = response.signature_r
         _s = response.signature_s
 
-        # NOTE This is a hack to satisfy eth_account
-        class AsDictableDict(dict):
-            def as_dict(self):
-                return self
+        sutx = serializable_unsigned_transaction_from_dict(tx)
 
-        tx = AsDictableDict(tx)
+        return cls.signed_tx(sutx, _v, int(_r.hex(), 16), int(_s.hex(), 16))
 
-        stx = cls.signed_tx(tx, _v, int(_r.hex(), 16), int(_s.hex(), 16))
-        return stx
-
-    #debug(); pdb.set_trace()
 
     @classmethod
     def close(cls):
         pass
-        #if cls.transport:
-            #cls.transport.end_session()
 
 
 class SomeException(Exception):

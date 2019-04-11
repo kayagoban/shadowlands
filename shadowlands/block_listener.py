@@ -115,13 +115,14 @@ class BlockListener():
     def listen(self, poll_interval):
         block_filter = self.node.w3.eth.filter('latest')
 
-        while True:
-            logging.info("%s | block_listener get_new_entries ", time.ctime())
-            for i in range(poll_interval):
-                if self.shutdown == True:
-                    return
-                time.sleep(1)
-            for event in block_filter.get_new_entries():
-                self.handle_event(event)
-
-
+        try:
+            while True:
+                logging.info("%s | block_listener get_new_entries ", time.ctime())
+                for i in range(poll_interval):
+                    if self.shutdown == True:
+                        return
+                    time.sleep(1)
+                for event in block_filter.get_new_entries():
+                    self.handle_event(event)
+        except Exception as e:
+            logging.debug(e)
