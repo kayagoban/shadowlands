@@ -2,8 +2,8 @@ from shadowlands.sl_dapp import SLDapp, SLFrame
 from shadowlands.contract.sloader import SLoader
 
 from eth_utils import decode_hex
-from shadowlands.tui.debug import debug
 from decimal import Decimal
+from shadowlands.tui.debug import debug
 import pdb
 
 GWEI = Decimal(10**9)

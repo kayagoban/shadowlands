@@ -178,10 +178,6 @@ class Node():
 
         self._ns = ENS.fromWeb3(_w3)
 
-        # If parity client...
-        # Monkey patch the txpool object so we can get parity txPool info
-        # self.w3.txpool = ParityCompatibleTxPool(self._w3)
-
         self._heart_rate = self._heart_rate
         self._connection_type = connection_type
 
