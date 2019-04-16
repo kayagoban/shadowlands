@@ -1,6 +1,10 @@
 from asciimatics.widgets import RadioButtons 
 from decimal import Decimal
 
+from shadowlands.tui.debug import debug
+import pdb
+
+
 class GasPricePicker(RadioButtons):
     def __init__(self, on_change=None, interface=None, **kwargs):
         """
@@ -23,10 +27,12 @@ class GasPricePicker(RadioButtons):
         gas_price_gwei = self._interface.node.w3.fromWei(gas_price_wei, 'gwei')
         gas_price_gwei_m20 = self._interface.node.w3.fromWei(gas_price_minus_20_percent, 'gwei')
 
+        #debug(); pdb.set_trace()
+
         _options = [
                 (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_gwei), 
                 (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_gwei_m20), 
-                ('Enter custom gas price', 3)
+                ('Enter custom gas price', '0')
         ]
 
         super(GasPricePicker, self).__init__(_options, on_change=on_change, label=' Gas Price:', name='gasoptions', **kwargs)

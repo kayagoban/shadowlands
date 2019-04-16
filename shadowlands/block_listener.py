@@ -8,6 +8,8 @@ import logging
 import time
 logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
+import threading
+
 from shadowlands.tui.debug import debug
 import pdb
 
@@ -18,7 +20,9 @@ class BlockListener():
         self.config = config
         self.node = node
         self.shutdown = False
-
+        self.thread = threading.Thread(target=self.listen, args=([12]))
+        self.thread.start()
+ 
         # on startup, examine the  txqueue and 
         # refresh it to find if any of the txs
         # have been confirmed whilst we were 
@@ -26,6 +30,9 @@ class BlockListener():
         # appropriately.
         self.remove_mined_txs()
 
+    def shut_down(self):
+        self.shutdown = True
+        self.thread.join()
 
     def remove_mined_txs(self):
         mined_txs = []
@@ -34,13 +41,13 @@ class BlockListener():
             fresh_tx = self.node.w3.eth.getTransaction(tx.hash)
 
             if fresh_tx is None:
-                continue
+                mined_txs.append(tx)
             elif fresh_tx.blockNumber is not None:
                 mined_txs.append(tx)
 
         for tx in mined_txs:
             self.config.txqueue_remove(self.node.network, tx)
-            logging.info("removing tx")
+            logging.info("removing tx {}({})".format(tx.nonce, tx.hash.hex()))
 
     ''' 
     This method cleans the txqueue of txs which have been confirmed or which are no longer possible to confirm.

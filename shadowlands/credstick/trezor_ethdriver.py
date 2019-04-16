@@ -185,6 +185,7 @@ The layout is:
 
 
         def int_to_big_endian(value):
+            #debug(); pdb.set_trace()
             return value.to_bytes((value.bit_length() + 7) // 8, 'big')
 
         address_n = tools.parse_path(cls.hdpath())

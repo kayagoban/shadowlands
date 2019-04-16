@@ -43,9 +43,6 @@ class SLTransactionFrame(TransactionFrame):
 
     def _ok_fn(self, gas_price_wei):
         try:
-            #self.dapp.show_wait_frame("Verify transaction on your device.")
-            #debug(); pdb.set_trace()
-
             self.dapp.rx = self.dapp.node.push(
                 self._tx_fn, 
                 gas_price_wei, 
@@ -53,11 +50,14 @@ class SLTransactionFrame(TransactionFrame):
                 value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
             )
 
-            #self.dapp.hide_wait_frame()
 
-        except (SignTxError):
+        except (SignTxError) as e:
+            raise e
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
+        except (OSError):
+            self.dapp.add_message_dialog("Your credstick generated an error.", destroy_window=self)
+
 
         self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Tx Submitted.  Copy TxHash to clipboard?")
         self._destroy_window_stack()

@@ -61,7 +61,7 @@ class TransactionFrame(Frame):
     def _on_option_change(self):
         gasoptions = self.find_widget('gasoptions')
         custgas = self.find_widget('custgas')
-        if gasoptions._value == 3:
+        if gasoptions._value == '0':
             custgas._is_disabled = False
             self._gas_price_wei = None
             self._update_gastimate_label(custgas._value)

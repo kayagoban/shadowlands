@@ -34,7 +34,7 @@ class TxQueueHashRenderer(DynamicRenderer):
         for index, tx in enumerate(self.txqueue(self._interface.node.network)):
             #debug(); pdb.set_trace()
 
-            if index > 0 and index < len(self.txqueue):
+            if index > 0 and index < len(self.txqueue(self._interface.node.network)):
                 image += '║'
                 color_map += [SL_COLOR]
                 
@@ -139,21 +139,6 @@ def txqueue():
         }
  
     ]
-
-
-class TxQueueDescRenderer(DynamicRenderer):
-    def __init__(self, interface):
-        super(TxQueueRenderer, self).__init__(1, 32)
-        self._interface = interface
-
-    def _render_now(self):
-        image = "       " 
-
-        for index, tx in enumerate(txqueue()):
-            desc_len = len(tx['description'])
-            image += " {} ".format(tx['tx_hash'][0:desc_len])
-
-        return img_colour_map([image])
 
 
 

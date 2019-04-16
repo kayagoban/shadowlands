@@ -79,6 +79,28 @@ class SLDapp():
             SLTransactionFrame(self, 16, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         )
 
+    def add_send_dialog(self, tx_dict, title="Sign & Send"):
+        # This class is duck typed to web3.py contract functions.
+        class TransactionFunction():
+            def __init__(self, dict):
+                self._dict = dict
+            def buildTransaction(self, tx_dict):
+                self._dict['gasPrice'] = tx_dict['gasPrice']
+                self._dict['gas'] = tx_dict['gas']
+                self._dict['value'] = tx_dict['value']
+                return self._dict
+
+        tx_fn = TransactionFunction(tx_dict)
+
+        self._scene.add_effect( 
+            SLTransactionFrame(
+                self, 16, 59, tx_fn, title=title, 
+                gas_limit=tx_dict['gas'], 
+                tx_value=self.node.w3.fromWei(tx_dict['value'], 'ether') 
+            )
+        )
+ 
+
     def add_transaction_wait_dialog(self, tx_fn, wait_message, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=None, receipt_proc=None, **kwargs):
         self._scene.add_effect( 
             SLTransactionWaitFrame(self, 16, 59, wait_message, tx_fn=tx_fn, gas_limit=gas_limit, receipt_proc=receipt_proc, **kwargs) 

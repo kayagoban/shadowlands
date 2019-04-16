@@ -17,6 +17,7 @@ from shadowlands.tui.debug import debug
 
 import logging
 logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
+#logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.eth_node.log")
 
 #debug(); #pdb.set_trace()
    
@@ -146,23 +147,31 @@ class Node():
                 pass
 
     def _update_status(self):
-            logging.debug("eth_node update_status")
-            self._best_block = str(self._w3.eth.blockNumber)
-            self._syncing = self._w3.eth.syncing
-            if self._syncing:
-                self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
+            try:
+                logging.debug("eth_node update_status")
+                self._best_block = str(self._w3.eth.blockNumber)
+                self._syncing = self._w3.eth.syncing
+                if self._syncing:
+                    self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
 
 
-            if self._credstick:
-                #logging.debug("Query eth.getBalance")
-                self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-                if self._network == '1':
-                    try:
-                        self._ens_domain = self._ns.name(self._credstick.addressStr())
-                    except BadFunctionCallOutput:
+                if self._credstick:
+                    #logging.debug("Query eth.getBalance")
+                    self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
+                    if self._network == '1':
+                        try:
+                            self._ens_domain = self._ns.name(self._credstick.addressStr())
+                        except BadFunctionCallOutput:
+                            self._ens_domain = 'Unknown'
+                    else:
                         self._ens_domain = 'Unknown'
-                else:
-                    self._ens_domain = 'Unknown'
+            except:
+                logging.info("ERROR IN  eth_node _update_status")
+                logging.info(self._syncing)
+                logging.info(self._best_block)
+                logging.info(self._wei_balance)
+                exit()
+
 
 
     def is_connected_with(self, _w3, connection_type, _heart_rate):
@@ -181,18 +190,16 @@ class Node():
         self._heart_rate = self._heart_rate
         self._connection_type = connection_type
 
+
         try:
             self._update_status()
-        except UnhandledRequest:
+        except (UnhandledRequest, StaleBlockchain):
             return False
 
-        logging.info("start block listener")
-        if self._block_listener is None:
-            self._block_listener = BlockListener(self, self.config)
-            
-            threading.Thread(target=self._block_listener.listen, args=([12])).start()
 
-        logging.info("finished start block listener")
+        if self._block_listener is None:
+            logging.info("start block listener")
+            self._block_listener = BlockListener(self, self.config)
 
         return True
 
@@ -315,7 +322,10 @@ class Node():
 
     def start_heartbeat_thread(self):
         logging.debug("eth_node start_heartbeat_thread()")
-        #self.heartbeat()
+
+        # Uncomment to run eth_node unthreaded for debugging
+        # self.heartbeat()
+
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self.heartbeat_thread.start()
 
@@ -331,6 +341,7 @@ class Node():
 
     def push(self, contract_function, gas_price, gas_limit=None, value=0):
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
+        logging.info("Tx submitted to credstick: {}".format(tx))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
@@ -352,15 +363,22 @@ class Node():
 
         return encode_hex(rx)
 
-    def build_send_tx(self,amt, recipient, gas_price):
+    def build_send_tx(self, amt, recipient, gas_price, gas_limit=21000, nonce=None, data=b'', convert_wei=True):
+        _nonce = nonce or self.next_nonce()
+
+        if convert_wei:
+            value = self.w3.toWei(amt, 'ether')
+        else:
+            value = amt
+
         return  dict(
             chainId=int(self._network),
-            nonce=self.next_nonce(),
+            nonce=_nonce,
             gasPrice=gas_price,
-            gas=100000,
+            gas=gas_limit,
             to=recipient,
-            value=self.w3.toWei(amt, 'ether'),
-            data=b''
+            value=value,
+            data=data
         )
 
     def defaultTxDict(self, gas_price, gas_limit=None, value=0):

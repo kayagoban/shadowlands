@@ -63,6 +63,9 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     print("Closing price poller...")
     price_poller.stop_thread()
 
+    print("Shutdown block listener")
+    eth_node._block_listener.shut_down()
+
     print("Closing connection to ethereum node...")
     eth_node.stop_thread()
 

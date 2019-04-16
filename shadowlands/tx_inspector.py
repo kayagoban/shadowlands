@@ -11,13 +11,16 @@ ETH = Decimal(10**18)
 
 class TxInspector(SLDapp):
     def __init__(self, screen, scene, eth_node, config, price_poller, tx_index, **kwargs):
+        if len(config.txqueue(eth_node.network)) < 1:
+            return
+
         self.tx = config.txqueue(eth_node.network)[tx_index]
         super(TxInspector, self).__init__(
             screen, scene, eth_node, config, price_poller, **kwargs
         )
  
     def initialize(self):
-        self.add_frame(TxDetail, height=21, width=71, title='Pending Tx Detail')
+        self.add_frame(TxDetail, height=19, width=71, title='Pending Tx Detail')
 
 class TxDetail(SLFrame):
     def initialize(self):
@@ -35,9 +38,46 @@ class TxDetail(SLFrame):
         #debug(); pdb.set_trace()
         #self.checksum = self.add_textbox("SHA256:")
         self.add_divider(draw_line=True)
-        self.add_divider()
+        #self.add_divider()
         self.add_button_row([
-            ("Resubmit Tx", self.close, 0),
-            ("Nuke Tx", self.close, 1),
+            ("Resubmit Tx", self.resend_tx, 0),
+            ("Nuke Tx", self.nuke_tx, 1),
             ("Back", self.close, 3)
         ])
+
+    # 0 eth tx from and to current address
+    def nuke_tx(self):
+        #debug(); pdb.set_trace()
+        tx_dict = self.dapp.node.build_send_tx(
+            0,
+            self.dapp.node.credstick.address,
+            None,
+            nonce=self.dapp.tx.nonce
+        )
+
+        self.dapp.add_send_dialog(
+            tx_dict,
+            "Overwrite nonce {} Tx with No-Op".format(self.dapp.tx.nonce)
+        )
+        self.close()
+
+    def resend_tx(self):
+        old_tx = self.dapp.tx
+
+        #debug(); pdb.set_trace()
+
+        tx_dict = dict(
+            #chainId = old_tx.chainId,
+            nonce = old_tx.nonce,
+            gasPrice = None,
+            gas = old_tx.gas,
+            to=old_tx.to,
+            value=old_tx.value,
+            data=old_tx.input
+        )
+
+        self.dapp.add_send_dialog(tx_dict, "Resend Tx with different gas price")
+
+        self.close()
+
+
