@@ -4,14 +4,6 @@ from asciimatics.event import KeyboardEvent
 from shadowlands.tui.errors import ExitTuiError
 from shadowlands.credstick import SignTxError
 
-from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
-from websockets.exceptions import InvalidStatusCode, ConnectionClosed
-#from web3.utils import threads
-#from threads import Timeout
-
-from binascii import Error
-
-
 from shadowlands.tui.debug import debug
 # Make sure the widget frame is_modal or claimed_focus.
 # otherwise the text is not swallowed and our menus are buggered.

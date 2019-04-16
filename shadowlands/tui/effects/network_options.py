@@ -4,6 +4,9 @@ from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
 from shadowlands.tui.effects.message_dialog import MessageDialog
 from asciimatics.exceptions import NextScene
 
+from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
+from websockets.exceptions import InvalidStatusCode, ConnectionClosed
+
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
         super(NetworkOptions, self).__init__(screen, 13, 34, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)

@@ -31,12 +31,13 @@ class TxDetail(SLFrame):
         self.add_label("Value: {} ETH".format(
             Decimal(self.dapp.tx.value) / ETH))
         self.add_label("Gas Price: {} Gwei".format(Decimal(self.dapp.tx.gasPrice) / GWEI ))
-        self.add_label("Gas Limit: {} Gwei".format(self.dapp.tx.gas))
+        self.add_label("Gas Limit: {} Gwei".format(self.dapp.tx.gas), add_divider=False)
         #debug(); pdb.set_trace()
         #self.checksum = self.add_textbox("SHA256:")
         self.add_divider(draw_line=True)
+        self.add_divider()
         self.add_button_row([
-            ("Nuke Tx", self.close, 0),
-            ("Resend Tx", self.close, 1),
-            ("Close", self.close, 3)
+            ("Resubmit Tx", self.close, 0),
+            ("Nuke Tx", self.close, 1),
+            ("Back", self.close, 3)
         ])

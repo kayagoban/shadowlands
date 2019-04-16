@@ -23,7 +23,7 @@ class LoadingScene(Scene):
             Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\t{}'.format(version)]), 10, 9, signal_acceleration_factor=1.0005,),
 
             CredstickWatcher(screen, interface),
-            Materialize(screen, StaticRenderer(['Insert your credstick to begin...']), 0, 13), 
+            Materialize(screen, StaticRenderer(['Insert your credstick and connect to an ethereum client...']), 0, 13), 
             LoadingScreenListener(screen, interface)
         ]
 
