@@ -34,6 +34,7 @@ class TransactionFrame(Frame):
         layout2.add_widget(Button("Sign Tx", lambda: ok_func(self._gas_price_wei)), 0)
         layout2.add_widget(Button("Cancel", cancel_func), 3)
 
+        self._on_option_change()
     def fix(self):
         # manually call the radiobutton callback
         # to set the gas estimate label

@@ -24,7 +24,6 @@ class TxInspector(SLDapp):
 
 class TxDetail(SLFrame):
     def initialize(self):
-        #self.add_label("Tx Hash:", add_divider=False)
         self.add_label(self.dapp.tx.hash.hex(), add_divider=False)
         self.add_divider(draw_line=True)
         self.add_label("Network: {}".format(self.dapp.node.NETWORKDICT[self.dapp.tx['chainId']]))

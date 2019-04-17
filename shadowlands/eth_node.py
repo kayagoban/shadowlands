@@ -13,11 +13,10 @@ import asyncio
 from shadowlands.block_listener import BlockListener
 import pdb
 from shadowlands.tui.debug import debug
-
+from shadowlands.contract.erc20 import Erc20
 
 import logging
 logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
-#logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.eth_node.log")
 
 #debug(); #pdb.set_trace()
    
@@ -57,6 +56,7 @@ class Node():
         self._localNode = None
         self._thread_shutdown = False
         self._block_listener = None
+        self._erc20_balances = None
 
     @property
     def config(self):
@@ -110,6 +110,10 @@ class Node():
             return None
 
     @property
+    def erc20_balances(self):
+        return self._erc20_balances 
+
+    @property
     def syncing_hash(self):
         return self._syncing
 
@@ -148,16 +152,10 @@ class Node():
 
     def _update_status(self):
             try:
-                logging.debug("eth_node update_status")
-                self._best_block = str(self._w3.eth.blockNumber)
-                self._syncing = self._w3.eth.syncing
-                if self._syncing:
-                    self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
-
-
                 if self._credstick:
-                    #logging.debug("Query eth.getBalance")
                     self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
+                    self._erc20_balances = Erc20.balances(self, self.credstick.address)
+                    logging.info("updated ERC20 balances")
                     if self._network == '1':
                         try:
                             self._ens_domain = self._ns.name(self._credstick.addressStr())
@@ -165,12 +163,16 @@ class Node():
                             self._ens_domain = 'Unknown'
                     else:
                         self._ens_domain = 'Unknown'
-            except:
+
+                logging.debug("eth_node update_status")
+                self._best_block = str(self._w3.eth.blockNumber)
+                self._syncing = self._w3.eth.syncing
+                if self._syncing:
+                    self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
+
+            except Exception as e:
                 logging.info("ERROR IN  eth_node _update_status")
-                logging.info(self._syncing)
-                logging.info(self._best_block)
-                logging.info(self._wei_balance)
-                exit()
+                logging.info(e)
 
 
 
@@ -187,7 +189,7 @@ class Node():
 
         self._ns = ENS.fromWeb3(_w3)
 
-        self._heart_rate = self._heart_rate
+        self._heart_rate = _heart_rate
         self._connection_type = connection_type
 
 
@@ -216,7 +218,7 @@ class Node():
 
         self.cleanout_w3()
         from web3.auto import w3
-        if self.is_connected_with(w3, 'Local node', 1):
+        if self.is_connected_with(w3, 'Local node', 3):
             self.config.default_method = self.connect_w3_local.__name__
             return True
         return False
@@ -241,7 +243,7 @@ class Node():
         if not custom_uri:
             custom_uri = self.config.websocket_uri
         _w3 = self.w3_websocket(custom_uri)
-        if self.is_connected_with(_w3, 'Custom websocket', 1):
+        if self.is_connected_with(_w3, 'Custom websocket', 3):
             self.config.websocket_uri = custom_uri
             self.config.default_method = self.connect_w3_custom_websocket.__name__
             return True
@@ -263,7 +265,7 @@ class Node():
         if not path:
             path = self.config.ipc_path
         w3 = Web3(Web3.IPCProvider(path))
-        if self.is_connected_with(w3, 'Custom IPC', 1):
+        if self.is_connected_with(w3, 'Custom IPC', 3):
             self.config.ipc_path = path
             self.config.default_method = self.connect_w3_custom_ipc.__name__
             return True
@@ -276,7 +278,7 @@ class Node():
         if not custom_uri:
             custom_uri = self.config.http_uri
         w3 = Web3(Web3.HTTPProvider(custom_uri))
-        if self.is_connected_with(w3, 'Custom HTTP', 2):
+        if self.is_connected_with(w3, 'Custom HTTP', 3):
             self.config.http_uri = custom_uri
             self.config.default_method = self.connect_w3_custom_http.__name__
             return True
@@ -286,7 +288,7 @@ class Node():
     def connect_w3_gethdev_poa(self):
         self.cleanout_w3()
         from web3.auto.gethdev import w3
-        if self.is_connected_with(w3, 'Gethdev PoA', 1):
+        if self.is_connected_with(w3, 'Gethdev PoA', 2):
             self.config.default_method = self.connect_w3_gethdev_poa.__name__
             return True
         return False
@@ -360,8 +362,14 @@ class Node():
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
         self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
-
         return encode_hex(rx)
+
+    def send_erc20(self, token_name, destination, amount, gas_price):
+        token = Erc20.factory(self, token_name)
+        contract_fn = token.transfer(destination, self.w3.toWei(amount, 'ether'))
+        rx = self.push(contract_fn, gas_price, gas_limit=150000, value=0)
+        return rx
+
 
     def build_send_tx(self, amt, recipient, gas_price, gas_limit=21000, nonce=None, data=b'', convert_wei=True):
         _nonce = nonce or self.next_nonce()
@@ -405,41 +413,5 @@ class Node():
 
         return self.w3.eth.getTransactionCount(address)
 
-
-
-    def find_parity_tx(self, tx_hash):
-        for txdata in self.w3.txpool.parity_all_transactions:
-            if txdata['hash'] == mytx:
-                return txdata
-
-
-from web3.txpool import TxPool
-
-'''
-txpool info
-
-infura complains:
-requests.exceptions.HTTPError: 405 Client Error: Method Not Allowed for url: https://mainnet.infura.io/
-
-parity complains:
-    ValueError: {'code': -32601, 'message': 'Method not found'}
-
-possible we can handle parity.  public infura connections not so.
-'''
-
-'''
-{"method":"parity_localTransactions","params":[],"id":1,"jsonrpc":"2.0"}'
-"method":"parity_futureTransactions","params":[],"id":1,"jsonrpc":"2.0"}
-"method":"parity_allTransactions","params":[],"id":1,"jsonrpc":"2.0"}
-'''
-
-class ParityCompatibleTxPool(TxPool):
-    @property
-    def parity_local_transactions(self):
-        return self.web3.manager.request_blocking("parity_localTransactions", [])
-
-    @property
-    def parity_all_transactions(self):
-        return self.web3.manager.request_blocking("parity_allTransactions", [])
 
 

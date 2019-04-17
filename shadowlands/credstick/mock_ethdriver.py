@@ -18,3 +18,7 @@ class MockEthDriver(Credstick):
     def close(cls):
         pass
 
+    @classmethod
+    def signTx(cls, transaction_dict):
+        raise Exception("Mockstick cannot sign Txs")
+

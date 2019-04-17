@@ -79,20 +79,13 @@ class BlockListener():
         self.clean_txqueue(txs)
 
 
-    async def asyncio_log_loop(self, event_filter, poll_interval):
-        while True:
-            logging.info("log_loop")
-            for event in event_filter.get_new_entries():
-                self.handle_event(event)
-            await asyncio.sleep(poll_interval)
-
 
     def listen(self, poll_interval):
         block_filter = self.node.w3.eth.filter('latest')
 
         try:
             while True:
-                logging.info("%s | block_listener get_new_entries ", time.ctime())
+                logging.info("block_listener get_new_entries, poll interval %s sec", poll_interval)
                 for i in range(poll_interval):
                     if self.shutdown == True:
                         return

@@ -28,7 +28,8 @@ class CredstickWatcher(Effect):
             self.detect_thread_started = True
 
 
-        if self._interface.credstick and self._interface.node.w3:
+        if self._interface.credstick and self._interface.node.w3 and self._interface.node.erc20_balances:
+ 
             # deleting the loading scene entirely.
             # This makes sure the loading screen does not come back upon resize.
             self._screen._scenes = [self._screen._scenes[1]]
