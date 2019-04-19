@@ -35,6 +35,9 @@ class SendBox(TransactionFrame):
 
         currency_options = [(x['name'], x) for x in balances]
 
+        logging.info(currency_options)
+        logging.info(currency_options)
+
         self.estimated_gas = Decimal(21000)
 
         self.currency_listbox = ListBox(1, currency_options, label="  Currency:",  name="currency")

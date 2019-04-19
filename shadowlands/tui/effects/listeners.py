@@ -99,6 +99,10 @@ class MainMenuListener(Effect):
             self._scene.add_effect(QuitDialog(self._screen))
         # S, s  for send
         elif event.key_code in [115, 83]:
+            if self._interface.node.eth_balance is None:
+                self._scene.add_effect(MessageDialog(self._screen, "Cannot Send without Ether", 3, 35) )
+                return
+
             self._scene.add_effect(SendBox(self._screen, self._interface))
         elif event.key_code in [ord('T'), ord('t')]:
             TokenViewer(

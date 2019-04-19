@@ -1,7 +1,5 @@
 from shadowlands.sl_dapp import SLDapp, SLFrame
 
-#from shadowlands.contract.sloader import SLoader
-#from eth_utils import decode_hex
 from decimal import Decimal
 
 from shadowlands.tui.debug import debug
@@ -13,37 +11,24 @@ from shadowlands.sl_config import (
     NoTokenMatchError
 )
 from shadowlands.contract.erc20 import Erc20
+from shadowlands.contract import ContractConfigError
 from web3.exceptions import BadFunctionCallOutput
 
-#GWEI = Decimal(10**9)
-#ETH = Decimal(10**18)
-
 class TokenViewer(SLDapp):
-    '''
-    def __init__(self, screen, scene, eth_node, config, price_poller, tx_index, **kwargs):
-        if len(config.txqueue(eth_node.network)) < 1:
-            return
 
-        self.tx = config.txqueue(eth_node.network)[tx_index]
-        super(TxInspector, self).__init__(
-            screen, scene, eth_node, config, price_poller, **kwargs
-        )
-        '''
- 
     def initialize(self):
         self.balances = self.node.erc20_balances
         height = 4+len(self.balances)
         self.add_frame(TokenFrame, height=height, width=71, title='Tokens')
 
 class TokenFrame(SLFrame):
+
     def initialize(self):
-
-        #debug(); pdb.set_trace()
-
-        tokens = Erc20.TOKENS + self.dapp.config.tokens
+        tokens = Erc20.tokens(self.dapp.node.network) + self.dapp.config.tokens(self.dapp.node.network)
 
         # List comprehension join. wheeee!
-        balances = [{'name': x[0], 'address': x[1], 'balance': y['balance']} for x in tokens for y in self.dapp.balances if x[0] == y['name']]
+        balances =  [{'name': x[0], 'address': x[1], 'balance': y['balance']} for x in tokens for y in self.dapp.balances if x[0] == y['name']]
+
 
         for i in balances:
             name = i['name'].ljust(7, ' ')
@@ -85,7 +70,7 @@ class AddTokenFrame(SLFrame):
             self.close()
             return
         try:
-            self.dapp.config.add_token(self.token_name_value(), self.token_addr_value())
+            self.dapp.config.add_token(self.token_name_value(), self.token_addr_value(), self.dapp.node.network)
         except DuplicateTokenError:
             self.dapp.add_message_dialog("Fail: token is already in the list.")
 
@@ -94,10 +79,10 @@ class AddTokenFrame(SLFrame):
 
     # Make sure the erc20 is erc20ish
     def validate(self, address):
-        contract = Erc20(self.dapp.node, address=address)
         try:
+            contract = Erc20(self.dapp.node, address=address)
             contract.functions.balanceOf(address).call()
-        except BadFunctionCallOutput:
+        except (BadFunctionCallOutput, ContractConfigError):
             return False
 
         return True
@@ -113,7 +98,7 @@ class RemoveTokenFrame(SLFrame):
 
     def remove_token(self):
         try:
-            self.dapp.config.remove_token(self.token_name_value())
+            self.dapp.config.remove_token(self.token_name_value(), self.dapp.node.network)
         except UnallowedTokenRemovalError:
             self.dapp.add_message_dialog("That token is hardcoded; you cannot remove it.")
         except NoTokenMatchError:

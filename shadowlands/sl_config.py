@@ -68,7 +68,7 @@ class SLConfig():
     def _read_yaml(self):
         f = open(str(self._config_file_path), 'r')
         try:
-            self._options_dict = yaml.load(f.read())
+            self._options_dict = yaml.load(f.read(), Loader=yaml.FullLoader)
         except ConstructorError:
             self._clobber_bad_file()
             
@@ -123,28 +123,27 @@ class SLConfig():
         self._sl_dapp_path = str(new_value)
         self._write_config_file()
 
-    @property
-    def tokens(self):
-        return self._tokens
 
-    def add_token(self, name, address):
+    def tokens(self, network_id):
+        return [x for x in self._tokens if x[2] == network_id]
 
-        matches = [x for x in Erc20.TOKENS if (name == x[0] or address == x[1])]
+    def add_token(self, name, address, network_id):
+        matches = [x for x in Erc20.tokens(network_id) if ((name == x[0] or address == x[1]) and network_id == x[2])]
 
-        matches += [x for x in self._tokens if (name == x[0] or address == x[1])]
+        matches += [x for x in self.tokens(network_id)  if ((name == x[0] or address == x[1]) and network_id == x[2])]
 
         if len(matches) > 0:
             raise DuplicateTokenError
 
-        self._tokens.append((name,address))
+        self._tokens.append((name,address,network_id))
         self._write_config_file()
 
 
-    def remove_token(self, name):
-        matches = [x for x in Erc20.TOKENS if name == x[0]]
+    def remove_token(self, name, network_id):
+        matches = [x for x in Erc20.tokens(network_id) if name == x[0] and network_id == x[2]]
         if len(matches) > 0:
             raise UnallowedTokenRemovalError
-        matches += [x for x in self._tokens if name == x[0]]
+        matches += [x for x in self._tokens if name == x[0] and network_id == x[2]]
         if len(matches) < 1:
             return NoTokenMatchError
 

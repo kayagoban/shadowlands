@@ -155,7 +155,6 @@ class Node():
                 if self._credstick:
                     self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
                     self._erc20_balances = Erc20.balances(self, self.credstick.address)
-                    logging.info("updated ERC20 balances")
                     if self._network == '1':
                         try:
                             self._ens_domain = self._ns.name(self._credstick.addressStr())
@@ -173,6 +172,7 @@ class Node():
             except Exception as e:
                 logging.info("ERROR IN  eth_node _update_status")
                 logging.info(e)
+                raise e
 
 
 
@@ -326,7 +326,7 @@ class Node():
         logging.debug("eth_node start_heartbeat_thread()")
 
         # Uncomment to run eth_node unthreaded for debugging
-        # self.heartbeat()
+        #self.heartbeat()
 
         self._heartbeat_thread = threading.Thread(target=self.heartbeat)
         self.heartbeat_thread.start()
