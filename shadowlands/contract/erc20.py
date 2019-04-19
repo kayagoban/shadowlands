@@ -32,10 +32,13 @@ class Erc20(Contract):
        Usage: 
            Erc20.balances(eth_node, target_address)
        '''
+
     @classmethod
     def balances(cls, node, target):
         result = [{'name': x[0], 'balance': node.w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in cls.TOKENS]
-        return [x for x in result if x['balance'] > 0]
+        result += [{'name': x[0], 'balance': node.w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in node.config.tokens]
+        return result
+
 
     ''' 
         Returns an web3 ERC20 contract

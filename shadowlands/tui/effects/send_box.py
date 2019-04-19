@@ -31,7 +31,7 @@ class SendBox(TransactionFrame):
         layout.add_widget(Divider(draw_line=False))
 
         balances = [{'name':'ETH', 'balance': interface.node.eth_balance}]
-        balances += interface.node.erc20_balances
+        balances += [x for x in interface.node.erc20_balances if x['balance'] > 0]
 
         currency_options = [(x['name'], x) for x in balances]
 

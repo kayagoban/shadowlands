@@ -35,11 +35,11 @@ class MainScene(Scene):
 ║
 ║  ${7,1}V${2,2}alue:
 ║
-║
 ╠════════════════════════════╗
 ║ ${7,1}C${2,2}opy address to clipboard
-║ ${7,1}S${2,2}end Ether or tokens
+║ ${7,1}S${2,2}end cryptocurrencies
 ║ ${7,1}D${2,2}apps menu
+║ ${7,1}T${2,2}okens
 ║ ${7,1}Q${2,2}uit
 ╚
 '''

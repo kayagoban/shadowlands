@@ -8,7 +8,14 @@ from pathlib import Path
 import sys
 import pdb
 from shadowlands.tui.debug import debug
+from shadowlands.contract.erc20 import Erc20
 
+class DuplicateTokenError(Exception):
+    pass
+class UnallowedTokenRemovalError(Exception):
+    pass
+class NoTokenMatchError(Exception):
+    pass
 
 class SLConfig():
 
@@ -37,6 +44,7 @@ class SLConfig():
         self._config_file_path = Path.home().joinpath(".shadowlands_conf")
         self._txqueue = deque()
         self._txqueues = {}
+        self._tokens = []
 
         if not self._config_file_path.exists():
             self._write_config_file()
@@ -79,6 +87,7 @@ class SLConfig():
             # I am re-examining my life.
             self.sl_dapp_path = self._options_dict['sl_dapp_path']
             self._hd_base_path = self._options_dict['hd_base_path']
+            self._tokens = self._options_dict['tokens']
 
     def _write_config_file(self):
         f = open(str(self._config_file_path), 'w')
@@ -96,7 +105,8 @@ class SLConfig():
                 "http_uri": self._http_uri,
                 "websocket_uri": self._websocket_uri,
                 "ipc_path": self._ipc_path
-            }
+            },
+            "tokens": self._tokens
         }
 
     @property
@@ -112,6 +122,36 @@ class SLConfig():
  
         self._sl_dapp_path = str(new_value)
         self._write_config_file()
+
+    @property
+    def tokens(self):
+        return self._tokens
+
+    def add_token(self, name, address):
+
+        matches = [x for x in Erc20.TOKENS if (name == x[0] or address == x[1])]
+
+        matches += [x for x in self._tokens if (name == x[0] or address == x[1])]
+
+        if len(matches) > 0:
+            raise DuplicateTokenError
+
+        self._tokens.append((name,address))
+        self._write_config_file()
+
+
+    def remove_token(self, name):
+        matches = [x for x in Erc20.TOKENS if name == x[0]]
+        if len(matches) > 0:
+            raise UnallowedTokenRemovalError
+        matches += [x for x in self._tokens if name == x[0]]
+        if len(matches) < 1:
+            return NoTokenMatchError
+
+        self._tokens.remove(matches[0])
+        self._write_config_file()
+
+
 
     def txqueue(self, chain_id):
         return [x for x in self._txqueue if x.chainId == chain_id]

@@ -13,6 +13,7 @@ from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.sl_network_dapp import SLNetworkDapp
 from shadowlands.tx_inspector import TxInspector
 from shadowlands.credstick import DeriveCredstickAddressError
+from shadowlands.token_viewer import TokenViewer
 from shadowlands.tui.debug import debug
 import importlib
 
@@ -99,6 +100,15 @@ class MainMenuListener(Effect):
         # S, s  for send
         elif event.key_code in [115, 83]:
             self._scene.add_effect(SendBox(self._screen, self._interface))
+        elif event.key_code in [ord('T'), ord('t')]:
+            TokenViewer(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )
+ 
         # C, c  for copy
         elif event.key_code in [67, 99]:
             pyperclip.copy(self._interface.credstick.addressStr())
