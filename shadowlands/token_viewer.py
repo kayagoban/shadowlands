@@ -13,6 +13,7 @@ from shadowlands.sl_config import (
     NoTokenMatchError
 )
 from shadowlands.contract.erc20 import Erc20
+from web3.exceptions import BadFunctionCallOutput
 
 #GWEI = Decimal(10**9)
 #ETH = Decimal(10**18)
@@ -79,16 +80,27 @@ class AddTokenFrame(SLFrame):
         ])
 
     def add_token(self):
-        self.validate(self.token_name_value(), self.token_addr_value())
+        if not self.validate(self.token_addr_value()):
+            self.dapp.add_message_dialog("Fail: contract failed sanity check.")
+            self.close()
+            return
         try:
             self.dapp.config.add_token(self.token_name_value(), self.token_addr_value())
         except DuplicateTokenError:
-            self.dapp.add_message_dialog("Token is already in the list.")
+            self.dapp.add_message_dialog("Fail: token is already in the list.")
 
+        self.dapp.add_message_dialog("Added {}.".format(self.token_name_value()))
         self.close()
 
-    def validate(self, name, address):
-        return
+    # Make sure the erc20 is erc20ish
+    def validate(self, address):
+        contract = Erc20(self.dapp.node, address=address)
+        try:
+            contract.functions.balanceOf(address).call()
+        except BadFunctionCallOutput:
+            return False
+
+        return True
 
 
 class RemoveTokenFrame(SLFrame):
@@ -107,6 +119,7 @@ class RemoveTokenFrame(SLFrame):
         except NoTokenMatchError:
             self.dapp.add_message_dialog("No matching token found to delete.")
 
+        self.dapp.add_message_dialog("Removed Token.")
 
         self.close()
 
