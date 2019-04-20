@@ -16,11 +16,16 @@ from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
 from decimal import Decimal
 from time import sleep
 
+import logging
+logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.eth_node.log")
+
 #pdb.set_trace()
 
 load_dapp = None
 
 def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
+
+
     if mock_address:
         Credstick.mock_address = mock_address
 
@@ -69,70 +74,6 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     print("Closing connection to ethereum node...")
     eth_node.stop_thread()
 
-    sys.exit(0)
 
-
-
-
-
-
-#m.join()
-#rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
-#import pdb; pdb.set_trace()
-
-
-
-
-
-# start up credstick detect method in a thread, pass in the interface.
-# when the credstick is detected, it will send 
- 
-
-# Show main menu in a thread to provide live updates
-
-
-#menuSelection = input()
-#m.join()
-
-
-#os.system("clear")
-
-
-#rx = dapp.send_erc20('WETH', '0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.00001)
-
-#dapp.send_ether('0x1545fed39abc1b82c4711d8888fb35a87304817a', 0.00001)
-
-# import pdb; pdb.set_trace()
-
-
-# dapp.send_ether('0xF6E0084B5B687f684C2065B9Ed48Cc039C333844', 0.000001337)
-#rx = dapp.ens_reveal_bid('kayagoban.eth', '0.01', 'harbor habit lottery')
-
-
-
-"""
-# Check the file for tampering
-def file_checksum():
-    script_path = os.path.abspath(__file__)
-    shahash = hashlib.sha256()
-    with open(script_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            shahash.update(chunk)
-    return shahash.hexdigest()
-"""
-
-
-
-# For launching etherscan to view transactions
-#import subprocess
-#subprocess.call(["/usr/bin/open", 'http://apple.com'])
-
-
-# for copying to clipboard
-#import pyperclip
-#pyperclip.copy('The text to be copied to the clipboard.')
-
-# For qrcode feature
-# o = qrcode_terminal.qr_terminal_str('0xC579e6BF41789dEeF2E0AaCa8fBb8b0F0c762898', 1)
 
 

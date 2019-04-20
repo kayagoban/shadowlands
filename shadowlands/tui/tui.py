@@ -5,6 +5,7 @@ from shadowlands.sl_dapp import ExitDapp, RunDapp
 from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.tui.scenes.main import MainScene
 from shadowlands.tui.debug import debug
+import pdb
 from shadowlands.credstick import Credstick
 import sys
 
@@ -21,7 +22,11 @@ class Interface():
         self._credstick = None
         self._loading_scene = True
         self._load_dapp = preloaded_dapp
-
+        # State change variables to handle switching between scenes
+        self._credstick_removed = False
+        self._credstick_inserted = False
+        self.last_scene = None
+        
     @property
     def credstick(self):
         return self._credstick
@@ -45,15 +50,14 @@ class Interface():
 
     def tui(self, screen):
         self._screen = screen
-
         scenes = []
-        if self._loading_scene:
-            scenes.append(LoadingScene(self._screen, "LoadingScene", self))
 
-        scenes.append(MainScene(self._screen, "Main", self))
+        self.loading_scene = LoadingScene(self._screen, "LoadingScene", self)
+        self.main_scene = MainScene(self._screen, "Main", self)
 
+        scenes.append(self.loading_scene)
+        scenes.append(self.main_scene)
         screen.play(scenes, stop_on_resize=True)
-
 
     def load(self):
         current_dapp = None
@@ -66,7 +70,12 @@ class Interface():
             except ResizeScreenError as e:
                 #debug(); import pdb; pdb.set_trace()
                 # TODO make ResizeScreenError just raise NextScene
-                pass
+                #debug(); pdb.set_trace()
+                #self.reload_scene = e.scene.name
+                debug()
+                print("You have discovered Shadowlands' achilles heel.\nSHADOWLANDS DOES NOT LIKE TO BE RESIZED.\nNext time try 80x24 and leave it there.\nExiting...\nJerk.")
+                break
+                      
             except RunDapp:
                 print("switching to dapp...")
                 # load dapp from wherever it is

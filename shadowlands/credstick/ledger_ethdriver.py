@@ -13,6 +13,7 @@ from eth_keys.datatypes import PrivateKey
 from eth_account.datastructures import AttributeDict
 from eth_utils.crypto import keccak
 import random, string
+import logging
 
 from eth_account.internal.transactions import (
     serializable_unsigned_transaction_from_dict,
@@ -179,7 +180,8 @@ class LedgerEthDriver(Credstick):
 
             stx = cls.signed_tx(tx, _v, _r, _s)
 
-        except CommException as e:
-            raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}:  {}".format(apdu, e.message))
+        except (CommException, BaseException) as e:
+            raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}".format(apdu))
+            logging.debug("Ledger device threw error  while attempting SignTx with apdu {}".format(apdu))
         return stx
     

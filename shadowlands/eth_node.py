@@ -16,7 +16,6 @@ from shadowlands.tui.debug import debug
 from shadowlands.contract.erc20 import Erc20
 
 import logging
-logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
 #debug(); #pdb.set_trace()
    

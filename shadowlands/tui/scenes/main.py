@@ -5,6 +5,7 @@ from asciimatics.effects import Print
 from shadowlands.tui.effects.materialize import Materialize
 from shadowlands.tui.effects.dynamic_cursor import DynamicSourceCursor
 from shadowlands.tui.effects.listeners import MainMenuListener
+from shadowlands.tui.effects.credstick_watcher2 import CredstickWatcher2
 from shadowlands.tui.renderers import (
     BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, 
     CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, 
@@ -77,7 +78,9 @@ class MainScene(Scene):
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
             DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
             MainMenuListener(screen, interface),
-            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=2)
+            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=2),
+            CredstickWatcher2(screen, interface)
+
         ]
 
         super(MainScene, self).__init__(effects, -1, name=_name)
