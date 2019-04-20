@@ -28,7 +28,7 @@ class Erc20(Contract):
 
     @classmethod
     def balance(cls, node, tokenaddr, target):
-        return cls(node, tokenaddr).balanceOf(target)
+        return cls(node, address=tokenaddr).balanceOf(target)
 
     '''
        Returns a dictionary of token names and balances if not zero. 
@@ -59,12 +59,12 @@ class Erc20(Contract):
         # *security* Always take the first match to prefer the default over user-defined tokens
         token = matches[0]
 
-        return cls(node, token[1])
+        return cls(node, address=token[1])
         
 
     # Instance methods
 
-    def __init__(self, node, address):
+    def __init__(self, node, address=None):
         super(Erc20, self).__init__(node, address=address)
 
     def balanceOf(self, target):
