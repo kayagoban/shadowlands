@@ -73,7 +73,7 @@ class Interface():
                 #debug(); pdb.set_trace()
                 #self.reload_scene = e.scene.name
                 debug()
-                print("You have discovered Shadowlands' achilles heel.\nSHADOWLANDS DOES NOT LIKE TO BE RESIZED.\nNext time try 80x24 and leave it there.\nExiting...\nJerk.")
+                print("You have discovered Shadowlands' achilles heel.\nSHADOWLANDS DOES NOT LIKE TO BE RESIZED.\nNext time try 80x24 and leave it there.\nExiting...")
                 break
                       
             except RunDapp:
