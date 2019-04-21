@@ -18,8 +18,8 @@ class TokenViewer(SLDapp):
 
     def initialize(self):
         self.balances = self.node.erc20_balances
-        height = 4+len(self.balances)
-        self.add_frame(TokenFrame, height=height, width=71, title='Tokens')
+        height = 6+len(self.balances)
+        self.add_frame(TokenFrame, height=height, width=71, title='ERC20 Tokens')
 
 class TokenFrame(SLFrame):
 
@@ -29,10 +29,22 @@ class TokenFrame(SLFrame):
         # List comprehension join. wheeee!
         balances =  [{'name': x[0], 'address': x[1], 'balance': y['balance']} for x in tokens for y in self.dapp.balances if x[0] == y['name']]
 
+        self.add_label(
+            "Token   ║ Token Address                              ║ Balance",
+            add_divider=False
+        )
+        self.add_label(
+            "        ║                                            ║",
+            add_divider=False
+        )
+ 
+        #self.add_divider(draw_line=True)
+        #self.add_divider()
+
 
         for i in balances:
-            name = i['name'].ljust(7, ' ')
-            self.add_label(
+           name = i['name'].ljust(7, ' ')
+           self.add_label(
                 "{} ║ {} ║ {}".format(name, i['address'], i['balance']),
                 add_divider=False
             )

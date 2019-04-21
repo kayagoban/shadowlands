@@ -66,22 +66,25 @@ class Credstick(object):
             return MockEthDriver
 
         for hidDevice in hid.enumerate():
-            logging.debug("credstick hidDevice['vendor_id']:{}".format(hex(hidDevice['vendor_id'])))
             if hidDevice['vendor_id'] == 0x2c97 and hidDevice['path'] is not None:
                 from shadowlands.credstick.ledger_ethdriver import LedgerEthDriver
                 LedgerEthDriver.manufacturer = hidDevice['manufacturer_string']
                 LedgerEthDriver.product = hidDevice['product_string']
+                logging.debug(hidDevice)
                 return LedgerEthDriver, hidDevice['path']
+                
             elif hidDevice['vendor_id'] == 0x534c and hidDevice['path'] is not None:
                 from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
                 TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
                 TrezorEthDriver.productStr = hidDevice['product_string']
+                logging.debug(hidDevice)
                 sleep(1)
                 return TrezorEthDriver, hidDevice['path']
             elif hidDevice['vendor_id'] == 0x1209 and hidDevice['path'] is not None:
                 from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
                 TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
                 TrezorEthDriver.productStr = 'Trezor Model T'
+                logging.debug(hidDevice)
                 ##hidDevice['product_string']
                 sleep(1)
                 return TrezorEthDriver, hidDevice['path']
