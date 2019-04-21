@@ -9,7 +9,7 @@ from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
-        super(NetworkOptions, self).__init__(screen, 13, 34, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
+        super(NetworkOptions, self).__init__(screen, 12, 26, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
 
@@ -29,21 +29,21 @@ class NetworkOptions(Frame):
             ('Custom ipc', 'connect_w3_custom_ipc'),
             ('Custom Infura API Key', 'connect_w3_custom_infura'),
         ]
-        radiobuttons = RadioButtons(options,name='netpicker')
+        listbox = ListBox(6, options, on_select=self._ok, name='netpicker')
 
-        # Set radiobox to match stored options
+        # Set listbox to match stored options
         for i, option in enumerate(options):
             if option[1] == self._interface._config.default_method:
-                radiobuttons._value = option[1]
-                radiobuttons._selection = i
+                listbox._value = option[1]
+                listbox._selection = i
 
-        layout.add_widget(radiobuttons)
+        layout.add_widget(listbox)
 
         layout2 = Layout([1, 1])
         self.add_layout(layout2)
 
-        layout2.add_widget(Button("Cancel", self._cancel), 1)
-        layout2.add_widget(Button("Connect", self._ok), 0)
+        layout2.add_widget(Button("Cancel", self._cancel))
+        #layout2.add_widget(Button("Connect", self._ok), 0)
         self.fix()
 
     def _ok(self):
