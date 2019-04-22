@@ -21,7 +21,7 @@ class SendBox(TransactionFrame):
         #debug(self._screen._screen); import pdb; pdb.set_trace()
 
     def __init__(self, screen, interface):
-        super(SendBox, self).__init__(screen, 19, 59, interface, ok_func=self._ok, cancel_func=self._cancel, name="sendbox", title="Send Crypto")
+        super(SendBox, self).__init__(screen, 20, 59, interface, tx_func=self._ok, cancel_func=self._cancel, name="sendbox", title="Send Crypto")
 
         layout = Layout([100])#, fill_frame=True)
         self.prepend_layout(layout)
@@ -80,7 +80,7 @@ class SendBox(TransactionFrame):
                 self._scene.add_effect( MessageDialog(self._screen, i))
             return False
  
-    def _ok(self, gas_price_wei):
+    def _ok(self, gas_price_wei, nonce=None):
         #debug(); pdb.set_trace()
 
         address_text = self.find_widget('address')
@@ -92,9 +92,9 @@ class SendBox(TransactionFrame):
         try:
             #rx = self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei)
             if self.currency_listbox.value['name'] == 'ETH':
-                rx = self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei)
+                rx = self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei, nonce)
             else:
-                rx = self._interface.node.send_erc20(self.currency_listbox.value['name'], address_text._value, Decimal(amount_text._value), gas_price_wei)
+                rx = self._interface.node.send_erc20(self.currency_listbox.value['name'], address_text._value, Decimal(amount_text._value), gas_price_wei, nonce)
 
             #pyperclip.copy(rx)
             #self._scene.add_effect( MessageDialog(self._screen,"Tx submitted.", width = 20))

@@ -42,7 +42,8 @@ class TxDetail(SLFrame):
         #debug(); pdb.set_trace()
         #self.checksum = self.add_textbox("SHA256:")
         self.add_divider()
-        self.add_divider(draw_line=True)
+        self.add_divider()
+        #self.add_divider(draw_line=True)
         self.add_button_row([
             ("Resubmit Tx", self.resend_tx, 0),
             ("Nuke Tx", self.nuke_tx, 1),

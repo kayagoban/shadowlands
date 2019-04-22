@@ -6,19 +6,22 @@ from decimal import Decimal, InvalidOperation
 # most importantly, all the hoopla that takes care of gas prices
 class TransactionFrame(Frame):
    
-    def __init__(self, screen, x, y, interface, ok_func=None, cancel_func=None, **kwargs):
+    def __init__(self, screen, x, y, interface, tx_func=None, cancel_func=None, **kwargs):
         super(TransactionFrame, self).__init__(screen, x, y, can_scroll=False, has_shadow=True, is_modal=True, **kwargs)
         self.set_theme('shadowlands')
         self._interface = interface
         self._screen = screen
         self._gas_price_wei = None
+        self._tx_func = tx_func
 
         # subclass sets this to Decimal(something)
         self.estimated_gas = None
 
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
-
+        self.nonce_text = Text("     Nonce:", "nonce", default_value=str(self._interface.node.next_nonce()))
+        layout.add_widget(self.nonce_text)
+        layout.add_widget(Divider(draw_line=False))
         layout.add_widget(GasPricePicker(on_change=self._on_option_change, interface=interface))
         custgas = Text("   CustGas:", "custgas", on_change=self._on_text_change)
         custgas._is_disabled = True
@@ -31,10 +34,14 @@ class TransactionFrame(Frame):
 
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
-        layout2.add_widget(Button("Sign Tx", lambda: ok_func(self._gas_price_wei)), 0)
+        layout2.add_widget(Button("Sign Tx", self.validate), 0)
         layout2.add_widget(Button("Cancel", cancel_func), 3)
 
         self._on_option_change()
+
+    def validate(self):
+        self._tx_func(self._gas_price_wei, int(self.nonce_text._value))
+
     def fix(self):
         # manually call the radiobutton callback
         # to set the gas estimate label

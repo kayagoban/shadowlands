@@ -340,8 +340,8 @@ class Node():
             self._thread_shutdown = True
             self._heartbeat_thread.join()
 
-    def push(self, contract_function, gas_price, gas_limit=None, value=0):
-        tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value))
+    def push(self, contract_function, gas_price, gas_limit=None, value=0, nonce=None):
+        tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value, nonce=nonce))
         logging.info("Tx submitted to credstick: {}".format(tx))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
@@ -355,18 +355,18 @@ class Node():
         logging.info("%s |  added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
-    def send_ether(self,destination, amount, gas_price):
-        tx_dict = self.build_send_tx(amount, destination, gas_price)
+    def send_ether(self,destination, amount, gas_price, nonce=None):
+        tx_dict = self.build_send_tx(amount, destination, gas_price, nonce=nonce)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
         self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
         return encode_hex(rx)
 
-    def send_erc20(self, token_name, destination, amount, gas_price):
+    def send_erc20(self, token_name, destination, amount, gas_price, nonce=None):
         token = Erc20.factory(self, token_name)
         contract_fn = token.transfer(destination, self.w3.toWei(amount, 'ether'))
-        rx = self.push(contract_fn, gas_price, gas_limit=150000, value=0)
+        rx = self.push(contract_fn, gas_price, gas_limit=150000, value=0, nonce=nonce)
         return rx
 
 
@@ -388,10 +388,12 @@ class Node():
             data=data
         )
 
-    def defaultTxDict(self, gas_price, gas_limit=None, value=0):
+    def defaultTxDict(self, gas_price, gas_limit=None, nonce=None, value=0):
+        _nonce = nonce or self.next_nonce()
+
         txdict = dict(
             chainId=int(self._network),
-            nonce=self.next_nonce(),
+            nonce=_nonce,
             gasPrice=int(gas_price),
             value=value
         ) 

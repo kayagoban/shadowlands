@@ -16,7 +16,7 @@ import threading
 from decimal import Decimal
 
 class SLTransactionFrame(TransactionFrame):
-    def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=None, **kwargs):
+    def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=None,  **kwargs):
         super(SLTransactionFrame, self).__init__(dapp._screen, x, y, dapp, self._ok_fn, self.close, **kwargs) 
         self.dapp = dapp
         self._tx_fn = tx_fn
@@ -41,13 +41,14 @@ class SLTransactionFrame(TransactionFrame):
         self.fix()
 
 
-    def _ok_fn(self, gas_price_wei):
+    def _ok_fn(self, gas_price_wei, nonce=None):
         try:
             self.dapp.rx = self.dapp.node.push(
                 self._tx_fn, 
                 gas_price_wei, 
                 self.estimated_gas, 
-                value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether')
+                value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether'),
+                nonce=nonce
             )
 
 

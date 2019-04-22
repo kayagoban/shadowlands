@@ -76,7 +76,7 @@ class SLDapp():
 
     def add_transaction_dialog(self, tx_fn, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=None, **kwargs):
         self._scene.add_effect( 
-            SLTransactionFrame(self, 16, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
+            SLTransactionFrame(self, 18, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         )
 
     def add_send_dialog(self, tx_dict, title="Sign & Send"):
