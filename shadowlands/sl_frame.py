@@ -1,7 +1,6 @@
 from asciimatics.event import KeyboardEvent, MouseEvent
 
 from asciimatics.exceptions import NextScene
-
 from asciimatics.widgets import (
     Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox, QRCode
 )
@@ -117,6 +116,14 @@ class SLFrame(Frame):
         if add_divider:
             layout.add_widget(Divider(draw_line=False))
 
+    def add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout_distribution=[80, 20]):
+        layout = Layout(layout_distribution)
+        self.add_layout(layout)
+        layout.add_widget(Label(label_text), 0) 
+        layout.add_widget(Button(button_text, button_fn), 1) 
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
+
     def add_label_pair(self, label0_text, label1_text, add_divider=True):
         layout = Layout([1, 1])
         self.add_layout(layout)
@@ -147,6 +154,10 @@ class SLFrame(Frame):
     def close(self):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
+
+    def copy_to_clipboard(self, text):
+        pyperclip.copy(text)
+        self.dapp.add_message_dialog("Text copied to clipboard")
 
     @property
     def dapp(self):
