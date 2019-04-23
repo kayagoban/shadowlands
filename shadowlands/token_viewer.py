@@ -45,7 +45,7 @@ class TokenFrame(SLFrame):
         for i in balances:
            name = i['name'].ljust(7, ' ')
            self.add_label(
-                "{} ║ {} ║ {}".format(name, i['address'], i['balance']),
+                "{} ║ {} ║ {}".format(name, i['address'], round(i['balance'], 7)),
                 add_divider=False
             )
 
