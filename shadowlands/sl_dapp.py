@@ -16,6 +16,8 @@ from shadowlands.tui.debug import debug, end_debug
 
 from shadowlands.sl_frame import SLFrame, SLWaitFrame, AskClipboardFrame
 
+from shadowlands.uniswap_frame import UniswapFrame
+
 from shadowlands.sl_transaction_frame import SLTransactionFrame, SLTransactionWaitFrame
 
 import pdb
@@ -79,6 +81,11 @@ class SLDapp():
             SLTransactionFrame(self, 18, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         )
 
+    def add_uniswap_frame(self, token_address, action='buy', value=None):
+        self._scene.add_effect(UniswapFrame(self, 14, 46, token_address) )
+
+
+
     def add_send_dialog(self, tx_dict, title="Sign & Send"):
         # This class is duck typed to web3.py contract functions.
         class TransactionFunction():
@@ -94,7 +101,7 @@ class SLDapp():
 
         self._scene.add_effect( 
             SLTransactionFrame(
-                self, 16, 59, tx_fn, title=title, 
+                self, 20, 59, tx_fn, title=title, 
                 gas_limit=tx_dict['gas'], 
                 tx_value=self.node.w3.fromWei(tx_dict['value'], 'ether') 
             )

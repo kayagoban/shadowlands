@@ -104,6 +104,7 @@ class MainMenuListener(Effect):
                 return
 
             self._scene.add_effect(SendBox(self._screen, self._interface))
+        # T, t for tokens
         elif event.key_code in [ord('T'), ord('t')]:
             TokenViewer(
                 self._screen, 

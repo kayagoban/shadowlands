@@ -14,12 +14,14 @@ from shadowlands.contract.erc20 import Erc20
 from shadowlands.contract import ContractConfigError
 from web3.exceptions import BadFunctionCallOutput
 
+from shadowlands.uniswap.exchange import Exchange
+
 class TokenViewer(SLDapp):
 
     def initialize(self):
         self.balances = self.node.erc20_balances
         height = 6+len(self.balances)
-        self.add_frame(TokenFrame, height=height, width=71, title='ERC20 Tokens')
+        self.add_frame(TokenFrame, height=height, width=45, title='ERC20 Tokens')
 
 class TokenFrame(SLFrame):
 
@@ -27,35 +29,54 @@ class TokenFrame(SLFrame):
         tokens = Erc20.tokens(self.dapp.node.network) + self.dapp.config.tokens(self.dapp.node.network)
 
         # List comprehension join. wheeee!
-        balances =  [{'name': x[0], 'address': x[1], 'balance': y['balance']} for x in tokens for y in self.dapp.balances if x[0] == y['name']]
+        balances =  [{'name': x[0], 'address': x[1],'balance': y['balance']} for x in tokens for y in self.dapp.balances if x[0] == y['name']]
 
         self.add_label(
-            "Token   ║ Token Address                              ║ Balance",
+            "Token   ║ Balance",
             add_divider=False
         )
         self.add_label(
-            "        ║                                            ║",
+            "        ║",
             add_divider=False
         )
+
  
         #self.add_divider(draw_line=True)
         #self.add_divider()
 
 
         for i in balances:
-           name = i['name'].ljust(7, ' ')
-           self.add_label(
-                "{} ║ {} ║ {}".format(name, i['address'], round(i['balance'], 7)),
-                add_divider=False
+            #debug(); pdb.set_trace()
+            name = i['name'].ljust(7, ' ')
+            self.add_label_with_button(
+                "{} ║ {}".format(name, str(i['balance'])[0:12]),
+                "Trade {}".format(i['name']),
+                #lambda: self.trade(i['name'], i['address']),
+                self.trade_lambda(i),
+                add_divider=False,
+                layout_distribution=[55, 45]
             )
+
+            #self.add_label(
+            #    "{} ║ {}".format(name, i['address'], round(i['balance'], 7)),
+            #    add_divider=False
+            #)
 
         self.add_divider()
         self.add_button_row([
-            ("Add Token", self.add_token, 1),
-            ("Remove Token", self.remove_token, 2),
-            ("Back", self.close, 3)
-        ])
+            ("Add Token", self.add_token, 0),
+            ("Remove Token", self.remove_token, 1),
+            ("Back", self.close, 2)
+        ],
+        layout=[10, 14, 6])
 
+    def trade_lambda(self, token):
+        return lambda: self.trade(token)
+
+    def trade(self, token):
+        self.dapp.add_uniswap_frame(token['address'])
+        self.close()
+    
     def add_token(self):
         self.dapp.add_frame(AddTokenFrame, height=7, width=57, title='Add Token')
         self.close()
@@ -65,8 +86,6 @@ class TokenFrame(SLFrame):
         self.close()
 
 
-        pass
-
 class AddTokenFrame(SLFrame):
     def initialize(self):
         self.token_name_value = self.add_textbox("Token Name:")
@@ -75,6 +94,7 @@ class AddTokenFrame(SLFrame):
             ("Add Token", self.add_token, 2),
             ("Back", self.close, 3)
         ])
+
 
     def add_token(self):
         if not self.validate(self.token_addr_value()):

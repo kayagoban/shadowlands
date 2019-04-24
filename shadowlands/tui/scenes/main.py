@@ -71,7 +71,7 @@ class MainScene(Scene):
             Materialize(screen, StaticRenderer([self.MENU_FRAME]), 0, 2, signal_acceleration_factor=1.05, stop_frame = 100),
             Materialize(screen, StaticRenderer([self.MENU_TOP]), 32, 3, signal_acceleration_factor=1.05, stop_frame=100),
             DynamicSourceCursor(screen, CredstickNameRenderer(interface), 3, 3),
-            Materialize(screen, QRCodeRenderer(interface), 48, 7, signal_acceleration_factor=1.0, stop_frame=120),
+            Materialize(screen, QRCodeRenderer(interface), 48, 7, signal_acceleration_factor=1.1, stop_frame=120),
             DynamicSourceCursor(screen, AddressRenderer(interface), 22, 5),
             DynamicSourceCursor(screen, HDPathRenderer(interface), 13, 7),
             DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 11),

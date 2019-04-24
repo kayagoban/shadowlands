@@ -164,8 +164,6 @@ class SLFrame(Frame):
         return self._dapp
 
 
-
-
 class SLWaitFrame(SLFrame):
     def initialize(self):
         self.add_label(self.message)
