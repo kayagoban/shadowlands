@@ -20,70 +20,100 @@ class TokenViewer(SLDapp):
 
     def initialize(self):
         self.balances = self.node.erc20_balances
+        self.selected_token = None
         height = 6+len(self.balances)
-        self.add_frame(TokenFrame, height=height, width=45, title='ERC20 Tokens')
+        self.add_frame(TokenFrame, height=height, width=40, title='ERC20 Tokens')
 
 class TokenFrame(SLFrame):
 
     def initialize(self):
-        tokens = Erc20.tokens(self.dapp.node.network) + self.dapp.config.tokens(self.dapp.node.network)
+        tokens = self.dapp.config.tokens(self.dapp.node.network)
 
         # List comprehension join. wheeee!
         balances =  [{'name': x[0], 'address': x[1],'balance': y['balance']} for x in tokens for y in self.dapp.balances if x[0] == y['name']]
 
         self.add_label(
-            "Token   ║ Balance",
+            "Token           ║ Balance",
             add_divider=False
         )
         self.add_label(
-            "        ║",
+            "                ║",
             add_divider=False
         )
 
  
         #self.add_divider(draw_line=True)
         #self.add_divider()
+        options = [
+            (
+                "{} ║ {}".format(i['name'].ljust(15, ' '), str(i['balance'])[0:18]),
+                i
+            ) for i in balances]
 
+        self.tokens_list = self.add_listbox(len(balances), options, on_change=self.select_token, on_select=self.token_detail)
 
-        for i in balances:
-            #debug(); pdb.set_trace()
-            name = i['name'].ljust(7, ' ')
-            self.add_label_with_button(
-                "{} ║ {}".format(name, str(i['balance'])[0:12]),
-                "Trade {}".format(i['name']),
-                #lambda: self.trade(i['name'], i['address']),
-                self.trade_lambda(i),
-                add_divider=False,
-                layout_distribution=[55, 45]
-            )
+        #for i in balances:
+        #    name = i['name'].ljust(7, ' ')
+        #    self.add_label_with_button(
+        #        "{} ║ {}".format(name, round(i['balance'], 7)),
+        #        "Trade {}".format(i['name']),
+        #        self.trade_lambda(i),
+        #        add_divider=False,
+        #        layout_distribution=[55, 45]
+        #    )
 
-            #self.add_label(
-            #    "{} ║ {}".format(name, i['address'], round(i['balance'], 7)),
-            #    add_divider=False
-            #)
-
-        self.add_divider()
+        #self.add_divider()
         self.add_button_row([
-            ("Add Token", self.add_token, 0),
-            ("Remove Token", self.remove_token, 1),
+            #("Uniswap", self.trade_lambda(tokens_list), 0),
+            ("Select", self.token_detail, 0),
+            ("Add Token", self.add_token, 1),
             ("Back", self.close, 2)
         ],
-        layout=[10, 14, 6])
+        layout=[3, 4, 3])
 
     def trade_lambda(self, token):
         return lambda: self.trade(token)
 
-    def trade(self, token):
-        self.dapp.add_uniswap_frame(token['address'])
-        self.close()
-    
+   
     def add_token(self):
         self.dapp.add_frame(AddTokenFrame, height=7, width=57, title='Add Token')
+        self.close()
+
+    def select_token(self):
+        self.dapp.selected_token = self.tokens_list()
+
+    def token_detail(self):
+        self.dapp.add_frame(TokenDetail, height=10, width=46, title=self.dapp.selected_token['name'])
+        #self.close()
+
+
+
+class TokenDetail(SLFrame):
+    def initialize(self):
+        token = self.dapp.selected_token
+        self.add_label("Symbol: {}".format(token['name']))
+        self.add_label("Address:", add_divider=False)
+        self.add_label(token['address'])
+        #debug(); pdb.set_trace()
+        self.add_label("Balance: {}".format(token['balance'].__str__()[0:18]))
+        self.add_button_row([
+            ("Uniswap", lambda: self.trade(token), 0),
+            ("Remove", self.remove_token, 1),
+            ("Back", self.close, 2)
+        ], 
+        layout=[3, 3, 3])
+ 
+    def trade(self, token):
+        #debug(); pdb.set_trace()
+        #token = token._value
+        self.dapp.add_uniswap_frame(token['address'])
         self.close()
 
     def remove_token(self):
         self.dapp.add_frame(RemoveTokenFrame, height=5, width=42, title='Remove Token')
         self.close()
+
+
 
 
 class AddTokenFrame(SLFrame):

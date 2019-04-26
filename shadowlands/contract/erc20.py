@@ -8,18 +8,6 @@ class TokenNotFound(Exception):
 class Erc20(Contract):
 
     # (name, address, chainid)
-    TOKENS = [
-        ('WETH', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '1'),
-        ('DAI', '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', '1'),
-        ('MKR', '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', '1'),
-        ('REP', '0x1985365e9f78359a9B6AD760e32412f4a445E862', '1'),
-        ('DGX', '0x4f3AfEC4E5a3F2A6a1A411DEF7D7dFe50eE057bF', '1'),
-        ('ZRX', '0xE41d2489571d322189246DaFA5ebDe1F4699F498', '1'),
-        ('LOOM', '0xA4e8C3Ec456107eA67d3075bF9e3DF3A75823DB0', '1'),
-        ('USDC', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '1'),
-        ('WBTC', '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', '1')
-    ]
-
 
     @classmethod
     def tokens(cls, chain_id):
@@ -37,8 +25,7 @@ class Erc20(Contract):
 
     @classmethod
     def balances(cls, node, target):
-        result = [{'name': x[0], 'balance': node.w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in cls.tokens(node.network)]
-        result += [{'name': x[0], 'balance': node.w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in node.config.tokens(node.network)]
+        result = [{'name': x[0], 'balance': node.w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in node.config.tokens(node.network)]
         return result
 
 
