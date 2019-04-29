@@ -13,7 +13,9 @@ from shadowlands.tui.errors import ExitTuiError, PriceError
 from shadowlands.sl_network_dapp import SLNetworkDapp
 from shadowlands.tx_inspector import TxInspector
 from shadowlands.credstick import DeriveCredstickAddressError
-from shadowlands.token_viewer import TokenViewer
+from shadowlands.token_adder import TokenAdder
+from shadowlands.token_remover import TokenRemover
+from shadowlands.token_uniswapper import TokenUniswapper
 from shadowlands.tui.debug import debug
 import importlib
 
@@ -104,15 +106,37 @@ class MainMenuListener(Effect):
                 return
 
             self._scene.add_effect(SendBox(self._screen, self._interface))
-        # T, t for tokens
-        elif event.key_code in [ord('T'), ord('t')]:
-            TokenViewer(
+        ## Tokens
+        # Uniswap
+        elif event.key_code in [ord('U'), ord('u')]:
+            TokenUniswapper(
                 self._screen, 
                 self._scene, 
                 self._interface.node,
                 self._interface.config,
                 self._interface.price_poller
             )
+        # T, t for tokens
+        elif event.key_code in [ord('a'), ord('A')]:
+            TokenAdder(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )
+        # T, t for tokens
+        elif event.key_code in [ord('R'), ord('r')]:
+            TokenRemover(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface.price_poller
+            )
+
+
+
  
         # C, c  for copy
         elif event.key_code in [67, 99]:

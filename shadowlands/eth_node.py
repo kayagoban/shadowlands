@@ -153,6 +153,13 @@ class Node():
             try:
                 if self._credstick:
                     self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
+                    # Trying to catch a wily web3.py bug.
+                    # Sometimes when using the websockets middleware,
+                    # strange responses start coming back.
+                    if self._wei_balance.__class__ != int:
+                        logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
+                        debug(); pdb.set_trace()
+
                     self._erc20_balances = Erc20.balances(self, self.credstick.address)
                     if self._network == '1':
                         try:
@@ -168,8 +175,9 @@ class Node():
                 if self._syncing:
                     self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
 
-            except Exception as e:
+            except (TypeError, Exception) as e:
                 logging.info("ERROR IN  eth_node _update_status")
+                debug(); pdb.set_trace()
                 logging.info(e)
                 raise e
 

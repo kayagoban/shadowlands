@@ -3,6 +3,7 @@ from shadowlands.contract import Contract
 from shadowlands.contract.erc20 import Erc20
 from shadowlands.uniswap.factory import Factory
 from decimal import Decimal
+import time
 
 class Exchange(Contract):
 
@@ -63,6 +64,25 @@ class Exchange(Contract):
         denominator = (outputReserve - outputAmount) * Decimal(997)
         inputAmount = numerator / (denominator + Decimal(1))
         return inputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
+
+    # transactions
+    def token_to_eth(self, amount, expected_eth, minutes_to_live=45, max_slippage=0.05):
+        ''' 
+        token and eth amounts are in integer (wei) values.
+        the exchange address must have been given proxy approval before this works.
+        by default tx has 45 minutes to be mined before expiring.
+        limit slippage to a % (5% by default) of expected ether.
+        this means you are guaranteed that if the contract executes the trade, you 
+        will get no less than 95% of what you thought you were going to get.
+        '''
+        ttl = int(time.time()) + (minutes_to_live * 60)
+        min_eth = int(expected_eth - (expected_eth * Decimal(0.02)))
+
+        return self.functions.tokenToEthSwapInput(amount, min_eth, ttl)
+
+    
+
+
 
 
     ABI='''

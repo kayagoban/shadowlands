@@ -39,6 +39,10 @@ class SLDapp():
         return self._node
 
     @property
+    def w3(self):
+        return self._node.w3
+
+    @property
     def config(self):
         return self._config
         
@@ -82,8 +86,7 @@ class SLDapp():
         )
 
     def add_uniswap_frame(self, token_address, action='buy', value=None):
-        self._scene.add_effect(UniswapFrame(self, 14, 46, token_address) )
-
+        self._scene.add_effect(UniswapFrame(self, 17, 46, token_address) )
 
 
     def add_send_dialog(self, tx_dict, title="Sign & Send"):

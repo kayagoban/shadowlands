@@ -1,7 +1,9 @@
 
 import threading, time
 from cryptocompy import price
+from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
+import logging
 
 
 class PricePoller:
@@ -17,9 +19,10 @@ class PricePoller:
             # 5 minutes seems responsible.
             sleep_time=300
             try:
+                logging.debug("Poll for ETH prices")
                 self._prices = price.get_current_price("ETH", currencies) 
                 sleep_time = 300
-            except ConnectionError:
+            except (ConnectionError, JSONDecodeError):
                 self._prices = None
                 # Retry faster to anticipate the connection coming back online
                 sleep_time = 10 

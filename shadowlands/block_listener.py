@@ -92,4 +92,4 @@ class BlockListener():
                 for event in block_filter.get_new_entries():
                     self.handle_event(event)
         except Exception as e:
-            logging.debug(e)
+            logging.debug("Error in block_listener: {}".format(e))

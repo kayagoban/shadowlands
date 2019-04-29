@@ -43,11 +43,14 @@ class UniswapFrame(SLFrame):
         #result = self.exchange.buy_token_calc_token_output(1000000)
         #self.add_label("Exchange rate: {}/ETH: {}".format(self.token_symbol, round(result[1], 5)))
 
-        self.add_label("ETH liquidity: {}".format( str(round(self.exchange.eth_reserve, 3))))
+        self.add_label("ETH liquidity: {}".format( str(round(self.exchange.eth_reserve, 3))), add_divider=False)
         self.add_label("{} liquidity: {}".format(self.token_symbol, str(round(self.exchange.token_reserve, 3))))
 
+        self.add_label("Your ETH balance: {}".format(str(self.dapp.node.eth_balance)[0:18]), add_divider=False)
+        self.add_label("Your {} balance: {}".format(self.token_symbol, self.token.my_balance_str()))
+
         options = [
-            ("Buy {} for ETH".format(self.token_symbol), 'buy'),
+            ("Buy {} with ETH".format(self.token_symbol), 'buy'),
             ("Sell {} for ETH".format(self.token_symbol), 'sell')
         ]
 
@@ -66,6 +69,8 @@ class UniswapFrame(SLFrame):
         layout.add_widget(self.eth_amount)
         layout.add_widget(Divider(draw_line=False))
 
+        self.add_divider()
+
         self.add_button_row([("Transact", self.transact, 0), ("Back", self.close, 3)])
 
     def blank_textfields(self):
@@ -73,18 +78,48 @@ class UniswapFrame(SLFrame):
         self.eth_amount._value = ''
 
     def transact(self):
+        if not self.validate(self.radiobutton_value()):
+            return
+
         if self.radiobutton_value() == 'buy':
-            self.buy_token()
+            # send ether to exchange
+            amount = self.dapp.node.w3.toWei(self.eth_amount._value, 'ether')
+            self.dapp.add_send_dialog(
+                {
+                    'to': self.exchange.address,
+                    'value': amount,
+                    'nonce': self.dapp.node.next_nonce(),
+                    'gas': 60000
+                }
+            )
+            self.close()
+
         elif self.radiobutton_value() == 'sell':
-            self.sell_token()
+            token_amount = self.token.convert_to_integer(Decimal(self.token_amount._value)) 
+            eth_amount = self.dapp.w3.toWei(self.eth_amount._value, 'ether')
 
-    def buy_token(self):
-        if not self.validate('buy'):
-            return
+            # check allowance to see if we need to approve
+            #debug(); pdb.set_trace()
+            allowance = self.token.self_allowance(self.exchange.address)
 
-    def sell_token(self):
-        if not self.validate('sell'):
-            return
+            #debug(); pdb.set_trace()
+            if allowance < token_amount:
+                self.dapp.add_transaction_dialog(
+                    self.token.approve_unlimited(self.exchange.address),
+                    title="Approve Exchange contract to handle your {}".format(self.token_symbol),
+                    gas_limit=60000,
+                )
+                self.dapp.add_message_dialog("You must first approve the Exchange to handle your {}".format(self.token_symbol))
+            else:
+                #debug(); pdb.set_trace()
+                self.dapp.add_transaction_dialog(
+                    self.exchange.token_to_eth(token_amount, eth_amount),
+                    title="Sell {} for ETH".format(self.token_symbol),
+                    gas_limit=375013,
+                )
+                self.dapp.add_message_dialog("The TX will have a 45min TTL and max 2% slippage from the exchange rate you agreed on.")
+
+            self.close()
 
     def token_value_dirty(self):
         self.eth_amount.token_value_dirty_flag = True
@@ -104,37 +139,21 @@ class UniswapFrame(SLFrame):
     def errors(self, action):
         errors = []
 
-        # is the amount a decimal?
         try:
-            amount = Decimal(self.amount())
+            eth_amount = Decimal(self.eth_amount._value)
+            token_amount = Decimal(self.eth_amount._value)
         except InvalidOperation:
-            errors.append("Invalid Amount given")
+            errors.append("Could not convert currency amount to Decimal")
 
-        # is the amount > 0?
-        if amount <= 0:
-            errors.append("Amount must be a positive decimal value")
-
-        try:
-            decimals = Decimal(10 ** self.token.decimals())
-            amount = amount * decimals
-        except: 
-            errors.append("Decimal conversion error")
+        if eth_amount <= 0 or token_amount <= 0:
+            errors.append("Amounts must be positive decimal values")
 
         if action == 'buy':
-            eth_cost = self.exchange.eth_cost(amount)
-            if eth_cost[0] > self.dapp.node._wei_balance:
-                errors.append("You don't have enough Eth to perform transaction")
-
-            if  amount > self.exchange.token_reserve(as_int=False):
-                errors.append("Exchange doesn't have enough {} to perform transaction".format(self.token_symbol))
-
-        #elif action == 'sell':
-        #    if self.token.my_balance() < amount
-        #        errors.append("You don't have enough {} to perform transaction".format(self.token_symbol))
-        #
-        #    # is there enough ETH liquidity to satisfy transaction?
-        #    if self.exchange.token_cost(amount)[0]
-        #    #if amount > self.exchange.
+            if eth_amount > self.dapp.node._wei_balance:
+                errors.append("Not enough eth to make purchase")
+        elif action == 'sell':
+            if token_amount > self.token.my_balance():
+                errors.append("Credstick doesn't have enough tokens to sell that amount")
 
         return errors
 

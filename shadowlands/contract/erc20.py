@@ -1,11 +1,15 @@
 from shadowlands.contract import Contract
 import logging
+from shadowlands.tui.debug import debug
+import pdb
 
 class TokenNotFound(Exception):
     pass
 
 
 class Erc20(Contract):
+
+    MAX_UINT256 = ((2 ** 256)  - 1)
 
     # (name, address, chainid)
 
@@ -59,6 +63,9 @@ class Erc20(Contract):
     def allowance(self, owner, proxy):
         return self.functions.allowance(owner, proxy).call()
 
+    def self_allowance(self, proxy):
+        return self.allowance(self._node.credstick.address, proxy)
+
     def symbol(self):
         return self.functions.symbol().call()
 
@@ -69,13 +76,35 @@ class Erc20(Contract):
         return self.functions.balanceOf(target).call()
 
     def my_balance(self):
-        return self.balanceOf(self.node.credstick.address)
+        return self.balanceOf(self._node.credstick.address)
+
+    def decimal_balance(self):
+        return self.balanceOf(self._node.credstick.address) * (10 ** self.decimals())
+
+    def convert_to_decimal(self, amount):
+        return (amount / ( 10 ** self.decimals() ) )
+
+    def convert_to_integer(self, amount):
+        return int((10 **self.decimals()) * amount)
+
+    def my_balance_str(self, length=18):
+        bal = str(self.balanceOf(self._node.credstick.address) / (10 ** self.decimals()))
+        return bal[0:length]
+
 
     # Transactions
     def approve(self, proxy_address, amount):
-        return self.functions.approve(proxy_address, amount)
+        #debug(); pdb.set_trace()
+        #return self.functions.approve(proxy_address, int(amount))
+        return self.functions.approve(proxy_address, int(amount))
+
+    def approve_unlimited(self, proxy_address):
+        #debug(); pdb.set_trace()
+        #return self.approve(proxy_address, self.MAX_UINT256)
+        return self.functions.approve(proxy_address)
 
     def transfer(self, target, value):
+        #debug(); pdb.set_trace()
         return self.functions.transfer(target, value)
 
 

@@ -134,6 +134,7 @@ class LedgerEthDriver(Credstick):
 
     @classmethod
     def signTx(cls,transaction_dict):
+        apdu = None
 
         try:
             tx = serializable_unsigned_transaction_from_dict(transaction_dict)
@@ -181,7 +182,10 @@ class LedgerEthDriver(Credstick):
             stx = cls.signed_tx(tx, _v, _r, _s)
 
         except (CommException, BaseException) as e:
-            raise SignTxError("Ledger device threw error  while attempting SignTx with apdu {}".format(apdu))
-            logging.debug("Ledger device threw error  while attempting SignTx with apdu {}".format(apdu))
+            if apdu:
+                raise SignTxError("Ledger device threw error {}  while attempting SignTx with apdu {}".format(e, apdu))
+                logging.debug("Ledger device threw error {} while attempting SignTx with apdu {}".format(e, apdu))
+            else:
+                raise SignTxError("Ledger device threw error  while attempting SignTx: {}".format(e))
         return stx
     

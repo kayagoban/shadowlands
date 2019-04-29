@@ -120,6 +120,7 @@ class PathPickerFrame(SLFrame):
             )
 
             self.dapp.config.hd_base_path = self.pathbox_value()
+            self.dapp.node._update_status()
         except DeriveCredstickAddressError:
             self.dapp.add_message_dialog("Could not derive address from your credstick")
 
@@ -132,6 +133,7 @@ class PathPickerFrame(SLFrame):
                 hdpath_index=self.index_list_value(),
                 set_address=True
             )
+            self.dapp.node._update_status()
         except DeriveCredstickAddressError:
             self.dapp.add_message_dialog("Could not derive address from your credstick")
         self.close()

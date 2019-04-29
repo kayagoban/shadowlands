@@ -1,3 +1,4 @@
+from eth_utils import decode_hex
 
 class ContractConfigError(Exception):
     pass
@@ -75,3 +76,8 @@ class Contract():
     def bytes32(self, an_int):
         return (an_int).to_bytes(32, byteorder='big')
 
+    def to_sol_addr(self, address):
+        return decode_hex(address.replace('0x',''))
+
+    def to_bytes_32(self, value):
+        return self.bytes32(value) 
