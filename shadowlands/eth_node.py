@@ -158,7 +158,7 @@ class Node():
                     # strange responses start coming back.
                     if self._wei_balance.__class__ != int:
                         logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
-                        debug(); pdb.set_trace()
+                        #debug(); pdb.set_trace()
 
                     self._erc20_balances = Erc20.balances(self, self.credstick.address)
                     if self._network == '1':
@@ -177,8 +177,8 @@ class Node():
 
             except (TypeError, Exception) as e:
                 logging.info("ERROR IN  eth_node _update_status")
-                debug(); pdb.set_trace()
-                logging.info(e)
+                #logging.info(e)
+                logging.info(e.format_exc())
                 raise e
 
 
