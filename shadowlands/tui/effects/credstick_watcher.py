@@ -29,7 +29,7 @@ class CredstickWatcher(Effect):
             self.detect_thread_started = True
 
 
-        if self._interface.credstick and self._interface.node.w3 and self._interface.node.erc20_balances is not None and self._interface._credstick_inserted == True:
+        if self._interface.credstick and self._interface.node.w3 and self._interface._credstick_inserted == True:
             logging.debug("credstick found - Switching to Main scene")
             # deleting the loading scene entirely.
             # This makes sure the loading screen does not come back upon resize.
