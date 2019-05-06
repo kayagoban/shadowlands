@@ -137,7 +137,6 @@ class RunNetworkDappFrame(SLFrame):
             self.dapp._scene, 
             self.dapp._node,
             self.dapp._config,
-            self.dapp._price_poller,
             self.textbox_value()
         )
         self.close()
@@ -210,8 +209,7 @@ class RunLocalDappFrame(SLFrame):
             self.dapp._screen, 
             self.dapp._scene, 
             self.dapp._node,
-            self.dapp._config,
-            self.dapp._price_poller
+            self.dapp._config
         )
 
 

@@ -23,12 +23,11 @@ from shadowlands.sl_transaction_frame import SLTransactionFrame, SLTransactionWa
 import pdb
 
 class SLDapp():
-    def __init__(self, screen, scene, eth_node, config, price_poller, destroy_window=None):
+    def __init__(self, screen, scene, eth_node, config, destroy_window=None):
         self._screen = screen
         self._scene = scene
         self._node = eth_node
         self._config = config
-        self._price_poller = price_poller
         self.initialize()
 
         if destroy_window is not None:

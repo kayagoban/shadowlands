@@ -215,27 +215,8 @@ class EthValueRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        curr = self._interface._config.displayed_currency
-        try:
-            currency_val = Decimal(self._interface._price_poller.eth_price)
-        except (TypeError, KeyError, PriceError):
-            return img_colour_map(['Unavailable'])
-
-        try:
-            eth = self._interface.node.eth_balance
-        except AttributeError:
-            return img_colour_map(['Unavailable'])
-
-        if not eth:
-            return img_colour_map(['Unavailable'])
-
-        if curr == 'BTC':
-            decimal_places = 6
-        else:
-            decimal_places = 2
-
-        val = str(round(currency_val * eth, decimal_places))
-        image = [ "{} {} {}".format(curr, self._interface._config.curr_symbol, val) ]
+        val = str(self._interface._node._eth_usd)[0:8]
+        image = [ "{} {} {}".format('USD', '$', val) ]
 
         return img_colour_map(image)
 

@@ -14,6 +14,7 @@ from shadowlands.block_listener import BlockListener
 import pdb
 from shadowlands.tui.debug import debug
 from shadowlands.contract.erc20 import Erc20
+from shadowlands.contract import Contract
 
 import logging
 
@@ -24,6 +25,8 @@ class NodeConnectionError(Exception):
 
 class ENSNotSetError(Exception):
     pass
+
+
 
 
 class Node():
@@ -56,6 +59,8 @@ class Node():
         self._thread_shutdown = False
         self._block_listener = None
         self._erc20_balances = None
+        self._sai_pip = None
+        self._eth_usd = None
 
     @property
     def config(self):
@@ -150,36 +155,39 @@ class Node():
                 pass
 
     def _update_status(self):
-            try:
-                if self._credstick:
-                    self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-                    # Trying to catch a wily web3.py bug.
-                    # Sometimes when using the websockets middleware,
-                    # strange responses start coming back.
-                    if self._wei_balance.__class__ != int:
-                        logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
-                        #debug(); pdb.set_trace()
+        logging.debug("eth_node update_status")
 
-                    self._erc20_balances = Erc20.balances(self, self.credstick.address)
-                    if self._network == '1':
-                        try:
-                            self._ens_domain = self._ns.name(self._credstick.addressStr())
-                        except BadFunctionCallOutput:
-                            self._ens_domain = 'Unknown'
-                    else:
+        try:
+            if self._credstick:
+                self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
+                # Trying to catch a wily web3.py bug.
+                # Sometimes when using the websockets middleware,
+                # strange responses start coming back.
+                if self._wei_balance.__class__ != int:
+                    logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
+                    #debug(); pdb.set_trace()
+
+                self._erc20_balances = Erc20.balances(self, self.credstick.address)
+                if self._network == '1':
+                    try:
+                        self._ens_domain = self._ns.name(self._credstick.addressStr())
+                    except BadFunctionCallOutput:
                         self._ens_domain = 'Unknown'
+                else:
+                    self._ens_domain = 'Unknown'
 
-                logging.debug("eth_node update_status")
-                self._best_block = str(self._w3.eth.blockNumber)
-                self._syncing = self._w3.eth.syncing
-                if self._syncing:
-                    self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
+            self._best_block = str(self._w3.eth.blockNumber)
+            self._syncing = self._w3.eth.syncing
+            self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
+            if self._syncing:
+                self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
 
-            except (TypeError, Exception) as e:
-                logging.info("ERROR IN  eth_node _update_status")
-                #logging.info(e)
-                logging.info(e.format_exc())
-                raise e
+
+        except (TypeError, Exception) as e:
+            logging.info("ERROR IN  eth_node _update_status")
+            #logging.info(e)
+            logging.info(e.format_exc())
+            raise e
 
 
 
@@ -195,6 +203,9 @@ class Node():
         self._network = self.w3.version.network
 
         self._ns = ENS.fromWeb3(_w3)
+
+        if self._sai_pip is None:
+            self._sai_pip = SaiPip(self)
 
         self._heart_rate = _heart_rate
         self._connection_type = connection_type
@@ -423,4 +434,18 @@ class Node():
         return self.w3.eth.getTransactionCount(address)
 
 
+class SaiPip(Contract):
+
+    def read(self):
+        return self.functions.read().call()
+
+    def eth_price(self):
+        result = self.functions.read().call()
+        int_price = int.from_bytes(result, byteorder='big')
+        return Decimal(int_price)
+
+    MAINNET='0x729D19f657BD0614b4985Cf1D82531c67569197B'
+    KOVAN='0xa944bd4b25c9f186a846fd5668941aa3d3b8425f'
+    ABI='''
+    [{"constant":false,"inputs":[{"name":"owner_","type":"address"}],"name":"setOwner","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wut","type":"bytes32"}],"name":"poke","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"read","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"peek","outputs":[{"name":"","type":"bytes32"},{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"authority_","type":"address"}],"name":"setAuthority","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"void","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"authority","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":true,"inputs":[{"indexed":true,"name":"sig","type":"bytes4"},{"indexed":true,"name":"guy","type":"address"},{"indexed":true,"name":"foo","type":"bytes32"},{"indexed":true,"name":"bar","type":"bytes32"},{"indexed":false,"name":"wad","type":"uint256"},{"indexed":false,"name":"fax","type":"bytes"}],"name":"LogNote","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"authority","type":"address"}],"name":"LogSetAuthority","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"}],"name":"LogSetOwner","type":"event"}]'''
 

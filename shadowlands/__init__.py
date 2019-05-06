@@ -5,7 +5,6 @@ import sys
 from shadowlands.credstick import Credstick
 from shadowlands.sl_config import SLConfig
 from shadowlands.eth_node import Node
-from shadowlands.price_poller import PricePoller
 from shadowlands.tui.tui import Interface
 
 import pdb
@@ -48,12 +47,8 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     # Eth node heartbeat
     eth_node.start_heartbeat_thread()
 
-    # price import thread
-    price_poller = PricePoller(sl_config)
-    price_poller.start_thread()
-
     # create user interface 
-    interface = Interface(eth_node, price_poller, sl_config, preloaded_dapp=dapp)
+    interface = Interface(eth_node, sl_config, preloaded_dapp=dapp)
 
     # Begin interface
     interface.load()
@@ -64,9 +59,6 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
 
     print("Closing credstick poller...")
     Credstick.stop_detect_thread()
-
-    print("Closing price poller...")
-    price_poller.stop_thread()
 
     print("Shutdown block listener")
     eth_node._block_listener.shut_down()

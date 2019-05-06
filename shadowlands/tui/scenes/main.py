@@ -34,7 +34,7 @@ class MainScene(Scene):
 ║
 ║  Ξth:
 ║
-║  ${7,1}V${2,2}alue:
+║  Value:
 ║
 ╠═════════════════════════════════╗
 ║ Tokens - ${7,1}U${2,2}niswap, ${7,1}A${2,2}dd, ${7,1}R${2,2}emove

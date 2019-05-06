@@ -1,7 +1,7 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from asciimatics.event import KeyboardEvent
-from shadowlands.tui.effects.widgets import QuitDialog, ValueOptions
+from shadowlands.tui.effects.widgets import QuitDialog
 from shadowlands.tui.effects.send_box import SendBox 
 from shadowlands.tui.effects.message_dialog import MessageDialog
 from shadowlands.tui.effects.network_options import NetworkOptions
@@ -76,8 +76,7 @@ class MainMenuListener(Effect):
             self._screen, 
             self._scene, 
             self._interface.node,
-            self._interface.config,
-            self._interface.price_poller
+            self._interface.config
         )
         pass
 
@@ -113,8 +112,7 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
         # T, t for tokens
         elif event.key_code in [ord('a'), ord('A')]:
@@ -122,8 +120,7 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
         # T, t for tokens
         elif event.key_code in [ord('R'), ord('r')]:
@@ -131,8 +128,7 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
 
 
@@ -147,8 +143,7 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
         # E, e for ens
         elif event.key_code in [ord('e'), ord('E')]:
@@ -157,28 +152,18 @@ class MainMenuListener(Effect):
                 self._scene, 
                 self._interface.node,
                 self._interface.config,
-                self._interface.price_poller,
                 'ens.shadowlands'
             )
         # N, n for network
         elif event.key_code in [78, 110]:
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
-        elif event.key_code in [86, 118]:
-            # V, v for value
-            #debug(); import pdb; pdb.set_trace()
-            try:
-                self._interface.price_poller.eth_prices
-                self._scene.add_effect(ValueOptions(self._screen, self._interface))
-            except (PriceError):
-                self._scene.add_effect(MessageDialog(self._screen, "Price feed unavailable, try later", 3, 44) )
         # D, d for Deploy
         elif event.key_code in [ord('D'), ord('d')]:
             DappBrowser(
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
         elif event.key_code is 18:
             # super top secret shadowlands release management dapp. (ctrl-r)
@@ -186,8 +171,7 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
         elif event.key_code in [ord('H'), ord('h')]:
             # Test to see if we're able to derive before launching this..
@@ -203,8 +187,7 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config,
-                self._interface.price_poller
+                self._interface.config
             )
  
         elif event.key_code in [ 
@@ -220,7 +203,6 @@ class MainMenuListener(Effect):
                 self._scene, 
                 self._interface.node,
                 self._interface.config,
-                self._interface.price_poller,
                 int(chr(event.key_code))
             )
 

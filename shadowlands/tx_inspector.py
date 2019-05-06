@@ -11,13 +11,13 @@ GWEI = Decimal(10**9)
 ETH = Decimal(10**18)
 
 class TxInspector(SLDapp):
-    def __init__(self, screen, scene, eth_node, config, price_poller, tx_index, **kwargs):
+    def __init__(self, screen, scene, eth_node, config, tx_index, **kwargs):
         if len(config.txqueue(eth_node.network)) < 1:
             return
 
         self.tx = config.txqueue(eth_node.network)[tx_index]
         super(TxInspector, self).__init__(
-            screen, scene, eth_node, config, price_poller, **kwargs
+            screen, scene, eth_node, config, **kwargs
         )
  
     def initialize(self):
