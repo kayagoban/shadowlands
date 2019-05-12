@@ -10,10 +10,10 @@
 
 #~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main(hdpath_base='44\'/60\'/0\'', hdpath_index='19')"
 
-#~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main(hdpath_base='44\'/60\'/0\'', hdpath_index='19')"
+~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main(hdpath_base='44\'/60\'/0\'', hdpath_index='19')"
 
 #~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main(mock_address='0x8632769DF878bc10f6157b632dbdC70420858a06')"
 
 
 #~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main(hdpath_base='44\'/60\'/0\'/0', hdpath_index='0')"
-~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main()"
+#~/.shadowlands/bin/python3 -c "import shadowlands; shadowlands.main()"

@@ -83,6 +83,10 @@ class Node():
         return self._ns
 
     @property
+    def eth_price(self):
+        return self._eth_usd
+
+    @property
     def credstick(self):
         return self._credstick
 

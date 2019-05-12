@@ -97,18 +97,15 @@ class TransactionFrame(Frame):
  
     def _cost_estimate_string(self, gas_price_wei):
 
-        curr = self._interface._config.displayed_currency
-        try:
-            eth_price_curr = self._interface._price_poller.eth_price
-        except KeyError:
+        eth_price_curr = self._interface.node.eth_price
+        if eth_price_curr == None:
             return 'Ether Price Feed offline - No Tx Cost estimate'
-        gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
-        if curr == 'BTC':
-            decimal_places = 7
-        else:
-            decimal_places = 3
 
-        cost_estimate = str(round((Decimal(eth_price_curr) * gas_price_eth * self.estimated_gas), decimal_places))
-        return "Estimated Tx cost: {} {} {}".format(curr, self._interface.config.curr_symbol, cost_estimate)
+        gas_price_eth = self._interface.node.w3.fromWei(gas_price_wei, 'ether')
+
+        decimal_places = 3
+
+        cost_estimate = str(eth_price_curr * gas_price_eth * self.estimated_gas)[0:8]
+        return "Estimated Tx cost: USD {}".format(cost_estimate)
 
 
