@@ -215,7 +215,11 @@ class EthValueRenderer(DynamicRenderer):
         self._interface = interface
 
     def _render_now(self):
-        val = str(self._interface._node.eth_price)[0:8]
+        bal = self._interface._node.eth_balance
+        if bal is None:
+            return img_colour_map([''])
+
+        val = str(bal * self._interface._node.eth_price)[0:18]
         image = [ "{} {} {}".format('USD', '$', val) ]
 
         return img_colour_map(image)

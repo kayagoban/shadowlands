@@ -53,7 +53,6 @@ class SLTransactionFrame(TransactionFrame):
 
 
         except (SignTxError) as e:
-            raise e
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
         except (OSError):
