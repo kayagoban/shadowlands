@@ -237,7 +237,6 @@ class Node():
 
 
     def connect_w3_local(self):
-
         self.cleanout_w3()
         from web3.auto import w3
         if self.is_connected_with(w3, 'Local node', 3):
@@ -251,13 +250,23 @@ class Node():
         return Web3(Web3.WebsocketProvider(uri))
 
 
+    #def connect_w3_public_infura(self):
+    #    self.cleanout_w3()
+    #    _w3 = self.w3_websocket("wss://mainnet.infura.io/ws")
+    #    if self.is_connected_with(_w3, 'Public infura', 18):
+    #        self.config.default_method = self.connect_w3_public_infura.__name__
+    #        return True
+    #    return False
+
     def connect_w3_public_infura(self):
         self.cleanout_w3()
-        _w3 = self.w3_websocket("wss://mainnet.infura.io/ws")
-        if self.is_connected_with(_w3, 'Public infura', 18):
+        from web3.auto.infura import w3
+        #_w3 = self.w3_websocket("wss://mainnet.infura.io/ws")
+        if self.is_connected_with(w3, 'Public infura', 18):
             self.config.default_method = self.connect_w3_public_infura.__name__
             return True
         return False
+
 
 
     def connect_w3_custom_websocket(self, custom_uri=None):
