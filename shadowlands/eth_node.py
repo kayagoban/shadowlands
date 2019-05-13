@@ -380,6 +380,7 @@ class Node():
 
     def send_ether(self,destination, amount, gas_price, nonce=None):
         tx_dict = self.build_send_tx(amount, destination, gas_price, nonce=nonce)
+        #pdb.set_trace()
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         logging.info("%s | added tx %s", time.ctime(), rx.hex())

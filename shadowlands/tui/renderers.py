@@ -216,7 +216,8 @@ class EthValueRenderer(DynamicRenderer):
 
     def _render_now(self):
         bal = self._interface._node.eth_balance
-        if bal is None:
+
+        if bal is None or self._interface._node.eth_price is None:
             return img_colour_map([''])
 
         val = str(bal * self._interface._node.eth_price)[0:18]

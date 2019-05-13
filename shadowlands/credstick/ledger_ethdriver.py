@@ -66,8 +66,6 @@ P2_UNUSED_PARAMETER = b'\x00'
 P2_UNUSED_PARAMETER2 = b'\x01'
 
 
-BIP44_PATH="44'/60'/0'/0/0"
-LEDGER_PATH="44'/60'/0'/0"
 
 # import pdb; pdb.set_trace()
 def encode_path(pathStr):
@@ -85,7 +83,7 @@ def encode_path(pathStr):
 
 
 class LedgerEthDriver(Credstick):
-    hdpath_base="44'/60'/0'"
+    hdpath_base="44'/60'/0'/0"
     hdpath_index='0'
     _driver = None
 
@@ -105,7 +103,7 @@ class LedgerEthDriver(Credstick):
         cls._driver = None
 
     @classmethod
-    def derive(cls, hdpath_base="44'/60'/0'", hdpath_index='0', set_address=False):
+    def derive(cls, hdpath_base="44'/60'/0'/0", hdpath_index='0', set_address=False):
         try:
             hdpath = hdpath_base + '/' + hdpath_index
             encodedPath = encode_path(hdpath)

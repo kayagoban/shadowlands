@@ -21,14 +21,18 @@ class SendBox(TransactionFrame):
         #debug(self._screen._screen); import pdb; pdb.set_trace()
 
     def __init__(self, screen, interface):
-        super(SendBox, self).__init__(screen, 20, 59, interface, tx_func=self._ok, cancel_func=self._cancel, name="sendbox", title="Send Crypto")
+        super(SendBox, self).__init__(screen, 21, 59, interface, tx_func=self._ok, cancel_func=self._cancel, name="sendbox", title="Send Crypto")
 
         layout = Layout([100])#, fill_frame=True)
         self.prepend_layout(layout)
         layout.add_widget(Text("To Address:", "address"))
         layout.add_widget(Divider(draw_line=False))
-        layout.add_widget(Text("    Amount:", "amount"))
+        self.everything_checkbox = CheckBox("Send Everything", on_change=self.checkbox_change)
+        self.amount_text = Text("    Amount:", "amount", on_change=self.amount_change)
+        layout.add_widget(self.amount_text)
+        layout.add_widget(self.everything_checkbox)
         layout.add_widget(Divider(draw_line=False))
+
 
         balances = [{'name':'ETH', 'balance': interface.node.eth_balance}]
         balances += [x for x in interface.node.erc20_balances if x['balance'] > 0]
@@ -49,6 +53,17 @@ class SendBox(TransactionFrame):
         layout.add_widget(Divider(draw_line=False))
         self.fix()
 
+    def amount_change(self):
+        if self.everything_checkbox._value == True:
+            self.amount_text._value = "All of selected currency"
+
+    def checkbox_change(self):
+        if self.everything_checkbox._value == True:
+            self.amount_text._value = "All of selected currency"
+        else:
+            self.amount_text._value = ""
+
+
     def currency_balance(self):
         return "     (bal): " + str(round(self.currency_listbox.value['balance'], 8))
 
@@ -64,14 +79,15 @@ class SendBox(TransactionFrame):
         except:
             errors.append("Invalid send-to Address")
 
-        try:
-            amount = Decimal(value)
-            if amount <= 0:
-                errors.append("Zero or less than zero send amount")
-            elif amount > self.currency_listbox.value['balance']:
-                errors.append("Send amount more than balance")
-        except:
-            errors.append("Invalid send Amount")
+        if self.everything_checkbox._value == False:
+            try:
+                amount = Decimal(value)
+                if amount <= 0:
+                    errors.append("Zero or less than zero send amount")
+                elif amount > self.currency_listbox.value['balance']:
+                    errors.append("Send amount more than balance")
+            except:
+                errors.append("Invalid send Amount")
 
         if len(errors) == 0:
             return True
@@ -81,7 +97,6 @@ class SendBox(TransactionFrame):
             return False
  
     def _ok(self, gas_price_wei, nonce=None):
-        #debug(); pdb.set_trace()
 
         address_text = self.find_widget('address')
         amount_text = self.find_widget('amount')
@@ -89,12 +104,22 @@ class SendBox(TransactionFrame):
         if not self._validations(address_text._value, amount_text._value):
             return
 
-        try:
-            #rx = self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei)
-            if self.currency_listbox.value['name'] == 'ETH':
-                rx = self._interface.node.send_ether(address_text._value, Decimal(amount_text._value), gas_price_wei, nonce)
+        if self.everything_checkbox._value == True:
+            if self.currency_listbox.value['name'] != 'ETH':
+                amount = [x['balance'] for x in self._interface.node.erc20_balances if x['name'] == self.currency_listbox.value['name'] ][0]
             else:
-                rx = self._interface.node.send_erc20(self.currency_listbox.value['name'], address_text._value, Decimal(amount_text._value), gas_price_wei, nonce)
+                #21000 gas to send eth, times gas price
+                amount = (Decimal(self._interface.node._wei_balance) - (Decimal(21000) * Decimal(gas_price_wei))) / Decimal(10 ** 18)
+                #debug(); pdb.set_trace()
+        else:
+            amount = amount_text._value
+
+
+        try:
+            if self.currency_listbox.value['name'] == 'ETH':
+                rx = self._interface.node.send_ether(address_text._value, Decimal(amount), gas_price_wei, nonce)
+            else:
+                rx = self._interface.node.send_erc20(self.currency_listbox.value['name'], address_text._value, amount, gas_price_wei, nonce)
 
             #pyperclip.copy(rx)
             #self._scene.add_effect( MessageDialog(self._screen,"Tx submitted.", width = 20))

@@ -13,9 +13,11 @@ class Erc20(Contract):
 
     # (name, address, chainid)
 
-    @classmethod
-    def tokens(cls, chain_id):
-        return [x for x in cls.TOKENS if x[2] == chain_id]
+    #@classmethod
+    #def tokens(cls, chain_id):
+    #    return [x for x in cls.TOKENS if x[2] == chain_id]
+    # deprecated, use
+    # use node.config.tokens(chainid)
 
     @classmethod
     def balance(cls, node, tokenaddr, target):
@@ -40,7 +42,8 @@ class Erc20(Contract):
         '''
     @classmethod
     def factory(cls, node, token):
-        ALL_TOKENS = cls.tokens(node.network)
+        #ALL_TOKENS = cls.tokens(node.network)
+        ALL_TOKENS = node.config.tokens(node.network)
         matches = [x for x in ALL_TOKENS if x[0] == token]
 
         if len(matches) < 1:
