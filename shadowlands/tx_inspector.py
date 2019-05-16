@@ -44,12 +44,15 @@ class TxDetail(SLFrame):
         self.add_divider()
         self.add_divider()
         #self.add_divider(draw_line=True)
-        self.add_button_row([
-            ("Resubmit Tx", self.resend_tx, 0),
-            ("Nuke Tx", self.nuke_tx, 1),
-            ("Back", self.close, 3)
-        ],
-        layout=[25, 25, 35, 18])
+        if self.dapp.tx['from'] == self.dapp.node.credstick.address:
+            self.add_button_row([
+                ("Resubmit Tx", self.resend_tx, 0),
+                ("Nuke Tx", self.nuke_tx, 1),
+                ("Back", self.close, 3)
+            ],
+            layout=[25, 25, 35, 18])
+        else:
+            self.add_button(self.close, "Back", layout_distribution=[80, 20], layout_index=1)
 
     # 0 eth tx from and to current address
     def nuke_tx(self):

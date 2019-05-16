@@ -190,8 +190,8 @@ class Node():
         except (TypeError, Exception) as e:
             logging.info("ERROR IN  eth_node _update_status")
             #logging.info(e)
-            logging.info(e.format_exc())
-            raise e
+            #logging.info(e.format_exc())
+            #raise e
 
 
 
@@ -377,15 +377,16 @@ class Node():
         logging.info("Tx submitted to credstick: {}".format(tx))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        #self.config.txqueue_add(self.network, signed_tx) #self.w3.eth.getTransaction(rx))
         self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
-    def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
-        rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
-        self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
-        logging.info("%s |  added tx %s", time.ctime(), rx.hex())
-        return encode_hex(rx)
+    #def push_wait_for_receipt(self, contract_function, gas_price, gas_limit=None, value=None):
+    #    rx = self.push(contract_function, gas_price, gas_limit=gas_limit, value=value)
+    #    self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
+    #    logging.info("%s |  added tx %s", time.ctime(), rx.hex())
+    #    return encode_hex(rx)
 
     def send_ether(self,destination, amount, gas_price, nonce=None):
         tx_dict = self.build_send_tx(amount, destination, gas_price, nonce=nonce)

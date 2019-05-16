@@ -78,7 +78,7 @@ class MainScene(Scene):
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
             DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
             MainMenuListener(screen, interface),
-            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=2),
+            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=5),
             CredstickWatcher2(screen, interface)
 
         ]
