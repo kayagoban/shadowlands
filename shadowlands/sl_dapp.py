@@ -1,3 +1,4 @@
+from time import sleep
 from abc import ABC, abstractmethod
 from asciimatics.widgets import (
     Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox, QRCode
@@ -73,6 +74,10 @@ class SLDapp():
         except:
             # We need to be able to call this method without consequence
             pass
+        # This should be called in a thread, so sleeping is an OK thing to do.
+        # Should give the time for the UI to finish its current pass and remove the 
+        # wait frame.
+        sleep(0.1)
 
 
     def add_message_dialog(self, message, **kwargs):
