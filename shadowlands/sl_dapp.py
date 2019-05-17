@@ -77,7 +77,7 @@ class SLDapp():
         # This should be called in a thread, so sleeping is an OK thing to do.
         # Should give the time for the UI to finish its current pass and remove the 
         # wait frame.
-        sleep(0.1)
+        sleep(0.5)
 
 
     def add_message_dialog(self, message, **kwargs):
