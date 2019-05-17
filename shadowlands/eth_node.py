@@ -112,7 +112,7 @@ class Node():
 
     @property
     def eth_balance(self):
-        if self._wei_balance:
+        if self._wei_balance and self.w3 is not None:
             return self.w3.fromWei(self._wei_balance, 'ether')
         else:
             return None
