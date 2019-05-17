@@ -174,6 +174,8 @@ class SLConfig():
         self._write_config_file()
 
     def txqueue_add(self, chain_id, item):
+        if item is None:
+            return
         item = item.__class__(item, chainId=chain_id)
         self._txqueue.appendleft(item)
         self._write_config_file()
