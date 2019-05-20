@@ -8,9 +8,13 @@ from decimal import Decimal, InvalidOperation
 
 
 class UniswapFrame(SLFrame):
-    def __init__(self, dapp, height, width, token_address, **kwargs):
+    def __init__(self, dapp, height, width, token_address, action='buy', sell_amount='', buy_amount='', **kwargs):
 
         self.token = Erc20(dapp.node, address=token_address)
+        self._action = action
+        self._buy_amount = buy_amount
+        self._sell_amount = sell_amount
+
         try:
             self.token_symbol = self.token.symbol()
         except OverflowError:
@@ -54,12 +58,12 @@ class UniswapFrame(SLFrame):
             ("Sell {} for ETH".format(self.token_symbol), 'sell')
         ]
 
-        self.radiobutton_value = self.add_radiobuttons(options, on_change=self.blank_textfields)
+        self.radiobutton_value = self.add_radiobuttons(options, on_change=self.blank_textfields, default_value=self._action)
     
         layout = Layout([100])
         self.add_layout(layout)
-        self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
-        self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, label="ETH:", on_change=self.eth_value_dirty)
+        self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=self._buy_amount, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
+        self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=self._sell_amount, label="ETH:", on_change=self.eth_value_dirty)
 
         self.token_amount.set_eth_field(self.eth_amount)
         self.eth_amount.set_token_field(self.token_amount)

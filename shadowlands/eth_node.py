@@ -183,9 +183,8 @@ class Node():
             self._best_block = str(self._w3.eth.blockNumber)
             self._syncing = self._w3.eth.syncing
             self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
-            if self._syncing:
+            if self._syncing not in (None, False):
                 self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
-
 
         except (TypeError, Exception) as e:
             logging.info("ERROR IN  eth_node _update_status")

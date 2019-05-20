@@ -16,14 +16,13 @@ from shadowlands.credstick import DeriveCredstickAddressError
 from shadowlands.token_adder import TokenAdder
 from shadowlands.token_remover import TokenRemover
 from shadowlands.token_uniswapper import TokenUniswapper
-from shadowlands.tui.debug import debug
 import importlib
-
-
-import pdb
 import pyperclip
 
-#debug(self._screen._screen); import pdb; pdb.set_trace()
+
+from shadowlands.tui.debug import debug
+import pdb
+
 
 class LoadingScreenListener(Effect):
     def __init__(self, screen, interface, **kwargs):
@@ -131,8 +130,8 @@ class MainMenuListener(Effect):
                 self._interface.config
             )
 
-
-
+        elif event.key_code in [ord('B')]:
+            debug(); pdb.set_trace()
  
         # C, c  for copy
         elif event.key_code in [67, 99]:

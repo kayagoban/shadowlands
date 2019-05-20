@@ -89,7 +89,7 @@ class SLDapp():
             SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         )
 
-    def add_uniswap_frame(self, token_address, action='buy', value=None):
+    def add_uniswap_frame(self, token_address, action='buy', buy_amount=None, sell_amount=None):
         self._scene.add_effect(UniswapFrame(self, 17, 46, token_address) )
 
 
