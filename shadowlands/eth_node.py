@@ -331,7 +331,7 @@ class Node():
             self._update_status()
 
         except (ConnectionError, AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain):
-            self.connect_config_default() or self.connect_w3_local() or self.connect_w3_public_infura()
+            self.connect_config_default() or self.connect_w3_local()
         except ValueError:
             logging.debug("eth_node: Value Error in poll()")
             self.stop_thread()

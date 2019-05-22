@@ -62,8 +62,13 @@ class UniswapFrame(SLFrame):
     
         layout = Layout([100])
         self.add_layout(layout)
-        self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=self._buy_amount, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
-        self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=self._sell_amount, label="ETH:", on_change=self.eth_value_dirty)
+        self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=str(self._buy_amount), label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
+        self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=str(self._sell_amount), label="ETH:", on_change=self.eth_value_dirty)
+
+        if self._sell_amount is None:
+            self.token_value_dirty()
+        elif self._buy_amount is None:
+            sefl.eth_value_dirty()
 
         self.token_amount.set_eth_field(self.eth_amount)
         self.eth_amount.set_token_field(self.token_amount)
@@ -93,7 +98,7 @@ class UniswapFrame(SLFrame):
                     'to': self.exchange.address,
                     'value': amount,
                     'nonce': self.dapp.node.next_nonce(),
-                    'gas': 60000
+                    'gas': 375013
                 }
             )
             self.close()
@@ -111,7 +116,7 @@ class UniswapFrame(SLFrame):
                 self.dapp.add_transaction_dialog(
                     self.token.approve_unlimited(self.exchange.address),
                     title="Approve Exchange contract to handle your {}".format(self.token_symbol),
-                    gas_limit=60000,
+                    gas_limit=50000,
                 )
                 self.dapp.add_message_dialog("You must first approve the Exchange to handle your {}".format(self.token_symbol))
             else:
@@ -119,7 +124,7 @@ class UniswapFrame(SLFrame):
                 self.dapp.add_transaction_dialog(
                     self.exchange.token_to_eth(token_amount, eth_amount),
                     title="Sell {} for ETH".format(self.token_symbol),
-                    gas_limit=375013,
+                    gas_limit=375013
                 )
                 self.dapp.add_message_dialog("The TX will have a 45min TTL and max 2% slippage from the exchange rate you agreed on.")
 

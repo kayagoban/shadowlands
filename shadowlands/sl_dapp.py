@@ -90,7 +90,7 @@ class SLDapp():
         )
 
     def add_uniswap_frame(self, token_address, action='buy', buy_amount=None, sell_amount=None):
-        self._scene.add_effect(UniswapFrame(self, 17, 46, token_address) )
+        self._scene.add_effect(UniswapFrame(self, 17, 46, token_address, action=action, buy_amount=buy_amount, sell_amount=sell_amount) )
 
 
     def add_send_dialog(self, tx_dict, title="Sign & Send"):

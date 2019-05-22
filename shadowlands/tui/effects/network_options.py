@@ -9,7 +9,7 @@ from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
-        super(NetworkOptions, self).__init__(screen, 12, 26, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
+        super(NetworkOptions, self).__init__(screen, 9, 26, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
 
@@ -17,13 +17,13 @@ class NetworkOptions(Frame):
     
         layout = Layout([100], fill_frame=True)
         self.add_layout(layout)
-        layout.add_widget(Divider(draw_line=False))
+        #layout.add_widget(Divider(draw_line=False))
 
         self._node = self._interface.node
 
         options = [
             ('Local node', 'connect_w3_local'), 
-            ('Public infura', 'connect_w3_public_infura'),
+            #('Public infura', 'connect_w3_public_infura'),
             ('Custom http', 'connect_w3_custom_http'), 
             ('Custom websocket', 'connect_w3_custom_websocket'),
             ('Custom ipc', 'connect_w3_custom_ipc'),

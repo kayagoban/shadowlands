@@ -107,6 +107,11 @@ class MainMenuListener(Effect):
         ## Tokens
         # Uniswap
         elif event.key_code in [ord('U'), ord('u')]:
+            if self._interface.node.erc20_balances is None:
+                self._scene.add_effect(MessageDialog(self._screen, "Need ERC20 balance data.", 3, 35) )
+                return
+
+
             TokenUniswapper(
                 self._screen, 
                 self._scene, 
