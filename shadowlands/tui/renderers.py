@@ -77,10 +77,10 @@ class BlockStatusRenderer(DynamicRenderer):
     def _render_now(self):
         sync_hash = self.node.syncing_hash 
 
-        if sync_hash is None or sync_hash['highestBlock'] is None:
+        if sync_hash.__class__ == bool and sync_hash == False:
+            images = ['[synced: block ' + str(self.node.w3.eth.blockNumber) + ']']
+        elif sync_hash is None or sync_hash['highestBlock'] is None:
             return img_colour_map([ '[No blocks available]' ])
-        elif sync_hash.__class__ == bool and sync_hash == False:
-            images = ['[synced: block ' + str(sync_hash['highestBlock']) + ']']
         else:
             images = [ '[syncing:  ' + str(sync_hash['highestBlock'] - sync_hash['currentBlock']) + ' blocks to ' + str(sync_hash['highestBlock']) + ']' ]
 
