@@ -98,7 +98,7 @@ class UniswapFrame(SLFrame):
                     'to': self.exchange.address,
                     'value': amount,
                     'nonce': self.dapp.node.next_nonce(),
-                    'gas': 375013
+                    'gas': 75000 
                 }
             )
             self.close()
@@ -124,7 +124,7 @@ class UniswapFrame(SLFrame):
                 self.dapp.add_transaction_dialog(
                     self.exchange.token_to_eth(token_amount, eth_amount),
                     title="Sell {} for ETH".format(self.token_symbol),
-                    gas_limit=375013
+                    gas_limit=100000
                 )
                 self.dapp.add_message_dialog("The TX will have a 45min TTL and max 2% slippage from the exchange rate you agreed on.")
 

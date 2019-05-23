@@ -22,7 +22,7 @@ class TokenUniswapper(SLDapp):
         # List comprehension join. wheeee!
         # Such demeter's law, very undebug
         tokens = self.config.tokens(self.node.network)
-        self.balances =  [{'name': x[0], 'address': x[1],'balance': y['balance']} for x in tokens for y in self.node.erc20_balances if x[0] == y['name'] and y['name'] != 'WETH']
+        self.balances =  [{'name': x[0], 'address': x[1],'balance': y['balance']} for x in tokens for y in self.node.erc20_balances if x[0] == y['name'] ]
         height = 6+len(self.balances)
         self.selected_token = None
         self.add_frame(TokenFrame, height=height, width=40, title='Choose token to swap')
