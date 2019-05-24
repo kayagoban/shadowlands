@@ -180,7 +180,12 @@ class SLWaitFrame(SLFrame):
  
 class AskClipboardFrame(SLFrame):
     def initialize(self):
-        self.add_ok_cancel_buttons(self._copy_digest, cancel_fn=self.close)
+        self.add_button_row([
+            ("Ok", self._copy_digest, 0),
+            ("Cancel", self.close, 1)
+        ])
+
+
     def _copy_digest(self):
         pyperclip.copy(self.dapp.rx)
         self.dapp.rx = None

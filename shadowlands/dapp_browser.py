@@ -100,7 +100,10 @@ class ReleaseFrame(SLFrame):
  
         self.uri = self.add_textbox("URI:")
         self.checksum = self.add_textbox("SHA256:")
-        self.add_ok_cancel_buttons(self.ok_choice, lambda: self.close())
+        self.add_button_row([
+            ("Ok", self.ok_choice, 0),
+            ("Cancel", self.close, 1)
+        ])
 
     def ok_choice(self):
         shasum = self.checksum()
@@ -116,7 +119,11 @@ class ReleaseFrame(SLFrame):
 
 class AskClipboardFrame(SLFrame):
     def initialize(self):
-        self.add_ok_cancel_buttons(self._copy_digest, cancel_fn=self.close)
+        self.add_button_row([
+            ("Ok", self._copy_digest, 0),
+            ("Cancel", self.close, 1)
+        ])
+
 
     def _copy_digest(self):
         pyperclip.copy(self.dapp.digest)
@@ -129,7 +136,11 @@ class RunNetworkDappFrame(SLFrame):
         self.add_label("Ex: ens.shadowlands || 0x5c27053A642B8dCc79385f47fCB25b5e72348feD")
         self.textbox_value = self.add_textbox("Dapp location:")
         self.add_divider()
-        self.add_ok_cancel_buttons(self.run, ok_text="Download and Run")
+        self.add_button_row([
+            ("Download and Run", self.run, 0),
+            ("Cancel", self.close, 1)
+        ])
+
 
     def run(self):
         SLNetworkDapp(
@@ -233,7 +244,11 @@ class DappDirFrame(SLFrame):
 class DirPickerFrame(SLFrame):
     def initialize(self):
         self.browser_value = self.add_file_browser(self._select_fn, path=self.dapp.config.sl_dapp_path, height=17)
-        self.add_ok_cancel_buttons(self._select_fn, ok_text="Select")
+        self.add_button_row([
+            ("Select", self._select_fn, 0),
+            ("Cancel", self.close, 1)
+        ])
+
 
     def _select_fn(self):
         self.dapp.config.sl_dapp_path = self.browser_value()
