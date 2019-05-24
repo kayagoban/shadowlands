@@ -60,13 +60,13 @@ class SLFrame(Frame):
         layout.add_widget(box)
         return lambda: box._value
 
-    def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK", cancel_text="Cancel", ok_index=0, cancel_index=3):
-        layout = Layout([1, 1, 1, 1])
-        self.add_layout(layout)
-        layout.add_widget(Button(ok_text, ok_fn), ok_index)
-        if cancel_fn is None:
-            cancel_fn = self.close
-        layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
+    #def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK", cancel_text="Cancel", ok_index=0, cancel_index=3):
+    #    layout = Layout([1, 1, 1, 1])
+    #    self.add_layout(layout)
+    #    layout.add_widget(Button(ok_text, ok_fn), ok_index)
+    #    if cancel_fn is None:
+    #        cancel_fn = self.close
+    #    layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
 
     def add_button_row(self, buttons, layout=[1, 1, 1, 1]):
         lyt = Layout(layout)

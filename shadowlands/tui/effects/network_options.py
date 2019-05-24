@@ -51,7 +51,7 @@ class NetworkOptions(Frame):
         connect_fn = network_option._value
 
         try:
-            os.environ['INFURA_API_KEY']
+            os.environ['WEB3_INFURA_API_KEY']
             no_infura_key = False
         except KeyError:
             no_infura_key = True 
@@ -64,7 +64,7 @@ class NetworkOptions(Frame):
         elif connect_fn == 'connect_w3_custom_websocket':
             self._prompt_custom_websocket_uri()
         elif connect_fn == 'connect_w3_custom_infura' and no_infura_key:
-            self._scene.add_effect( MessageDialog(self._screen, "Set INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
+            self._scene.add_effect( MessageDialog(self._screen, "Set WEB3_INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
         else:
             connected = self._attempt_connection(connect_fn)
 
