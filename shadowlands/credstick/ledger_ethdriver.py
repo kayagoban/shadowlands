@@ -181,9 +181,10 @@ class LedgerEthDriver(Credstick):
 
         except (CommException, BaseException) as e:
             if apdu:
-                raise SignTxError("Ledger device threw error {}  while attempting SignTx with apdu {}".format(e, apdu))
                 logging.debug("Ledger device threw error {} while attempting SignTx with apdu {}".format(e, apdu))
+                raise SignTxError("Ledger device threw error {}  while attempting SignTx with apdu {}".format(e, apdu))
             else:
+                logging.debug("Ledger device threw error {} while attempting SignTx".format(e))
                 raise SignTxError("Ledger device threw error  while attempting SignTx: {}".format(e))
         return stx
     

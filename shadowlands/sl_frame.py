@@ -7,6 +7,11 @@ from asciimatics.widgets import (
 
 import pyperclip
 
+from shadowlands.tui.debug import debug#, end_debug
+import pdb
+
+
+
 
 class SLFrame(Frame):
     def __init__(self, dapp, height, width, **kwargs):
