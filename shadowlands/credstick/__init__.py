@@ -13,8 +13,6 @@ from time import sleep
 from shadowlands.tui.debug import debug
 import pdb
 
-import logging
-
 
 # TODO
 # fork eth-account and eth-keys repos from the Web3.py project and 
@@ -65,27 +63,31 @@ class Credstick(object):
             from shadowlands.credstick.mock_ethdriver import MockEthDriver
             return MockEthDriver
 
-        for hidDevice in hid.enumerate():
-            if hidDevice['vendor_id'] == 0x2c97 and hidDevice['path'] is not None:
-                from shadowlands.credstick.ledger_ethdriver import LedgerEthDriver
-                LedgerEthDriver.manufacturer = hidDevice['manufacturer_string']
-                LedgerEthDriver.product = hidDevice['product_string']
-                return LedgerEthDriver, hidDevice['path']
-                
-            elif hidDevice['vendor_id'] == 0x534c and hidDevice['path'] is not None:
-                from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
-                TrezorEthDriver.productStr = hidDevice['product_string']
-                sleep(1)
-                return TrezorEthDriver, hidDevice['path']
-            elif hidDevice['vendor_id'] == 0x1209 and hidDevice['path'] is not None:
-                from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
-                TrezorEthDriver.productStr = 'Trezor Model T'
-                ##hidDevice['product_string']
-                sleep(1)
-                return TrezorEthDriver, hidDevice['path']
-                
+        for hidDevice in hid.enumerate(0, 0):
+            #import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
+            if hidDevice['vendor_id'] == 0x2c97:
+                if hidDevice['path'] is not None:
+                    from shadowlands.credstick.ledger_ethdriver import LedgerEthDriver
+                    LedgerEthDriver.manufacturer = hidDevice['manufacturer_string']
+                    LedgerEthDriver.product = hidDevice['product_string']
+                    return LedgerEthDriver
+            elif hidDevice['vendor_id'] == 0x534c:
+                if hidDevice['path'] is not None:
+                    from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
+                    TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
+                    TrezorEthDriver.productStr = hidDevice['product_string']
+                    sleep(1)
+                    return TrezorEthDriver
+            elif hidDevice['vendor_id'] == 0x1209:
+                if hidDevice['path'] is not None:
+                    from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
+                    TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
+                    TrezorEthDriver.productStr = 'Trezor Model T'
+                    ##hidDevice['product_string']
+                    sleep(1)
+                    return TrezorEthDriver
+ 
         raise NoCredstickFoundError("Could not identify any supported credstick")
 
     @classmethod
@@ -108,55 +110,35 @@ class Credstick(object):
     @classmethod
     def credstick_finder(cls):
         not_found = True
-        active_usb_path=None
 
-        while True:
-            if active_usb_path is None:
-                try: 
-                    credstick, credstick_usb_path = cls.detect()
-                    logging.debug("Found credstick at {}".format(credstick_usb_path))
-                    credstick.open()
+        while not_found:
+            try: 
+                credstick = cls.detect()
+                credstick.open()
 
-                    if Credstick.hdpath_base and Credstick.hdpath_index:
-                        credstick.derive(set_address=True, 
-                                         hdpath_base=cls.hd_path_base_default(), 
-                                         hdpath_index=Credstick.hdpath_index)
-                    else:
-                        credstick.derive(set_address=True)
+                if Credstick.hdpath_base and Credstick.hdpath_index:
+                    credstick.derive(set_address=True, hdpath_base=cls.hd_path_base_default(), hdpath_index=Credstick.hdpath_index)
+                else:
 
-                    #timeout = 30 
+                    credstick.derive(set_address=True)
 
-                    #while credstick.address is None and timeout > 0:
-                    #    time.sleep(1)
-                    #    timeout -= 1
-                    #if credstick.address is None:
-                    #    raise DeriveCredstickAddressError
+                timeout = 30 
 
-                    cls.eth_node.credstick = credstick
-                    cls.interface.credstick = credstick
-                    active_usb_path = credstick_usb_path
-                    cls.interface._credstick_inserted = True
-                except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
-                    time.sleep(0.25)
-            else:
-                # See when the credstick disappears
-                try:
-                    credstick, credstick_usb_path = cls.detect()
-                except (NoCredstickFoundError):
-                    logging.debug("credstick at {} disappeared.".format(active_usb_path))
-                    cls.interface._credstick_removed = True
-                    time.sleep(0.25)
-                    cls.eth_node.credstick = None
-                    cls.interface.credstick = None
-                    active_usb_path=None
-                    next
+                while credstick.address is None and timeout > 0:
+                    time.sleep(1)
+                    timeout -= 1
+                if credstick.address is None:
+                    raise DeriveCredstickAddressError
 
+                cls.eth_node.credstick = credstick
+                cls.interface.credstick = credstick
+                not_found = False
+            except(NoCredstickFoundError, OpenCredstickError, DeriveCredstickAddressError):
                 time.sleep(0.25)
 
-
             if cls.detect_thread_shutdown:
-                logging.debug("credstick_finder shutdown")
-                return
+                break
+
 
 
     @classmethod

@@ -132,11 +132,11 @@ class SendBox(TransactionFrame):
 
 
         self._scene.remove_effect(self)
-        raise NextScene(self._scene.name)
+        raise NextScene
 
     def _cancel(self):
         self._scene.remove_effect(self)
-        raise NextScene(self._scene.name)
+        raise NextScene
 
         #debug(self._screen._screen); import pdb; pdb.set_trace()
  

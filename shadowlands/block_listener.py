@@ -6,6 +6,7 @@ from collections import deque
 
 import logging
 import time
+logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
 import threading
 

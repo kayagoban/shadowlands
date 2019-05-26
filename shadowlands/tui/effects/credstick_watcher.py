@@ -1,7 +1,6 @@
 from asciimatics.effects import Effect
 from asciimatics.exceptions import NextScene
 from shadowlands.credstick import Credstick
-import logging
 
 # This effect does nothing but watch the credstick
 # to see when it is defined.
@@ -15,6 +14,7 @@ class CredstickWatcher(Effect):
         super(CredstickWatcher, self).__init__(screen, **kwargs)
         self._interface = interface
         self.detect_thread_started = False
+
     def _update(self, frame_no):
         if not self.detect_thread_started:
             # Now that we have the screen, we can 
@@ -25,18 +25,15 @@ class CredstickWatcher(Effect):
             Credstick.eth_node = self._interface._node
             Credstick.config = self._interface._config
             Credstick.start_detect_thread()
-
             self.detect_thread_started = True
 
 
-        if self._interface.credstick and self._interface.node.w3 and self._interface._credstick_inserted == True:
-            logging.debug("credstick found - Switching to Main scene")
+        if self._interface.credstick and self._interface.node.w3 and self._interface.node.erc20_balances is not None:
             # deleting the loading scene entirely.
             # This makes sure the loading screen does not come back upon resize.
-            #self._screen._scenes = [self._interface.main_scene]
-            #self._interface._loading_scene = False
-            self._interface._credstick_inserted = False
-            raise NextScene("Main")
+            self._screen._scenes = [self._screen._scenes[1]]
+            self._interface._loading_scene = False
+            raise NextScene
 
     def reset(self):
         pass
