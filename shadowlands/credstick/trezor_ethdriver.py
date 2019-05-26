@@ -202,7 +202,7 @@ The layout is:
             #msg.to = decode_hex(tx['to'])
             msg.to = tx['to']
 
-        data = tx['data']
+        data = bytes.fromhex(tx['data'].replace('0x',''))
         if data:
             msg.data_length = len(data)
             data, chunk = data[1024:], data[:1024]
