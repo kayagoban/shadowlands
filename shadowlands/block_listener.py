@@ -6,8 +6,6 @@ from collections import deque
 
 import logging
 import time
-logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
-
 import threading
 
 from shadowlands.tui.debug import debug
@@ -20,15 +18,18 @@ class BlockListener():
         self.config = config
         self.node = node
         self.shutdown = False
-        self.thread = threading.Thread(target=self.listen, args=([12]))
+        
+        self.thread = threading.Thread(target=self.listen, args=([6]))
+        #self.listen(6)
         self.thread.start()
+
  
         # on startup, examine the  txqueue and 
         # refresh it to find if any of the txs
         # have been confirmed whilst we were 
         # away.  If so, clean out the txqueue
         # appropriately.
-        self.remove_mined_txs()
+        #self.remove_mined_txs()
 
     def shut_down(self):
         self.shutdown = True
@@ -54,6 +55,7 @@ class BlockListener():
     new_txs is a list of tx hashes which have been mined.
     '''
     def clean_txqueue(self, new_txs):
+        logging.info("block_listener clean_txqueue ({})".format(time.ctime()), poll_interval)
         intersection = [x for x in self.config.txqueue(self.node.network) if x.hash in new_txs] 
 
         for match in intersection:
@@ -73,19 +75,29 @@ class BlockListener():
                 self.config.txqueue_remove(self.node.network, x)
                 logging.info("removing tx")
 
-    def handle_event(self, event):
-        be = self.node.w3.eth.getBlock(event)
-        txs = be['transactions']
-        self.clean_txqueue(txs)
 
+    def handle_event(self, event):
+        txs = [ self.node.w3.eth.getTransaction(x.hash) for x in self.config.txqueue(self.node.network)]
+        logging.debug("examining txs for potential removal: {}".format(txs))
+        for tx in txs:
+            if tx.blockNumber is not None:
+                # remove tx and any txs for this address with lesser nonces.
+                smaller_nonces = [
+                    x for x 
+                    in self.config.txqueue(self.node.network)
+                    if x['from'] == tx['from']
+                    and x.nonce <= tx.nonce
+                ] 
+
+                for y in smaller_nonces:
+                    self.config.txqueue_remove(self.node.network, y)
+                    logging.info("{} mined in block {}".format(y.hash.hex(), y.blockNumber))
 
 
     def listen(self, poll_interval):
         block_filter = self.node.w3.eth.filter('latest')
-
         try:
             while True:
-                logging.info("block_listener get_new_entries, poll interval %s sec", poll_interval)
                 for i in range(poll_interval):
                     if self.shutdown == True:
                         return
@@ -94,3 +106,5 @@ class BlockListener():
                     self.handle_event(event)
         except (Exception) as e:
             logging.debug("Error in block_listener: {}".format(e))
+
+
