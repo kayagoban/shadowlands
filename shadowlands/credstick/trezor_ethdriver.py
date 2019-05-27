@@ -173,6 +173,9 @@ The layout is:
                     cls.address = address
                     cls.hdpath_base = hdpath_base
                     cls.hdpath_index = hdpath_index
+                    cls.config.hd_index = hdpath_index
+                    cls.config.hd_base_path = hdpath_base
+
                 return address
 
         except TransportException:

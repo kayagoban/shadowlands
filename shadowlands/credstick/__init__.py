@@ -91,36 +91,34 @@ class Credstick(object):
         raise NoCredstickFoundError("Could not identify any supported credstick")
 
     @classmethod
+    def hdpath(cls):
+        return cls.hdpath_base + '/' + cls.hdpath_index
+
+    @classmethod
     def start_detect_thread(cls):
         cls.detect_thread = threading.Thread(target=cls.credstick_finder)
-        cls.detect_thread.start()
+        cls.credstick_finder()
+        #cls.detect_thread.start()
 
     @classmethod 
     def stop_detect_thread(cls):
         if cls.detect_thread == None:
             return
-
         cls.detect_thread_shutdown = True 
         cls.detect_thread.join()
 
     @classmethod
-    def hdpath(cls):
-        return cls.hdpath_base + '/' + cls.hdpath_index
-
-    @classmethod
     def credstick_finder(cls):
         not_found = True
-
         while not_found:
             try: 
                 credstick = cls.detect()
                 credstick.open()
-
-                if Credstick.hdpath_base and Credstick.hdpath_index:
-                    credstick.derive(set_address=True, hdpath_base=cls.hd_path_base_default(), hdpath_index=Credstick.hdpath_index)
-                else:
-
-                    credstick.derive(set_address=True)
+                credstick.derive(
+                    set_address=True, 
+                    hdpath_base=credstick.hd_path_base_default(), 
+                    hdpath_index=credstick.hd_index_default()
+                )
 
                 timeout = 30 
 
@@ -138,7 +136,6 @@ class Credstick(object):
 
             if cls.detect_thread_shutdown:
                 break
-
 
 
     @classmethod
@@ -170,19 +167,45 @@ class Credstick(object):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
-    def derive(cls, hdpath=None, set_address=False):
+    def derive(cls, hdpath_base=None, hdpath_index=None, set_address=False):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
     def signTx(cls, transaction_dict):
         raise NotImplementedError(optional_error_message)
 
-    @classmethod
-    def open(cls):
-        raise NotImplementedError(optional_error_message)
 
     @classmethod
     def hd_path_base_default(cls):
         # If the config has no setting, use the class default
-        return (cls.config.hd_base_path or cls.hdpath_base)
- 
+        if cls.config.hd_base_path is not None:
+            return cls.config.hd_base_path
+        else:
+            return cls.hdpath_base
+
+    @classmethod
+    def hd_index_default(cls):
+        # If the config has no setting, use the class default
+        if cls.config.hd_index is not None:
+            return cls.config.hd_index
+        else:
+            return cls.hdpath_index
+
+    #@classmethod
+    #def hd_path_base_default(cls):
+    #    debug(); pdb.set_trace()
+    #    # If the config has no setting, use the class default
+    #    if cls.config.hd_base_path is not None:
+    #        return cls.config.hd_base_path
+    #    else:
+    #        return cls.hdpath_base
+
+    #@classmethod
+    #def hd_index_default(cls):
+    #    debug(); pdb.set_trace()
+    #    # If the config has no setting, use the class default
+    #    if cls.config.hd_index is not None:
+    #        return cls.config.hd_index
+    #    else:
+    #        return cls.hdpath_index
+

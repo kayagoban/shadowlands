@@ -122,6 +122,10 @@ class LedgerEthDriver(Credstick):
             cls.address = derived_address
             cls.hdpath_base = hdpath_base
             cls.hdpath_index = hdpath_index
+            cls.config.hd_index = hdpath_index
+            cls.config.hd_base_path = hdpath_base
+
+
         return derived_address 
 
     @classmethod
@@ -187,3 +191,4 @@ class LedgerEthDriver(Credstick):
                 raise SignTxError("Ledger device threw error  while attempting SignTx: {}".format(e))
         return stx
     
+
