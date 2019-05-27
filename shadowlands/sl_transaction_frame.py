@@ -50,13 +50,15 @@ class SLTransactionFrame(TransactionFrame):
                 value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether'),
                 nonce=nonce
             )
-
-
+        except ValueError:
+            self.dapp.add_message_dialog("Insufficient ETH to send Tx.", destroy_window=self)
+            return
         except (SignTxError) as e:
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
         except (OSError):
             self.dapp.add_message_dialog("Your credstick generated an error.", destroy_window=self)
+            return
 
 
         self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Tx Submitted.  Copy TxHash to clipboard?")
