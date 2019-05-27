@@ -202,7 +202,12 @@ The layout is:
             #msg.to = decode_hex(tx['to'])
             msg.to = tx['to']
 
-        data = bytes.fromhex(tx['data'].replace('0x',''))
+        #debug(); pdb.set_trace()
+        if tx['data'].__class__ is str:
+            data = bytes.fromhex(tx['data'].replace('0x',''))
+        elif tx['data'].__class__ is bytes:
+            data = tx['data']
+
         if data:
             msg.data_length = len(data)
             data, chunk = data[1024:], data[:1024]
