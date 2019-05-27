@@ -150,14 +150,14 @@ class MainMenuListener(Effect):
                 self._interface.config
             )
         # E, e for ens
-        elif event.key_code in [ord('e'), ord('E')]:
-            SLNetworkDapp(
-                self._screen, 
-                self._scene, 
-                self._interface.node,
-                self._interface.config,
-                'ens.shadowlands'
-            )
+        #elif event.key_code in [ord('e'), ord('E')]:
+        #    SLNetworkDapp(
+        #        self._screen, 
+        #        self._scene, 
+        #        self._interface.node,
+        #        self._interface.config,
+        #        'ens.shadowlands'
+        #    )
         # N, n for network
         elif event.key_code in [78, 110]:
             self._scene.add_effect(NetworkOptions(self._screen, self._interface))
@@ -180,20 +180,16 @@ class MainMenuListener(Effect):
         elif event.key_code in [ord('H'), ord('h')]:
             # Test to see if we're able to derive before launching this..
             try:
-                #debug(); pdb.set_trace()
-                address = self._interface.node.credstick.derive()
+                HDAddressPicker(
+                    self._screen, 
+                    self._scene, 
+                    self._interface.node,
+                    self._interface.config
+                )
             except DeriveCredstickAddressError:
                 self._scene.add_effect(MessageDialog(self._screen, "Cannot derive addresses from Credstick.  Try restarting Shadowlands.", 3, 65) )
                 return None
- 
-            # HD Addresses
-            HDAddressPicker(
-                self._screen, 
-                self._scene, 
-                self._interface.node,
-                self._interface.config
-            )
- 
+
         elif event.key_code in [ 
             ord('0'), ord('1'), ord('2'), ord('3'), ord('4')
         ]:

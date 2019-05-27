@@ -97,8 +97,8 @@ class Credstick(object):
     @classmethod
     def start_detect_thread(cls):
         cls.detect_thread = threading.Thread(target=cls.credstick_finder)
-        cls.credstick_finder()
-        #cls.detect_thread.start()
+        #cls.credstick_finder()
+        cls.detect_thread.start()
 
     @classmethod 
     def stop_detect_thread(cls):

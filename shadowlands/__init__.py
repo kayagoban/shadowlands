@@ -15,6 +15,11 @@ from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
 from decimal import Decimal
 from time import sleep
 
+import logging
+
+logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.eth_node.log")
+
+
 #pdb.set_trace()
 
 load_dapp = None

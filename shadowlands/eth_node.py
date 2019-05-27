@@ -220,7 +220,6 @@ class Node():
         except (UnhandledRequest, StaleBlockchain):
             return False
 
-
         if self._block_listener is None:
             logging.info("start block listener")
             self._block_listener = BlockListener(self, self.config)
