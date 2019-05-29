@@ -438,14 +438,14 @@ class Node():
     Find next nonce (according to our internally kept txqueue)
     '''
     def next_nonce(self):
-        address = self.credstick.addressStr()
-        pending_txs = [x for x in self.config.txqueue(self.network) if x['from'] == address] 
+        tx_count = self.w3.eth.getTransactionCount(self.credstick.address)
+        pending_txs = [x for x in self.config.txqueue(self.network) if x['from'] == self.credstick.address] 
 
         if len(pending_txs) > 0:
             sorted_txs = sorted(pending_txs, key=lambda x: x.nonce)
             return sorted_txs[0]['nonce'] + 1
 
-        return self.w3.eth.getTransactionCount(address)
+        return tx_count 
 
 
 class SaiPip(Contract):
