@@ -1,7 +1,7 @@
 from asciimatics.widgets import Text, Layout, Divider
 from shadowlands.sl_frame import SLFrame
 from shadowlands.uniswap.exchange import Exchange
-from shadowlands.tui.debug import debug
+from shadowlands.tui.debug import debug, end_debug
 import pdb
 from shadowlands.contract.erc20 import Erc20
 from decimal import Decimal, InvalidOperation
@@ -9,7 +9,7 @@ from decimal import Decimal, InvalidOperation
 
 class UniswapFrame(SLFrame):
     def __init__(self, dapp, height, width, token_address, action='buy', sell_amount='', buy_amount='', **kwargs):
-
+        
         self.token = Erc20(dapp.node, address=token_address)
         self._action = action
         self._buy_amount = buy_amount
@@ -33,25 +33,15 @@ class UniswapFrame(SLFrame):
         #self.token_value_dirty_flag = False
         #self.eth_value_dirty_flag = False
 
-        #debug(); pdb.set_trace()
 
         super(UniswapFrame, self).__init__(dapp, height, width, title="Uniswap Exchange", **kwargs)
 
     def initialize(self):
-
-        #self.add_label("Using Uniswap {} exchange:".format(self.token_symbol), add_divider=False)
-        #self.add_label(self.exchange.address)
-        #self.add_label("for {} contract at:".format(self.token_symbol), add_divider=False)
-        #self.add_label(self.token.address)
-
-        #result = self.exchange.buy_token_calc_token_output(1000000)
-        #self.add_label("Exchange rate: {}/ETH: {}".format(self.token_symbol, round(result[1], 5)))
-
         self.add_label("ETH liquidity: {}".format( str(round(self.exchange.eth_reserve, 3))), add_divider=False)
         self.add_label("{} liquidity: {}".format(self.token_symbol, str(round(self.exchange.token_reserve, 3))))
 
-        self.add_label("Your ETH balance: {}".format(str(self.dapp.node.eth_balance)[0:18]), add_divider=False)
-        self.add_label("Your {} balance: {}".format(self.token_symbol, self.token.my_balance_str()))
+        self.add_label("Your ETH balance: {}".format(str(self.dapp.node.eth_balance)[:18]), add_divider=False)
+        self.add_label("Your {} balance: {}".format(self.token_symbol, str(self.token.decimal_balance)[:18]))
 
         options = [
             ("Buy {} with ETH".format(self.token_symbol), 'buy'),
@@ -62,13 +52,20 @@ class UniswapFrame(SLFrame):
     
         layout = Layout([100])
         self.add_layout(layout)
-        self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=str(self._buy_amount), label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
-        self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=str(self._sell_amount), label="ETH:", on_change=self.eth_value_dirty)
 
-        if self._sell_amount is None:
-            self.token_value_dirty()
-        elif self._buy_amount is None:
-            sefl.eth_value_dirty()
+        token_default_value = ''
+        eth_default_value = ''
+        if self._action == 'buy': 
+            token_default_value = str(self._buy_amount)[:14]
+            if self._buy_amount is not None:
+                eth_default_value = str(self.exchange.buy_token_calc_eth_input(self._buy_amount)[0])[:14]
+        elif self._action == 'sell':
+            token_default_value = self._sell_amount[:14]
+            if self._sell_amount is not None:
+                eth_default_value = str(self.exchange.sell_token_calc_eth_output(self._sell_amount)[0])[:14]
+
+        self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=token_default_value, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
+        self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=eth_default_value, label="ETH:", on_change=self.eth_value_dirty)
 
         self.token_amount.set_eth_field(self.eth_amount)
         self.eth_amount.set_token_field(self.token_amount)
@@ -108,10 +105,8 @@ class UniswapFrame(SLFrame):
             eth_amount = self.dapp.w3.toWei(self.eth_amount._value, 'ether')
 
             # check allowance to see if we need to approve
-            #debug(); pdb.set_trace()
             allowance = self.token.self_allowance(self.exchange.address)
 
-            #debug(); pdb.set_trace()
             if allowance < token_amount:
                 self.dapp.add_transaction_dialog(
                     self.token.approve_unlimited(self.exchange.address),
@@ -120,7 +115,6 @@ class UniswapFrame(SLFrame):
                 )
                 self.dapp.add_message_dialog("You must first approve the Exchange to handle your {}".format(self.token_symbol))
             else:
-                #debug(); pdb.set_trace()
                 self.dapp.add_transaction_dialog(
                     self.exchange.token_to_eth(token_amount, eth_amount),
                     title="Sell {} for ETH".format(self.token_symbol),
@@ -182,9 +176,9 @@ class TokenValueText(Text):
             try:
                 amt = Decimal(self.eth_amount._value)
                 if self.radiobutton_value() == 'sell':
-                    self._value = round(self.exchange.sell_token_calc_token_input(amt)[0], 7).__str__()
+                    self._value = str(self.exchange.sell_token_calc_token_input(amt)[0])[:14]
                 elif self.radiobutton_value() == 'buy':
-                    self._value = round(self.exchange.buy_token_calc_token_output(amt)[0], 7).__str__()
+                    self._value = str(self.exchange.buy_token_calc_token_output(amt)[0])[:14]
             except InvalidOperation:
                 self._value=""
             self.eth_value_dirty_flag = False
@@ -208,9 +202,9 @@ class EthValueText(Text):
             try:
                 amt = Decimal(self.token_amount._value)
                 if self.radiobutton_value() == 'sell':
-                    self._value = round(self.exchange.sell_token_calc_eth_output(amt)[0], 7).__str__()
+                    self._value = str(self.exchange.sell_token_calc_eth_output(amt)[0])[:16]
                 elif self.radiobutton_value() == 'buy':
-                    self._value = round(self.exchange.buy_token_calc_eth_input(amt)[0], 7).__str__()
+                    self._value = str(self.exchange.buy_token_calc_eth_input(amt)[0])[:16]
             except InvalidOperation:
                 self._value = ""
 

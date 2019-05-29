@@ -81,8 +81,9 @@ class Erc20(Contract):
     def my_balance(self):
         return self.balanceOf(self._node.credstick.address)
 
+    @property
     def decimal_balance(self):
-        return self.balanceOf(self._node.credstick.address) * (10 ** self.decimals())
+        return self.balanceOf(self._node.credstick.address) / (10 ** self.decimals())
 
     def convert_to_decimal(self, amount):
         return (amount / ( 10 ** self.decimals() ) )
