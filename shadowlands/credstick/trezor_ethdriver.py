@@ -16,7 +16,7 @@ from eth_account.internal.transactions import serializable_unsigned_transaction_
 from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 from shadowlands.tui.effects.message_dialog import MessageDialog 
 from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
-from shadowlands.tui.debug import debug
+from shadowlands.tui.debug import debug, end_debug
 from web3 import Web3
 import pdb
 
@@ -186,9 +186,7 @@ The layout is:
     @classmethod
     def signTx(cls, tx):
 
-
         def int_to_big_endian(value):
-            #debug(); pdb.set_trace()
             return value.to_bytes((value.bit_length() + 7) // 8, 'big')
 
         address_n = tools.parse_path(cls.hdpath())
@@ -202,10 +200,8 @@ The layout is:
             value=int_to_big_endian(tx['value']))
 
         if tx['to']:
-            #msg.to = decode_hex(tx['to'])
             msg.to = tx['to']
 
-        #debug(); pdb.set_trace()
         if tx['data'].__class__ is str:
             data = bytes.fromhex(tx['data'].replace('0x',''))
         elif tx['data'].__class__ is bytes:
@@ -217,12 +213,14 @@ The layout is:
             msg.data_initial_chunk = chunk
 
         try:
-
-            #debug(); pdb.set_trace()
             response = cls.call_raw(msg, atomic=False)
     
             # Confused?   Ask trezor why.  I don't know why.
             # ButtonAck is a no-op afaict.  But you still have to send it.
+            # Punch the monkey.
+            # Punch it.
+            # Punch the monkey.
+            # Punch the monkey.
             # Punch the monkey.
             while response.__class__.__name__ == 'ButtonRequest':
                 response = cls.call_raw(proto.ButtonAck())

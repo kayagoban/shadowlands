@@ -76,7 +76,7 @@ class TxDetail(SLFrame):
         #debug(); pdb.set_trace()
 
         tx_dict = dict(
-            #chainId = old_tx.chainId,
+            chainId = int(old_tx.chainId),
             nonce = old_tx.nonce,
             gasPrice = None,
             gas = old_tx.gas,

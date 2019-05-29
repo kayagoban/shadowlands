@@ -141,7 +141,6 @@ class LedgerEthDriver(Credstick):
         try:
             tx = serializable_unsigned_transaction_from_dict(transaction_dict)
             encodedTx = rlp.encode(tx)
-            #debug(); pdb.set_trace()
             encodedPath = encode_path(cls.hdpath())
             # Each path element is 4 bytes.  How many path elements are we sending?
 
