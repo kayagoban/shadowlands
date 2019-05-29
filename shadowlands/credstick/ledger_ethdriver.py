@@ -18,6 +18,7 @@ from eth_account.internal.transactions import (
     serializable_unsigned_transaction_from_dict,
 )
 
+import logging
 from shadowlands.tui.debug import debug
 import pdb
 
