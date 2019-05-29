@@ -14,6 +14,7 @@ from shadowlands.sl_frame import AskClipboardFrame
 
 import threading
 from decimal import Decimal
+import logging
 
 class SLTransactionFrame(TransactionFrame):
     def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=None,  **kwargs):
@@ -50,10 +51,12 @@ class SLTransactionFrame(TransactionFrame):
                 value=self.dapp.node.w3.toWei(Decimal(self.tx_value), 'ether'),
                 nonce=nonce
             )
-        except ValueError:
-            self.dapp.add_message_dialog("Insufficient ETH to send Tx.", destroy_window=self)
+        except ValueError as e:
+            logging.info("Error creating tx: {}".format(e))
+            self.dapp.add_message_dialog("{}".format(e.args[0]['message']), destroy_window=self)
             return
         except (SignTxError) as e:
+            logging.info("SignTxError: {}".format(e))
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
         except (OSError):
@@ -97,7 +100,9 @@ class SLTransactionWaitFrame(SLTransactionFrame):
             self.receipt_proc(rxo)
 
 
-        except (SignTxError):
+        except (SignTxError) as e:
+            logging.debug("SignTxError: {}".format(e))
+            raise e
             self.dapp.add_message_dialog("Credstick did not sign Transaction", destroy_window=self)
             return
 
