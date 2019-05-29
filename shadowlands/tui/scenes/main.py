@@ -29,7 +29,7 @@ class MainScene(Scene):
 ║
 ║  ${7,1}H${2,2}D Path:
 ║
-║  Reverse ${7,1}E${2,2}NS:
+║  Reverse ENS:
 ║
 ║  Ξth:
 ║
