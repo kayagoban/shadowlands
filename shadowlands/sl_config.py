@@ -49,6 +49,7 @@ class SLConfig():
     def __init__(self):
         self._hd_base_path = None
         self._hd_index = None
+        self._dapp_configs = {}
         self._http_uri = ''
         self._websocket_uri = ''
         self._ipc_path = ''
@@ -101,6 +102,7 @@ class SLConfig():
             # I am re-examining my life.
             self.sl_dapp_path = self._options_dict['sl_dapp_path']
             self._hd_base_path = self._options_dict['hd_base_path']
+            self._dapp_configs = self._options_dict['dapp_configs']
             self._hd_index = self._options_dict['hd_index']
             self._tokens = self._options_dict['tokens']
 
@@ -113,6 +115,7 @@ class SLConfig():
         return {
             "displayed_currency": self._displayed_currency,
             "sl_dapp_path": self._sl_dapp_path,
+            "dapp_configs": self._dapp_configs,
             "hd_base_path": self._hd_base_path,
             "hd_index": self._hd_index,
             "txqueue": self._txqueue,
@@ -140,6 +143,29 @@ class SLConfig():
         self._write_config_file()
 
 
+    @property
+    def dapp_configs(self):
+        return self._dapp_configs
+
+    @dapp_configs.setter
+    def dapp_configs(self, new_value):
+        self._dapp_configs = dict(new_value)
+        self._write_config_file()
+
+    # These two methods are used by SLDapp
+    def dapp_config(self, dapp_key):
+        try:
+            return self._dapp_configs[dapp_key]
+        except KeyError:
+            self.set_dapp_config(dapp_key, dict())
+            return self._dapp_configs[dapp_key]
+
+    def set_dapp_config(self, dapp_key, new_value):
+        config = dict(self.dapp_configs)
+        config[dapp_key] = dict(new_value)
+        self.dapp_configs = config
+
+
     def tokens(self, network_id):
         return [x for x in self._tokens if x[2] == network_id]
 
@@ -160,7 +186,6 @@ class SLConfig():
 
         self._tokens.remove(matches[0])
         self._write_config_file()
-
 
 
     def txqueue(self, chain_id):

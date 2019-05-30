@@ -25,6 +25,7 @@ import pdb
 
 class SLDapp():
     def __init__(self, screen, scene, eth_node, config, destroy_window=None):
+        self._config_key = self.__module__
         self._screen = screen
         self._scene = scene
         self._node = eth_node
@@ -47,8 +48,24 @@ class SLDapp():
         return self._config
         
     @property
-    def price_poller(self):
-        return self._price_poller
+    def config_key(self):
+        return self._config_key
+
+    @config_key.setter
+    def config_key(self, key):
+        self._config_key = key
+
+    @property
+    def config_properties(self):
+        return self.config.dapp_config(self.config_key)
+
+    def save_config_property(self, property_key, value):
+        properties = dict(self.config_properties)
+        properties[property_key] = value
+        self.config.set_dapp_config(self.config_key, properties)
+
+    def load_config_property(self, property_key):
+        return self.config_properties[property_key]
 
     @abstractmethod
     def initialize(self):
