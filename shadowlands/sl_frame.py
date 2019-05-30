@@ -181,15 +181,14 @@ class SLWaitFrame(SLFrame):
         # Swallows every damn event while the user twiddles his thumbs
         return None
 
-
  
 class AskClipboardFrame(SLFrame):
     def initialize(self):
         self.add_button_row([
             ("Ok", self._copy_digest, 0),
-            ("Cancel", self.close, 1)
-        ])
-
+            ("Cancel", self.close, 2)
+        ],
+        layout=[20, 60, 20])
 
     def _copy_digest(self):
         pyperclip.copy(self.dapp.rx)

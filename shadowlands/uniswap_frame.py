@@ -8,7 +8,7 @@ from decimal import Decimal, InvalidOperation
 
 
 class UniswapFrame(SLFrame):
-    def __init__(self, dapp, height, width, token_address, action='buy', sell_amount='', buy_amount='', **kwargs):
+    def __init__(self, dapp, height, width, token_address, action='', sell_amount='', buy_amount='', **kwargs):
         
         self.token = Erc20(dapp.node, address=token_address)
         self._action = action
@@ -56,12 +56,13 @@ class UniswapFrame(SLFrame):
         token_default_value = ''
         eth_default_value = ''
         if self._action == 'buy': 
+            #debug(); pdb.set_trace()
             token_default_value = str(self._buy_amount)[:14]
-            if self._buy_amount is not None:
+            if self._buy_amount is not '':
                 eth_default_value = str(self.exchange.buy_token_calc_eth_input(self._buy_amount)[0])[:14]
         elif self._action == 'sell':
             token_default_value = self._sell_amount[:14]
-            if self._sell_amount is not None:
+            if self._sell_amount is not '':
                 eth_default_value = str(self.exchange.sell_token_calc_eth_output(self._sell_amount)[0])[:14]
 
         self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=token_default_value, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
