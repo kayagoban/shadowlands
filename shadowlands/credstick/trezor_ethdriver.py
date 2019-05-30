@@ -70,21 +70,12 @@ class TrezorEthDriver(Credstick):
         except (TransportException):
             raise OpenCredstickError("Error opening Trezor")
 
-    #self.features = expect(proto.Features)(self.call)(init_msg)
-
-        #if str(cls.features.vendor) not in self.VENDORS:
-        #    raise RuntimeError("Unsupported device")
-
-        #cls.address = cls.derive()
-
 
     @classmethod
     def matrix_process(cls, text, calling_window):
         response = cls.call_raw(proto.PinMatrixAck(pin=text))
         if response.__class__.__name__ is 'EthereumAddress':
-            address = '0x' + binascii.hexlify(response.address).decode('ascii')
-            address = cls.eth_node.w3.toChecksumAddress(address)
-            cls.address = address
+            cls.address = response.address
         elif response.__class__.__name__ == 'PassphraseRequest':
             cls.passphrase_request_window()
         else:
@@ -159,7 +150,6 @@ The layout is:
 
             while response.__class__.__name__ == 'ButtonRequest':
                 response = cls.call_raw(proto.ButtonAck())
-
             if response.__class__.__name__ == 'PinMatrixRequest':
                 cls.matrix_request_window()
             elif response.__class__.__name__ == 'PassphraseRequest':
