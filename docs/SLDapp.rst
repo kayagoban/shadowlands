@@ -5,44 +5,68 @@ SLDapp
 .. py:class:: SLDapp
 
 
-SLDapp is the class which defines a Shadowlands Dapp.
+``SLDapp`` is the class which defines a Shadowlands Dapp.
 
 First Steps
 -----------
 
-First, subclass ``SLDapp``, overriding the ``initialize()`` method, and do any necessary 
-preperation within.  Then, add an ``SLFrame`` with ``add_frame()``, which will 
-begin the user interface.
+Import ``SLDapp`` at the top of your ``__init__.py`` file in your dapp's subdirectory.
 
     .. code-block:: python
 
-        class MySLDapp(SLDapp):
+        from shadowlands.sl_dapp import SLDapp
+
+Create a class named ``Dapp`` that subclasses ``SLDapp``.  The class must be named ``Dapp`` in 
+order for the shadowlands plugin system to detect your dapp.  Override the 
+``initialize()`` method, and do any necessary preperation within.  Then, add an ``SLFrame`` subclass (which you need to provide) with ``add_frame()``.  This step begins the user interface.
+
+    .. code-block:: python
+
+        class Dapp(SLDapp):
             
             def initialize(self):
-                # define any instance variables that will be useful to you, such as contracts.
-                self.my_contract = MyContract(self.node)
+                # Define any variables that will be useful to you, such as contracts.
+                # Any other setup steps go here
 
                 # add a frame to begin the user interface
-                self.add_frame(MenuFrame, height=10, width=60)
+                self.add_frame(MyMenuFrame, height=10, width=60)
 
 Properties
 ----------
+
+``SLDapp`` provides many useful properties and methods to make writing dapps easier.
+
+.. py:attribute:: SLDapp.w3
+
+    A web3 object as provided by the web3.py framework.
 
 .. py:attribute:: SLDapp.node 
 
     A (hopefully, connected) instance of ``shadowlands.Node`` Ethereum Node object.
 
-.. py:attribute:: SLDapp.config
+.. py:attribute:: SLDapp.config_key
 
-    The ``shadowlands.SLConfig`` object to access settings.
+    Key to use for storing config properties.  Defaults to  ``self.__module__``.
+    Feel free to change this to something very unique at the top of your ``SLDapp.initialize()`` method.
 
-.. py:attribute:: SLDapp.price_poller
+.. py:attribute:: SLDapp.config_properties
 
-    The ``shadowlands.PricePoller`` object with current price information.
+    A persistent dictionary of properties specific to your dapp
+
 
 
 Methods
 -------
+
+
+.. py:method:: SLDapp.save_config_property(property_key, value)
+
+    Save a serializable object to the persistent data store specific to this dapp
+
+.. py:method:: SLDapp.load_config_property(property_key, value)
+
+    Save a serializable object to 
+
 
 .. py:method:: SLDapp.add_frame(cls, height=None, width=None, title=None, **kwargs)
   
