@@ -9,7 +9,6 @@ from decimal import Decimal, InvalidOperation
 
 class UniswapFrame(SLFrame):
     def __init__(self, dapp, height, width, token_address, action='', sell_amount='', buy_amount='', **kwargs):
-        
         self.token = Erc20(dapp.node, address=token_address)
         self._action = action
         self._buy_amount = buy_amount
@@ -177,9 +176,9 @@ class TokenValueText(Text):
             try:
                 amt = Decimal(self.eth_amount._value)
                 if self.radiobutton_value() == 'sell':
-                    self._value = str(self.exchange.sell_token_calc_token_input(amt)[0])[:14]
+                    self._value = "{:f}".format(self.exchange.sell_token_calc_token_input(amt)[0])[:19]
                 elif self.radiobutton_value() == 'buy':
-                    self._value = str(self.exchange.buy_token_calc_token_output(amt)[0])[:14]
+                    self._value = "{:f}".format(self.exchange.buy_token_calc_token_output(amt)[0])[:19]
             except InvalidOperation:
                 self._value=""
             self.eth_value_dirty_flag = False
@@ -203,9 +202,9 @@ class EthValueText(Text):
             try:
                 amt = Decimal(self.token_amount._value)
                 if self.radiobutton_value() == 'sell':
-                    self._value = str(self.exchange.sell_token_calc_eth_output(amt)[0])[:16]
+                    self._value = "{:f}".format(self.exchange.sell_token_calc_eth_output(amt)[0])[:19]
                 elif self.radiobutton_value() == 'buy':
-                    self._value = str(self.exchange.buy_token_calc_eth_input(amt)[0])[:16]
+                    self._value = "{:f}".format(self.exchange.buy_token_calc_eth_input(amt)[0])[:19]
             except InvalidOperation:
                 self._value = ""
 
