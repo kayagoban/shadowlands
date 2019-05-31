@@ -10,8 +10,8 @@ from shadowlands.sl_config import (
     UnallowedTokenRemovalError, 
     NoTokenMatchError
 )
-from shadowlands.contract.erc20 import Erc20
-from shadowlands.contract import ContractConfigError
+from shadowlands.sl_contract.erc20 import Erc20
+from shadowlands.sl_contract import ContractConfigError
 from web3.exceptions import BadFunctionCallOutput
 
 #from shadowlands.uniswap.exchange import Exchange

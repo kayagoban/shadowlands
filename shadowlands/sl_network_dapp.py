@@ -1,5 +1,5 @@
 from shadowlands.sl_dapp import SLDapp
-from shadowlands.contract.sloader import SLoader, DappNotFound
+from shadowlands.sl_contract.sloader import SLoader, DappNotFound
 from pathlib import Path
 import threading
 import wget, zipfile, zipimport

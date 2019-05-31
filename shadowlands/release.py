@@ -1,6 +1,5 @@
 from shadowlands.sl_dapp import SLDapp, SLFrame
-from shadowlands.contract import Contract
-from shadowlands.contract.sloader import SLoader
+from shadowlands.sl_contract.sloader import SLoader
 from shadowlands.utils import filehasher
 
 from eth_utils import decode_hex

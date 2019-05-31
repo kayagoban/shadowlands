@@ -7,7 +7,7 @@ class InvalidW3Error(Exception):
     pass
 
 
-class Contract():
+class SLContract():
     def __init__(self, node, address=None, provided_abi=None):
         self._contract = None
         self._node = node

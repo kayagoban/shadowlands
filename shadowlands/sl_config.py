@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 import pdb
 from shadowlands.tui.debug import debug
-from shadowlands.contract.erc20 import Erc20
+from shadowlands.sl_contract.erc20 import Erc20
 
 class DuplicateTokenError(Exception):
     pass

@@ -13,8 +13,8 @@ import asyncio
 from shadowlands.block_listener import BlockListener
 import pdb
 from shadowlands.tui.debug import debug, end_debug
-from shadowlands.contract.erc20 import Erc20
-from shadowlands.contract import Contract
+from shadowlands.sl_contract.erc20 import Erc20
+from shadowlands.sl_contract import SLContract
 
 import logging
 logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
@@ -442,7 +442,7 @@ class Node():
 
 
 
-class SaiPip(Contract):
+class SaiPip(SLContract):
 
     def read(self):
         return self.functions.read().call()

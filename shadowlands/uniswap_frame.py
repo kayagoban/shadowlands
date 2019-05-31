@@ -3,7 +3,7 @@ from shadowlands.sl_frame import SLFrame
 from shadowlands.uniswap.exchange import Exchange
 from shadowlands.tui.debug import debug, end_debug
 import pdb
-from shadowlands.contract.erc20 import Erc20
+from shadowlands.sl_contract.erc20 import Erc20
 from decimal import Decimal, InvalidOperation
 
 

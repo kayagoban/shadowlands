@@ -1,7 +1,7 @@
 
-from shadowlands.contract import Contract
+from shadowlands.sl_contract import SLContract
 
-class Factory(Contract):
+class Factory(SLContract):
 
     def getExchange(self, address):
         return self.functions.getExchange(address).call()

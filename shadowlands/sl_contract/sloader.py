@@ -1,11 +1,11 @@
-from shadowlands.contract import Contract
+from shadowlands.sl_contract import SLContract
 from web3.exceptions import ValidationError, NameNotFound
 from eth_utils import decode_hex, encode_hex
 
 class DappNotFound(Exception):
     pass
 
-class SLoader(Contract):
+class SLoader(SLContract):
     def package(self, eth_address):
         try:
             try: 

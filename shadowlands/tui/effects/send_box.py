@@ -9,7 +9,7 @@ import pyperclip
 from shadowlands.tui.debug import debug
 import pdb
 
-from shadowlands.contract.erc20 import Erc20
+from shadowlands.sl_contract.erc20 import Erc20
 
 from decimal import Decimal
 import logging

@@ -1,6 +1,6 @@
-from shadowlands.contract import Contract
+from shadowlands.sl_contract import SLContract
 
-class SaiPip(Contract):
+class SaiPip(SLContract):
 
     def read(self):
         return self.functions.read().call()

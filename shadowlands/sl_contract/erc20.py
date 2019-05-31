@@ -1,4 +1,4 @@
-from shadowlands.contract import Contract
+from shadowlands.sl_contract import SLContract
 import logging
 from shadowlands.tui.debug import debug
 import pdb
@@ -7,7 +7,7 @@ class TokenNotFound(Exception):
     pass
 
 
-class Erc20(Contract):
+class Erc20(SLContract):
 
     MAX_UINT256 = ((2 ** 256)  - 1)
 

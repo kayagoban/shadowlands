@@ -1,11 +1,10 @@
-
-from shadowlands.contract import Contract
-from shadowlands.contract.erc20 import Erc20
+from shadowlands.sl_contract import SLContract
+from shadowlands.sl_contract.erc20 import Erc20
 from shadowlands.uniswap.factory import Factory
 from decimal import Decimal
 import time
 
-class Exchange(Contract):
+class Exchange(SLContract):
 
     def __init__(self, node, erc20_address):
         factory = Factory(node)
