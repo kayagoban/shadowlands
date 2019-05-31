@@ -7,30 +7,6 @@ SLDapp
 
 ``SLDapp`` is the class which defines a Shadowlands Dapp.
 
-First Steps
------------
-
-Import ``SLDapp`` at the top of your ``__init__.py`` file in your dapp's subdirectory.
-
-    .. code-block:: python
-
-        from shadowlands.sl_dapp import SLDapp
-
-Create a class named ``Dapp`` that subclasses ``SLDapp``.  The class must be named ``Dapp`` in 
-order for the shadowlands plugin system to detect your dapp.  Override the 
-``initialize()`` method, and do any necessary preperation within.  Then, add an ``SLFrame`` subclass (which you need to provide) with ``add_frame()``.  This step begins the user interface.
-
-    .. code-block:: python
-
-        class Dapp(SLDapp):
-            
-            def initialize(self):
-                # Define any variables that will be useful to you, such as contracts.
-                # Any other setup steps go here
-
-                # add a frame to begin the user interface
-                self.add_frame(MyMenuFrame, height=10, width=60)
-
 Properties
 ----------
 
