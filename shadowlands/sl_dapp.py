@@ -8,7 +8,6 @@ from asciimatics.event import KeyboardEvent, MouseEvent
 from asciimatics.scene import Scene
 from asciimatics.effects import Effect
 from shadowlands.credstick import SignTxError
-from shadowlands.tui.effects.transaction_frame import TransactionFrame
 from shadowlands.tui.effects.message_dialog import MessageDialog
 from decimal import Decimal
 import pyperclip
@@ -19,7 +18,7 @@ from shadowlands.sl_frame import SLFrame, SLWaitFrame, AskClipboardFrame
 
 from shadowlands.uniswap_frame import UniswapFrame
 
-from shadowlands.sl_transaction_frame import SLTransactionFrame, SLTransactionWaitFrame
+from shadowlands.sl_transaction_frame import SLTransactionFrame
 
 import pdb
 
@@ -119,6 +118,8 @@ class SLDapp():
                 self._dict['gasPrice'] = tx_dict['gasPrice']
                 self._dict['gas'] = tx_dict['gas']
                 self._dict['value'] = tx_dict['value']
+                self._dict['data'] = '0x'
+                self._dict['chainId'] = tx_dict['chainId']
                 return self._dict
 
         tx_fn = TransactionFunction(tx_dict)

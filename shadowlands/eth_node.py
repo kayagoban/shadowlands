@@ -373,6 +373,9 @@ class Node():
 
     def push(self, contract_function, gas_price, gas_limit=None, value=0, nonce=None):
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value, nonce=nonce))
+        #debug(); pdb.set_trace()
+        # buildTransaction strips the chainID out. no bueno.
+        #tx['chainId']=int(self._network)
         logging.info("Tx submitted to credstick: {}".format(tx))
         signed_tx = self._credstick.signTx(tx)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
@@ -424,6 +427,7 @@ class Node():
         ) 
         if gas_limit:
             txdict['gas'] = gas_limit
+        #debug(); pdb.set_trace()
         return txdict
 
     '''
