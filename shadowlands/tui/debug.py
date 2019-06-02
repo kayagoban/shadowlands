@@ -1,4 +1,7 @@
 import curses
+import sys
+import io
+
 
 # un-insane-ify the screen so we can debug
 debugging=False
@@ -19,8 +22,6 @@ def end_debug():
     curses.noecho()
     curses.cbreak()
     debugging = False
-
-
 
 '''
 def debug(stdscr):
