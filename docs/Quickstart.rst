@@ -131,10 +131,10 @@ Now, when you run your dapp, you'll see:
 
 Here you can see some of the methods that the Erc20 class provides.  You can also access the underlying web3.py contract object by accessing ``peasant_contract._contract``.
 
-To escape from the debug session and get back to your app, type ``end_debug();; continue``.  This incancation will restore control of the screen to the curses library and end the session.
+To escape from the debug session and get back to your app, type ``end_debug();; continue``.  This incantation will restore control of the screen to the curses library and end the session.
 
 Handling user input
-------------------
+-------------------
 
 Let's get some user input and do something, er... useful?
 
@@ -188,6 +188,134 @@ Let's get some user input and do something, er... useful?
 
 
 
-We've add some height and width to our SLFrame on line 13, added labels and a textbox on lines 17 - 19, and traded in our simple button for ``add_button_row()`` on line 21.  All of the widgets available to display in an SLFrame are documented on the :ref:`SLFrame` page.
+We've add some height and width to our SLFrame on line 13, added labels and a textbox on lines 17 - 19, and traded in our simple button for ``add_button_row()`` on line 21.  All of the widgets available to display are documented on the ``SLFrame`` page.
+
+On line 12, we divide the number of peasantcoins by (10 ** 18) to account for the 18 decimal places of precision of this coin.
+
+We're doing some simple input sanitization here, as well as some restrictions as to how many peasants can be burninated in one go.
+
+Note that ``add_message_dialog()`` is a method belonging to Dapp, which is always accessible from an ``SLFrame`` instance via ``self.dapp``.
+
+
+So, let's see how we did.
+
+.. image:: trogdor-run-2.png
+  :width: 800
+  :alt: Running Trogdor
+
+Below we see the result of failing the input validation.
+
+.. image:: trogdor-validate-fail.png
+  :width: 800
+  :alt: Input validation fail
+
+
+Transactions
+------------
+
+Let's get on to burninating some peasants.  
+
+.. code-block:: python
+
+        from shadowlands.sl_dapp import SLDapp
+        from shadowlands.sl_frame import SLFrame
+        from shadowlands.sl_contract.erc20 import Erc20
+        from decimal import Decimal
+        from shadowlands.tui.debug import debug, end_debug
+        import pdb
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                PEASANT_ADDRESS = '0x1cCD4b30142c93f8fc1055D82473dfe30B4788A1'
+                self.peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
+                self.peasants = Decimal(self.peasant_contract.my_balance() / (10 ** 18))
+                self.add_frame(MyMenuFrame, height=10, width=70, title="Trogdooooor!")
+
+        class MyMenuFrame(SLFrame):
+            def initialize(self):
+                self.add_label("Trogdor the wingaling dragon intends to burninate peasants.")
+                self.add_label("Trogdor has {} peasants in need of burnination.".format(self.peasants_str))
+                self.text_value = self.add_textbox("How many?")
+                self.add_divider()
+                self.add_button_row([
+                    ("Burninate!", self.burninate, 0),
+                    ("Close", self.close, 1)
+                ])
+
+            @property
+            def peasants_str(self):
+                return "{:f}".format(self.dapp.peasants)[:8]
+
+            def peasants_validated(self):
+                try:
+                    self.peasants_to_burninate = Decimal(self.text_value())
+                except:
+                    self.dapp.add_message_dialog("That number of peasants doesn't make sense.")
+                    return False
+
+                if self.peasants_to_burninate > 1000000:   
+                    self.dapp.add_message_dialog("You monster! Leave some for later.")
+                    return False
+                elif self.peasants_to_burninate > self.dapp.peasants:
+                    self.dapp.add_message_dialog("You don't even *have* that many peasants!")
+                    return False
+                elif self.peasants_to_burninate < 5:
+                    self.dapp.add_message_dialog("This will not satisfy Trogdor.")
+                    return False
+
+                return True
+
+
+            def burninate(self):
+                if not self.peasants_validated():
+                    return
+
+                peasantcoins_to_burninate = self.peasants_to_burninate * Decimal(10 ** 18)
+
+                burn_fn = self.dapp.peasant_contract.transfer(
+                    '0x00000000000000000000000000000000DeaDBeef', 
+                    int(peasantcoins_to_burninate)
+                )
+
+                self.dapp.add_transaction_dialog(
+                    burn_fn, 
+                    title="Trogdor burninates the peasantcoins", 
+                    gas_limit=56000
+                )
+
+                self.close()
+
+
+I've refactored our input validation to the method ``peasants_validated`` on line 30.
+
+So, the time has come for the peasants to meet their final, fiery farewell at the nostrils of
+the mighty Trogdor.
+
+Note on line 56 that ``peasant_contract.transfer()`` returns a method, which we will feed 
+into ``add_transaction_dialog()`` on line 61.
+
+Let's see how this looks in practice.
+
+.. image:: trogdor-run-3.png
+  :width: 800
+  :alt: Running Trogdor
+
+And so, we see there are a few less peasants in the kingdom of peasantry.
+
+.. image:: trogdor-run-4.png
+  :width: 800
+  :alt: Running Trogdor
+
+The source code for the ``trogdor`` app is available on github.
+
+Feel free to download it and replace the peasantcoin Erc20 address with the address of your
+least favorite token.  Burninating them is strangely liberating.
+
+
+Disclaimer
+----------
+
+No peasants were harmed during the writing of this tutorial.
+
 
 
