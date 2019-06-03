@@ -3,6 +3,8 @@ from shadowlands.sl_contract.erc20 import Erc20
 from shadowlands.uniswap.factory import Factory
 from decimal import Decimal
 import time
+from shadowlands.tui.debug import debug, end_debug
+import pdb
 
 class Exchange(SLContract):
 
@@ -29,6 +31,9 @@ class Exchange(SLContract):
             return self._token_reserve 
 
     def buy_token_calc_token_output(self, eth_input):
+        if eth_output_output == 0:
+            return (Decimal(0), Decimal(0), Decimal(0))
+
         inputAmount = Decimal(eth_input)
         inputReserve = self.eth_reserve 
         outputReserve = self.token_reserve 
@@ -38,6 +43,9 @@ class Exchange(SLContract):
         return outputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
 
     def sell_token_calc_eth_output(self, token_input):
+        if token_output == 0:
+            return (Decimal(0), Decimal(0), Decimal(0))
+
         inputAmount = Decimal(token_input)
         inputReserve = self.token_reserve  
         outputReserve = self.eth_reserve
@@ -47,6 +55,9 @@ class Exchange(SLContract):
         return outputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
 
     def sell_token_calc_token_input(self, eth_output):
+        if eth_output_output == 0:
+            return (Decimal(0), Decimal(0), Decimal(0))
+
         outputAmount = Decimal(eth_output)
         inputReserve = self.token_reserve 
         outputReserve = self.eth_reserve
@@ -56,6 +67,9 @@ class Exchange(SLContract):
         return inputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
 
     def buy_token_calc_eth_input(self, token_output):
+        if token_output == 0:
+            return (Decimal(0), Decimal(0), Decimal(0))
+
         outputAmount = Decimal(token_output)
         inputReserve = self.eth_reserve 
         outputReserve = self.token_reserve 
@@ -64,7 +78,16 @@ class Exchange(SLContract):
         inputAmount = numerator / (denominator + Decimal(1))
         return inputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
 
+
+
     # transactions
+
+    def eth_to_token(self, expected_tokens, minutes_to_live=45, max_slippage=0.05):
+        ttl = int(time.time()) + (minutes_to_live * 60)
+        min_tokens = int(expected_tokens - (expected_tokens * Decimal(0.02)))
+        return self.functions.ethToTokenSwapInput(min_tokens, ttl)
+
+
     def token_to_eth(self, amount, expected_eth, minutes_to_live=45, max_slippage=0.05):
         ''' 
         token and eth amounts are in integer (wei) values.
@@ -80,7 +103,12 @@ class Exchange(SLContract):
         return self.functions.tokenToEthSwapInput(amount, min_eth, ttl)
 
     
+    def removeLiquidity(self, amount, min_eth, min_tokens, deadline):
+        ttl = int(time.time()) + (minutes_to_live * 60)
+        return self.functions.tokenToEthSwapInput(self.toWei(amount, 'ether'), self.toWei(min_tokens, 'ether'), self.toWei(min_eth, 'ether'), ttl)
 
+
+    
 
 
 

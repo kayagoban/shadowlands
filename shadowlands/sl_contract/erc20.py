@@ -104,8 +104,8 @@ class Erc20(SLContract):
 
     def approve_unlimited(self, proxy_address):
         #debug(); pdb.set_trace()
-        #return self.approve(proxy_address, self.MAX_UINT256)
-        return self.functions.approve(proxy_address)
+        return self.approve(proxy_address, self.MAX_UINT256)
+        #return self.functions.approve(proxy_address)
 
     def transfer(self, target, value):
         #debug(); pdb.set_trace()

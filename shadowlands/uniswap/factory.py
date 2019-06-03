@@ -6,6 +6,10 @@ class Factory(SLContract):
     def getExchange(self, address):
         return self.functions.getExchange(address).call()
 
+    # Transactions
+    def createExchange(self, address):
+        return self.functions.createExchange(address)
+
     MAINNET="0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95"
 
     ABI='''

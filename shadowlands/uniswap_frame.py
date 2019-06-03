@@ -87,30 +87,31 @@ class UniswapFrame(SLFrame):
         if not self.validate(self.radiobutton_value()):
             return
 
+        eth_amount = self.dapp.node.w3.toWei(self.eth_amount._value, 'ether')
+        token_amount = self.token.convert_to_integer(Decimal(self.token_amount._value)) 
+
         if self.radiobutton_value() == 'buy':
-            # send ether to exchange
-            amount = self.dapp.node.w3.toWei(self.eth_amount._value, 'ether')
-            self.dapp.add_send_dialog(
-                {
-                    'to': self.exchange.address,
-                    'value': amount,
-                    'nonce': self.dapp.node.next_nonce(),
-                    'gas': 75000 
-                }
+           # send ether to exchange
+            self.dapp.add_transaction_dialog(
+                self.exchange.eth_to_token(token_amount),
+                title="Buy {} with ETH".format(self.token_symbol),
+                gas_limit=100000,
+                tx_value=self.eth_amount._value
             )
+            self.dapp.add_message_dialog("The TX will have max 2% slippage from the exchange rate you agreed on.")
+
             self.close()
 
         elif self.radiobutton_value() == 'sell':
-            token_amount = self.token.convert_to_integer(Decimal(self.token_amount._value)) 
-            eth_amount = self.dapp.w3.toWei(self.eth_amount._value, 'ether')
-
             # check allowance to see if we need to approve
             allowance = self.token.self_allowance(self.exchange.address)
-
             if allowance < token_amount:
+                # We allow the minimum possible to allow the
+                # tx to go through
+                needed_allowance = token_amount - allowance
                 self.dapp.add_transaction_dialog(
-                    self.token.approve_unlimited(self.exchange.address),
-                    title="Approve Exchange contract to handle your {}".format(self.token_symbol),
+                    self.token.approve(self.exchange.address, needed_allowance),
+                    title="Approve for {} {}".format(self.token_amount._value, self.token_symbol),
                     gas_limit=50000,
                 )
                 self.dapp.add_message_dialog("You must first approve the Exchange to handle your {}".format(self.token_symbol))
