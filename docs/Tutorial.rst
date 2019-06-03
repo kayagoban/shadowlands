@@ -26,6 +26,9 @@ Inside your chosen local dapp directory, create a new subdirectory with the name
 Your first SLDapp
 -----------------
 
+For our example, let's become Trogdor the Burninator, the wingaling dragon.  
+We will burninate peasants in the kingdom of peasantry.  In our case, peasants will be PSNT Erc20 tokens (visible at peasantcoin.eth)
+
 Import ``SLDapp`` at the top of your ``__init__.py`` file in your dapp's subdirectory. We'll also import ``SLFrame`` and ``SLContract``.
 
     .. code-block:: python
