@@ -74,11 +74,6 @@ class SendBox(TransactionFrame):
         if self._gas_price_wei == None:
             errors.append("No Gas Price set")
 
-        try:
-            chaddr = self._interface.node.w3.toChecksumAddress(address)
-        except:
-            errors.append("Invalid send-to Address")
-
         if self.everything_checkbox._value == False:
             try:
                 amount = Decimal(value)
