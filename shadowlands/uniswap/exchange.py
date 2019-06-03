@@ -6,7 +6,7 @@ import time
 from shadowlands.tui.debug import debug, end_debug
 import pdb
 
-class Exchange(SLContract):
+class Exchange(Erc20):
 
     def __init__(self, node, erc20_address):
         factory = Factory(node)
@@ -31,7 +31,7 @@ class Exchange(SLContract):
             return self._token_reserve 
 
     def buy_token_calc_token_output(self, eth_input):
-        if eth_output_output == 0:
+        if eth_input == 0:
             return (Decimal(0), Decimal(0), Decimal(0))
 
         inputAmount = Decimal(eth_input)
@@ -43,7 +43,7 @@ class Exchange(SLContract):
         return outputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
 
     def sell_token_calc_eth_output(self, token_input):
-        if token_output == 0:
+        if token_input == 0:
             return (Decimal(0), Decimal(0), Decimal(0))
 
         inputAmount = Decimal(token_input)
@@ -55,7 +55,7 @@ class Exchange(SLContract):
         return outputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
 
     def sell_token_calc_token_input(self, eth_output):
-        if eth_output_output == 0:
+        if eth_output == 0:
             return (Decimal(0), Decimal(0), Decimal(0))
 
         outputAmount = Decimal(eth_output)
@@ -103,9 +103,12 @@ class Exchange(SLContract):
         return self.functions.tokenToEthSwapInput(amount, min_eth, ttl)
 
     
-    def removeLiquidity(self, amount, min_eth, min_tokens, deadline):
+    def removeLiquidity(self, amount, min_eth, min_tokens, minutes_to_live=60):
         ttl = int(time.time()) + (minutes_to_live * 60)
-        return self.functions.tokenToEthSwapInput(self.toWei(amount, 'ether'), self.toWei(min_tokens, 'ether'), self.toWei(min_eth, 'ether'), ttl)
+        
+       #return self.functions.removeLiquidity(self.toWei(amount, 'ether'), self.toWei(min_tokens, 'ether'), self.toWei(min_eth, 'ether'), ttl)
+
+        return self.functions.removeLiquidity(self.toWei(amount, 'ether'), 1, 1, ttl)
 
 
     

@@ -77,7 +77,28 @@ class UniswapFrame(SLFrame):
 
         self.add_divider()
 
-        self.add_button_row([("Transact", self.transact, 0), ("Back", self.close, 3)])
+        self.add_button_row([
+            ("Transact", self.transact, 0), 
+            ("Back", self.close, 3)
+        ])
+
+        #self.add_button_row([
+        #    ("AddLiquidity", self.remove_liquidity, 2),
+        #    ("RemoveLiquidity", self.remove_liquidity, 2),
+        #])
+
+
+    def remove_liquidity(self):
+        # self.dapp.node.push(fn, self.exchange.toWei(5, 'gwei'), 100000)
+        # fn = 
+        #debug(); pdb.set_trace()
+        my_liquidity_balance = self.exchange.my_balance()
+
+        self.dapp.add_transaction_dialog(
+            self.exchange.removeLiquidity(my_liquidity_balance, 1, 1),
+            title="Remove Liquidity",
+            gas_limit=100000
+        )
 
     def blank_textfields(self):
         self.token_amount._value = ''
