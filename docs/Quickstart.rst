@@ -1,5 +1,5 @@
 
-Quickstart
+Tutorial
 =============
 
 To start your own Dapp, open the dapps menu by pressing 'd' or 'D'  within the shadowlands application. 
@@ -98,7 +98,7 @@ Now, let's make a few changes.
 		# Any other setup steps go here
 		debug(); pdb.set_trace()
 
-		PEASANT_ADDRESS = '0x1cCD4b30142c93f8fc1055D82473dfe30B4788A1'
+		PEASANT_ADDRESS = '0x8B654789353b0B622667F105eAEF9E97d3C33F44'
 		peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
 
 		# add a frame to begin the user interface
@@ -149,7 +149,7 @@ Let's get some user input and do something, er... useful?
 
         class Dapp(SLDapp):
             def initialize(self):
-                PEASANT_ADDRESS = '0x1cCD4b30142c93f8fc1055D82473dfe30B4788A1'
+                PEASANT_ADDRESS = '0x8B654789353b0B622667F105eAEF9E97d3C33F44'
                 self.peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
                 self.peasants = self.peasant_contract.my_balance() / Decimal(10 **18)
                 self.add_frame(MyMenuFrame, height=10, width=70, title="Trogdooooor!")
@@ -176,13 +176,13 @@ Let's get some user input and do something, er... useful?
                     self.dapp.add_message_dialog("That number of peasants doesn't make sense.")
                     return
 
-                if peasants_to_burninate > 1000000:   
+                if peasants_to_burninate > 100000:   
                     self.dapp.add_message_dialog("You monster! Leave some for later.")
                     return
                 elif peasants_to_burninate > self.dapp.peasants:
                     self.dapp.add_message_dialog("You don't even *have* that many peasants!")
                     return
-                elif peasants_to_burninate < 5:
+                elif peasants_to_burninate < 0.5:
                     self.dapp.add_message_dialog("This will not satisfy Trogdor.")
                     return
 
@@ -226,7 +226,7 @@ Let's get on to burninating some peasants.
 
         class Dapp(SLDapp):
             def initialize(self):
-                PEASANT_ADDRESS = '0x1cCD4b30142c93f8fc1055D82473dfe30B4788A1'
+                PEASANT_ADDRESS = '0x8B654789353b0B622667F105eAEF9E97d3C33F44'
                 self.peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
                 self.peasants = Decimal(self.peasant_contract.my_balance() / (10 ** 18))
                 self.add_frame(MyMenuFrame, height=10, width=70, title="Trogdooooor!")
@@ -253,13 +253,13 @@ Let's get on to burninating some peasants.
                     self.dapp.add_message_dialog("That number of peasants doesn't make sense.")
                     return False
 
-                if self.peasants_to_burninate > 1000000:   
+                if self.peasants_to_burninate > 100000:   
                     self.dapp.add_message_dialog("You monster! Leave some for later.")
                     return False
                 elif self.peasants_to_burninate > self.dapp.peasants:
                     self.dapp.add_message_dialog("You don't even *have* that many peasants!")
                     return False
-                elif self.peasants_to_burninate < 5:
+                elif self.peasants_to_burninate < 0.5:
                     self.dapp.add_message_dialog("This will not satisfy Trogdor.")
                     return False
 
@@ -305,6 +305,155 @@ And so, we see there are a few less peasants in the kingdom of peasantry.
 .. image:: trogdor-run-4.png
   :width: 800
   :alt: Running Trogdor
+
+Subclassing Erc20 and SLContract
+--------------------------------
+
+Trogdor is distraught to discover that the peasants have not actually been burninated,
+but only banished to the cave of 0xdeadbeef.  He demands true burnination.
+
+Luckily, the PSNT contract supports burn(), although this is not a standard Erc20
+function.  Let's subclass Erc20 and use some of the features of SLContract to make
+our lives easier.
+
+.. code-block:: python
+
+	from shadowlands.sl_contract.erc20 import Erc20
+
+	class PeasantCoin(Erc20):
+	    MAINNET='0x8B654789353b0B622667F105eAEF9E97d3C33F44'
+	    ABI='''
+		[
+			{
+				"constant": true,
+				"inputs": [],
+
+		..(ABI truncated for brevity)...
+
+
+		]
+		'''
+
+First we create a file called ``peasant_coin.py`` in our ``trogdor`` directory to house our subclass.
+
+``PeasantCoin`` subclasses ``Erc20``.  The default ABI for the 
+``Erc20`` subclass doesn't understand burn(), so we need to supply our own ABI.  
+
+Subclassing ``SLContract`` (the superclass of ``Erc20``) works the same way - you can 
+define MAINNET, KOVAN, and other network names that are defined by ``Node.NETWORK_DICT``, 
+and set these to the deployment address of the contract.
+
+We also can paste the ABI here. See the documentation for ``SLContract`` and ``Erc20`` to 
+fully understand everything they provide.
+
+
+.. code-block:: python
+
+	from shadowlands.sl_dapp import SLDapp
+	from shadowlands.sl_frame import SLFrame
+	from trogdor.peasant_coin import PeasantCoin
+	from decimal import Decimal
+	from shadowlands.tui.debug import debug, end_debug
+	import pdb
+
+	class Dapp(SLDapp):
+	    def initialize(self):
+		self.peasant_contract = PeasantCoin(self.node)
+		self.peasants = Decimal(self.peasant_contract.my_balance() / (10 ** 18))
+		self.total_peasants =  Decimal(self.peasant_contract.totalSupply() / (10 ** 18))
+		self.add_frame(MyMenuFrame, height=12, width=70, title="Trogdooooor!")
+
+	class MyMenuFrame(SLFrame):
+	    def initialize(self):
+		self.add_label("Trogdor the wingaling dragon intends to burninate peasants.")
+		self.add_label("There are {} peasants (PSNT) in the world.".format(
+			self.peasant_decorator(self.dapp.total_peasants)
+		))
+		self.add_label("Trogdor has {} peasants in need of burnination.".format(
+			self.peasant_decorator(self.dapp.peasants)
+		))
+		self.text_value = self.add_textbox("How many?")
+		self.add_divider()
+		self.add_button_row([
+		    ("Burninate!", self.burninate, 0),
+		    ("Close", self.close, 1)
+		])
+
+	    def peasant_decorator(self, peasants):
+		return "{:f}".format(peasants)[:12]
+
+We import ``PeasantCoin`` on line 3 and instantiate it on line 10.  We also grab the ``totalSupply()`` on line 12.  
+Some refactoring into a decorator on line 31 makes things a little nicer.
+
+
+.. code-block:: python
+
+	def burninate(self):
+   	    if not self.peasants_validated():
+	        return
+
+       	    peasantcoins_to_burninate = self.peasants_to_burninate * Decimal(10 ** 18)
+
+	    burn_fn = self.dapp.peasant_contract.functions.burn(
+	        int(peasantcoins_to_burninate)
+	    )
+
+	    self.dapp.add_transaction_dialog(
+	        burn_fn, 
+	        title="Trogdor burninates the peasantcoins", 
+	        gas_limit=56000
+	    )
+
+	    self.close()
+
+On line 7, we access the underlying function generated by web3.py with the ``functions()`` method.
+Now when we burn PSNT tokens, they will be taken out of the ``totalSupply()``.
+
+Uniswap Integration
+-------------------
+
+Uh-oh, Trogdor has run out of peasants to burninate.  What to do?
+
+Shadowlands has native API integration with Uniswap, so let's add a button to acquire 
+more PeasantCoin.
+
+
+.. code-block:: python
+
+	class MyMenuFrame(SLFrame):
+	    def initialize(self):
+		self.add_label("Trogdor the wingaling dragon intends to burninate peasants.")
+		self.add_label("There are {} peasants (PSNT) in the world.".format(
+		    self.peasant_decorator(self.dapp.total_peasants)
+		))
+		self.add_label("Trogdor has {} peasants.".format(
+		    self.peasant_decorator(self.dapp.peasants)
+		))
+		self.text_value = self.add_textbox("How many?")
+		self.add_divider()
+		self.add_button_row([
+		    ("Burninate!", self.burninate, 0),
+		    ("Get More Peasants", self.get_peasants, 1),
+		    ("Close", self.close, 2)
+		], layout=[30, 40, 30]
+		)
+
+	    def get_peasants(self):
+		self.dapp.add_uniswap_frame(self.dapp.peasant_contract.address)
+
+
+.. image:: trogdor-run-5.png
+  :width: 800
+  :alt: Running Trogdor
+
+
+.. image:: trogdor-run-7.png
+  :width: 800
+  :alt: Running Trogdor
+
+
+
+
 
 The source code for the ``trogdor`` app is available on github.
 
