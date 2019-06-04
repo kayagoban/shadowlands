@@ -13,14 +13,15 @@ from decimal import Decimal
 import pyperclip
 
 from shadowlands.tui.debug import debug, end_debug
+import pdb
 
 from shadowlands.sl_frame import SLFrame, SLWaitFrame, AskClipboardFrame
 
 from shadowlands.uniswap_frame import UniswapFrame
 
 from shadowlands.sl_transaction_frame import SLTransactionFrame
+import cached_property
 
-import pdb
 
 class SLDapp():
     def __init__(self, screen, scene, eth_node, config, destroy_window=None):
@@ -30,9 +31,16 @@ class SLDapp():
         self._node = eth_node
         self._config = config
         self.initialize()
+        
+        # Start work on self-updating cached properties
+        #self.c_properties = [x for x in SLDapp.__dict__.values() if x.__class__ == cached_property.cached_property]
+        #if self.c_properties != []:
+        #    debug(); pdb.set_trace()
 
         if destroy_window is not None:
             destroy_window.close()
+
+
 
     @property
     def node(self):
