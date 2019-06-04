@@ -31,52 +31,40 @@ class Exchange(Erc20):
             return self._token_reserve 
 
     def buy_token_calc_token_output(self, eth_input):
-        if eth_input == 0:
-            return (Decimal(0), Decimal(0), Decimal(0))
-
         inputAmount = Decimal(eth_input)
         inputReserve = self.eth_reserve 
         outputReserve = self.token_reserve 
         numerator = inputAmount * outputReserve * Decimal(997)
         denominator = inputReserve * Decimal(1000) + inputAmount * Decimal(997)
         outputAmount = numerator / denominator
-        return outputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
+        return {'value': outputAmount, 'ratio': outputAmount/inputAmount}
 
     def sell_token_calc_eth_output(self, token_input):
-        if token_input == 0:
-            return (Decimal(0), Decimal(0), Decimal(0))
-
         inputAmount = Decimal(token_input)
         inputReserve = self.token_reserve  
         outputReserve = self.eth_reserve
         numerator = inputAmount * outputReserve * Decimal(997)
         denominator = inputReserve * Decimal(1000) + inputAmount * Decimal(997)
         outputAmount = numerator / denominator
-        return outputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
+        return {'value': outputAmount, 'ratio': outputAmount/inputAmount}
 
     def sell_token_calc_token_input(self, eth_output):
-        if eth_output == 0:
-            return (Decimal(0), Decimal(0), Decimal(0))
-
         outputAmount = Decimal(eth_output)
         inputReserve = self.token_reserve 
         outputReserve = self.eth_reserve
         numerator = outputAmount * inputReserve * Decimal(1000)
         denominator = (outputReserve - outputAmount) * Decimal(997)
         inputAmount = numerator / (denominator + Decimal(1))
-        return inputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
+        return {'value': inputAmount, 'ratio': outputAmount/inputAmount}
 
     def buy_token_calc_eth_input(self, token_output):
-        if token_output == 0:
-            return (Decimal(0), Decimal(0), Decimal(0))
-
         outputAmount = Decimal(token_output)
         inputReserve = self.eth_reserve 
         outputReserve = self.token_reserve 
         numerator = outputAmount * inputReserve * Decimal(1000)
         denominator = (outputReserve - outputAmount) * Decimal(997)
         inputAmount = numerator / (denominator + Decimal(1))
-        return inputAmount, outputAmount/inputAmount, inputAmount * Decimal(0.003)
+        return {'value': inputAmount, 'ratio': outputAmount/inputAmount}
 
 
 

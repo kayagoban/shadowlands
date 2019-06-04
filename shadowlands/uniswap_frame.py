@@ -58,11 +58,11 @@ class UniswapFrame(SLFrame):
             #debug(); pdb.set_trace()
             token_default_value = str(self._buy_amount)[:14]
             if self._buy_amount is not '':
-                eth_default_value = str(self.exchange.buy_token_calc_eth_input(self._buy_amount)[0])[:14]
+                eth_default_value = str(self.exchange.buy_token_calc_eth_input(self._buy_amount)['value'])[:14]
         elif self._action == 'sell':
             token_default_value = self._sell_amount[:14]
             if self._sell_amount is not '':
-                eth_default_value = str(self.exchange.sell_token_calc_eth_output(self._sell_amount)[0])[:14]
+                eth_default_value = str(self.exchange.sell_token_calc_eth_output(self._sell_amount)['value'])[:14]
 
         self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=token_default_value, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
         self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=eth_default_value, label="ETH:", on_change=self.eth_value_dirty)
@@ -197,10 +197,15 @@ class TokenValueText(Text):
         if self.eth_value_dirty_flag:
             try:
                 amt = Decimal(self.eth_amount._value)
+                if amt < 0:
+                    raise InvalidOperation
                 if self.radiobutton_value() == 'sell':
-                    self._value = "{:f}".format(self.exchange.sell_token_calc_token_input(amt)[0])[:19]
+                    if amt > self.exchange.eth_reserve:
+                        raise InvalidOperation
+                    self._value = "{:f}".format(self.exchange.sell_token_calc_token_input(amt)['value'])[:19]
                 elif self.radiobutton_value() == 'buy':
-                    self._value = "{:f}".format(self.exchange.buy_token_calc_token_output(amt)[0])[:19]
+                    token_amt = self.exchange.buy_token_calc_token_output(amt)['value']
+                    self._value = "{:f}".format(token_amt)[:19]
             except InvalidOperation:
                 self._value=""
             self.eth_value_dirty_flag = False
@@ -223,10 +228,15 @@ class EthValueText(Text):
         if self.token_value_dirty_flag:
             try:
                 amt = Decimal(self.token_amount._value)
+                if amt < 0:
+                    raise InvalidOperation
                 if self.radiobutton_value() == 'sell':
-                    self._value = "{:f}".format(self.exchange.sell_token_calc_eth_output(amt)[0])[:19]
+                    eth_amt = self.exchange.sell_token_calc_eth_output(amt)['value'] 
+                    self._value = "{:f}".format(eth_amt)[:19]
                 elif self.radiobutton_value() == 'buy':
-                    self._value = "{:f}".format(self.exchange.buy_token_calc_eth_input(amt)[0])[:19]
+                    if amt > self.exchange.token_reserve:
+                        raise InvalidOperation
+                    self._value = "{:f}".format(self.exchange.buy_token_calc_eth_input(amt)['value'])[:19]
             except InvalidOperation:
                 self._value = ""
 
