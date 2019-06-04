@@ -4,12 +4,12 @@ from asciimatics.exceptions import NextScene
 from asciimatics.widgets import (
     Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox, QRCode
 )
-
 import pyperclip
 
-from shadowlands.tui.debug import debug#, end_debug
+from shadowlands.tui.debug import debug, end_debug
 import pdb
 
+#from shadowlands.tx_inspector import TxInspector
 
 
 
@@ -40,8 +40,20 @@ class SLFrame(Frame):
         if event.key_code is 4:
             # drop to debug console
             debug(); pdb.set_trace()
-            # go back to the dapp
-            end_debug(); raise NextScene(self._scene.name)
+            print("end_debug();; continue will get you back to the app")
+
+        #elif event.key_code in [41, 33, 64, 35, 36]:
+        #    # allow shift-0 through shift-4 to open a tx inspector window
+        #    tx_keymap = {'41': 0, '33': 1, '64': 2, '35': 3, '36': 4}
+
+        #    TxInspector(
+        #        self._screen, 
+        #        self._scene, 
+        #        self._interface.node,
+        #        self._interface.config,
+        #        tx_keymap[str(event.key_code)]
+        #    )
+
 
         return super(SLFrame, self).process_event(event)
 
@@ -121,7 +133,7 @@ class SLFrame(Frame):
         if add_divider:
             layout.add_widget(Divider(draw_line=False))
 
-    def add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout_distribution=[80, 20]):
+    def add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout_distribution=[70, 30]):
         layout = Layout(layout_distribution)
         self.add_layout(layout)
         layout.add_widget(Label(label_text), 0) 
