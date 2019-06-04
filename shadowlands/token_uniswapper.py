@@ -14,7 +14,7 @@ from shadowlands.sl_contract.erc20 import Erc20
 from shadowlands.sl_contract import ContractConfigError
 from web3.exceptions import BadFunctionCallOutput
 
-from shadowlands.uniswap.exchange import Exchange
+from shadowlands.uniswap.exchange import Exchange, ExchangeNotFound
 
 class TokenUniswapper(SLDapp):
 
@@ -48,7 +48,6 @@ class TokenFrame(SLFrame):
 
         self.tokens_list = self.add_listbox(len(self.dapp.balances), options, on_change=self.select_token, on_select=self.trade)
 
-        #self.add_divider()
         self.add_button_row([
             ("Back", self.close, 1)
         ],
@@ -58,10 +57,12 @@ class TokenFrame(SLFrame):
         return lambda: self.trade(token)
 
     def trade(self):
-        #debug(); pdb.set_trace()
-        #token = token._value
         token = self.dapp.selected_token
-        self.dapp.add_uniswap_frame(token['address'])
+        try:
+            self.dapp.add_uniswap_frame(token['address'])
+        except ExchangeNotFound:
+            self.dapp.add_message_dialog("There's no uniswap exchange for that token")
+            return
         self.close()
 
    
@@ -70,7 +71,6 @@ class TokenFrame(SLFrame):
 
     def token_detail(self):
         self.dapp.add_frame(TokenDetail, height=10, width=46, title=self.dapp.selected_token['name'])
-        #self.close()
 
 
 
@@ -80,7 +80,6 @@ class TokenDetail(SLFrame):
         self.add_label("Symbol: {}".format(token['name']))
         self.add_label("Address:", add_divider=False)
         self.add_label(token['address'])
-        #debug(); pdb.set_trace()
         self.add_label("Balance: {}".format(token['balance'].__str__()[0:18]))
         self.add_button_row([
             ("Uniswap", lambda: self.trade(token), 0),
@@ -90,8 +89,6 @@ class TokenDetail(SLFrame):
         layout=[3, 3, 3])
  
     def trade(self, token):
-        #debug(); pdb.set_trace()
-        #token = token._value
         self.dapp.add_uniswap_frame(token['address'])
         self.close()
 

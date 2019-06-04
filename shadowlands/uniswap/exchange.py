@@ -6,11 +6,16 @@ import time
 from shadowlands.tui.debug import debug, end_debug
 import pdb
 
+class ExchangeNotFound(Exception):
+    pass
+
 class Exchange(Erc20):
 
     def __init__(self, node, erc20_address):
         factory = Factory(node)
         exchange_address = factory.getExchange(erc20_address)
+        if exchange_address == '0x0000000000000000000000000000000000000000':
+            raise ExchangeNotFound
         self.token_contract = Erc20(node, address=erc20_address)
         super(Exchange, self).__init__(node, address=exchange_address)
         self._eth_reserve = Decimal(self.w3.eth.getBalance(self.address))
