@@ -54,15 +54,21 @@ class UniswapFrame(SLFrame):
 
         token_default_value = ''
         eth_default_value = ''
+
         if self._action == 'buy': 
-            #debug(); pdb.set_trace()
             token_default_value = str(self._buy_amount)[:14]
             if self._buy_amount is not '':
-                eth_default_value = str(self.exchange.buy_token_calc_eth_input(self._buy_amount)['value'])[:14]
+                try:
+                    eth_default_value = str(self.exchange.buy_token_calc_eth_input(self._buy_amount)['value'])[:14]
+                except InvalidOperation:
+                    eth_default_value = ''
         elif self._action == 'sell':
             token_default_value = self._sell_amount[:14]
             if self._sell_amount is not '':
-                eth_default_value = str(self.exchange.sell_token_calc_eth_output(self._sell_amount)['value'])[:14]
+                try:
+                    eth_default_value = str(self.exchange.sell_token_calc_eth_output(self._sell_amount)['value'])[:14]
+                except InvalidOperation:
+                    eth_default_value = ''
 
         self.token_amount = TokenValueText(self.radiobutton_value, self.exchange, default_value=token_default_value, label="{}:".format(self.token_symbol), on_change=self.token_value_dirty)
         self.eth_amount = EthValueText(self.radiobutton_value, self.exchange, default_value=eth_default_value, label="ETH:", on_change=self.eth_value_dirty)
