@@ -6,6 +6,8 @@ import wget, zipfile, zipimport
 import sys, textwrap, os, types, importlib, re, shutil
 from subprocess import call, DEVNULL
 from shadowlands.utils import filehasher
+from shadowlands.tui.debug import debug
+import pdb
 
 class SLNetworkDapp(SLDapp):
     def initialize(self):
@@ -94,8 +96,7 @@ class SLNetworkDapp(SLDapp):
             self._screen, 
             self._scene, 
             self._node,
-            self._config,
-            self._price_poller
+            self._config
         )
 
 

@@ -1,6 +1,8 @@
 from shadowlands.sl_contract import SLContract
 from web3.exceptions import ValidationError, NameNotFound
 from eth_utils import decode_hex, encode_hex
+from shadowlands.tui.debug import debug
+import pdb
 
 class DappNotFound(Exception):
     pass
@@ -26,7 +28,7 @@ class SLoader(SLContract):
 
 
     def register_package(self, checksum, url):
-        fn = self.functions.registerPackage(decode_hex(checksum), url)
+        fn = self.functions.registerPackage(decode_hex(checksum.strip()), url.strip())
         return fn
 
     MAINNET='sloader.shadowlands.eth'

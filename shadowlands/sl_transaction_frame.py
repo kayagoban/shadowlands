@@ -17,18 +17,11 @@ from decimal import Decimal
 import logging
 
 class SLTransactionFrame(TransactionFrame):
-    def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=None,  **kwargs):
+    def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=300000,  **kwargs):
         super(SLTransactionFrame, self).__init__(dapp._screen, x, y, dapp, self._ok_fn, self.close, **kwargs) 
         self.dapp = dapp
         self._tx_fn = tx_fn
-
-        if gas_limit is not None:
-            self.estimated_gas = gas_limit
-        else:
-            try:
-                self.estimated_gas = tx_fn().estimateGas()
-            except ValueError:
-                self.estimated_gas = 1000000
+        self.estimated_gas = gas_limit
 
         layout = Layout([100])
         self.prepend_layout(layout)

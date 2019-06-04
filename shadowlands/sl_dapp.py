@@ -108,7 +108,7 @@ class SLDapp():
         preferred_width= len(message) + 6
         self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
 
-    def add_transaction_dialog(self, tx_fn, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=None, **kwargs):
+    def add_transaction_dialog(self, tx_fn, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=300000, **kwargs):
         self._scene.add_effect( 
             SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         )

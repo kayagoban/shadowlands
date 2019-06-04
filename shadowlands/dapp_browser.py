@@ -27,7 +27,7 @@ def _is_dapp(dirpath):
 class DappBrowser(SLDapp):
     def initialize(self):
         self.dapp_name = None
-        self.add_frame(DappMenuFrame, height=10, width=50, title="Dapps Menu")
+        self.add_frame(DappMenuFrame, height=8, width=50, title="Dapps Menu")
         self.digest = None
 
     def _dapps_in_path(self):
@@ -40,12 +40,12 @@ class DappMenuFrame(SLFrame):
     def initialize(self):
         options = [
             ("Run local dapp", lambda: self.dapp.add_frame(RunLocalDappFrame, height=10, width=50, title="Run local Dapp") ),
-            ("Change local dapp directory", lambda: self.dapp.add_frame(DappDirFrame, height=7, width=75, title="Change Dapp Directory") ),
-            ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployChooseDappFrame, height=10, width=61, title="Deploy your Dapp") ),
             ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=8, width=71, title="Run network Dapp") ),
-            ("Deploy an Ethereum Contract", lambda: self.dapp.add_frame(DeployContractDappFrame, height=21, width=76, title="Choose contract to compile and deploy") ),
+            ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployChooseDappFrame, height=10, width=61, title="Deploy your Dapp") ),
+            ("Change local dapp directory", lambda: self.dapp.add_frame(DappDirFrame, height=7, width=75, title="Change Dapp Directory") ),
+            #("Deploy an Ethereum Contract", lambda: self.dapp.add_frame(DeployContractDappFrame, height=21, width=76, title="Choose contract to compile and deploy") ),
         ]
-        self._listbox_value = self.add_listbox(6, options, on_select=self._menu_action)
+        self._listbox_value = self.add_listbox(4, options, on_select=self._menu_action)
         self.add_button(self.close, "Cancel")
 
     def _menu_action(self):
@@ -97,6 +97,7 @@ class DeployMenuFrame(SLFrame):
 class ReleaseFrame(SLFrame):
     def initialize(self):
         self.sloader_contract = SLoader(self.dapp.node)
+        #debug(); pdb.set_trace()
  
         self.uri = self.add_textbox("URI:")
         self.checksum = self.add_textbox("SHA256:")
@@ -109,10 +110,11 @@ class ReleaseFrame(SLFrame):
         shasum = self.checksum()
         
         self.dapp.add_transaction_dialog(
-            tx_fn=lambda: self.sloader_contract.register_package(
+            tx_fn=self.sloader_contract.register_package(
                 shasum,
                 self.uri()
             ),
+            gas_limit=300000
         )
         self.close()
 
