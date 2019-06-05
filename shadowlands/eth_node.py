@@ -163,6 +163,12 @@ class Node():
         logging.debug("eth_node update_status")
 
         try:
+            current_block = str(self._w3.eth.blockNumber)
+            if self._best_block == current_block:
+                return
+            else:
+                self._best_blcok = current_block
+
             if self._credstick:
                 self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
                 # Trying to catch a wily web3.py bug.
