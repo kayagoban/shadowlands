@@ -56,6 +56,10 @@ class SLContract():
         return self._node.w3
    
     @property
+    def node(self):
+        return self._node
+
+    @property
     def sha3(self):
         return self._node.w3.sha3
 
