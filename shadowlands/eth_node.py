@@ -167,7 +167,7 @@ class Node():
             if self._best_block == current_block:
                 return
             else:
-                self._best_blcok = current_block
+                self._best_block = current_block
 
             if self._credstick:
                 self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
@@ -187,7 +187,6 @@ class Node():
                 else:
                     self._ens_domain = 'Unknown'
 
-            self._best_block = str(self._w3.eth.blockNumber)
             self._syncing = self._w3.eth.syncing
             self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
             if self._syncing not in (None, False):
