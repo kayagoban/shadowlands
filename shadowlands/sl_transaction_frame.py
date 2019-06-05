@@ -56,8 +56,7 @@ class SLTransactionFrame(TransactionFrame):
             self.dapp.add_message_dialog("Your credstick generated an error.", destroy_window=self)
             return
 
-
-        self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Tx Submitted.  Copy TxHash to clipboard?")
+        #self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Tx Submitted.  Copy TxHash to clipboard?")
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
