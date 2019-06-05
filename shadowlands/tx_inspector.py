@@ -85,7 +85,7 @@ class TxDetail(SLFrame):
             data=old_tx.input
         )
 
-        self.dapp.add_send_dialog(tx_dict, "Resend Tx with different gas price")
+        self.dapp.add_resend_dialog(tx_dict, "Resend Tx with different gas price")
 
         self.close()
 

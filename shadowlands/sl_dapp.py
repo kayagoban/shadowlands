@@ -117,7 +117,7 @@ class SLDapp():
         self._scene.add_effect(UniswapFrame(self, 17, 46, token_address, action=action, buy_amount=buy_amount, sell_amount=sell_amount) )
 
 
-    def add_send_dialog(self, tx_dict, title="Sign & Send"):
+    def add_resend_dialog(self, tx_dict, title="Sign & Send"):
         # This class is duck typed to web3.py contract functions.
         class TransactionFunction():
             def __init__(self, dict):
@@ -126,7 +126,6 @@ class SLDapp():
                 self._dict['gasPrice'] = tx_dict['gasPrice']
                 self._dict['gas'] = tx_dict['gas']
                 self._dict['value'] = tx_dict['value']
-                self._dict['data'] = '0x'
                 self._dict['chainId'] = tx_dict['chainId']
                 return self._dict
 
