@@ -85,21 +85,24 @@ class SLFrame(Frame):
     #        cancel_fn = self.close
     #    layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
 
-    def add_button_row(self, buttons, layout=[1, 1, 1, 1]):
+    def add_button_row(self, buttons, layout=[1, 1, 1, 1], add_divider=True):
         lyt = Layout(layout)
         self.add_layout(lyt)
         for b in buttons:
             lyt.add_widget(Button(b[0], b[1]), b[2])
+        if add_divider:
+            lyt.add_widget(Divider(draw_line=False))
  
     # named arguments will be passed on to the asciimatics Text() constructor
-    def add_textbox(self, label_text, default_value=None, **kwargs):
+    def add_textbox(self, label_text, default_value=None, add_divider=True, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
         text_widget = Text(label_text, **kwargs)
         if default_value is not None:
             text_widget._value = default_value
         layout.add_widget(text_widget)
-        layout.add_widget(Divider(draw_line=False))
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
         return lambda: text_widget._value
 
     def add_divider(self, draw_line=False, **kwargs):
@@ -107,12 +110,13 @@ class SLFrame(Frame):
         self.add_layout(layout)
         layout.add_widget(Divider(draw_line=draw_line, **kwargs))
 
-    def add_radiobuttons(self, options, default_value=None, layout_distribution=[100], layout_index=0, **kwargs):
+    def add_radiobuttons(self, options, default_value=None, layout_distribution=[100], layout_index=0, add_divider=True, **kwargs):
         layout = Layout(layout_distribution)
         self.add_layout(layout)
         radiobuttons_widget = RadioButtons(options, **kwargs)
         layout.add_widget(radiobuttons_widget, layout_index)
-        layout.add_widget(Divider(draw_line=False))
+        if add_divider:
+            layout.add_widget(Divider(draw_line=False))
         if default_value is not None:
             radiobuttons_widget._value = default_value
         return lambda: radiobuttons_widget.value
