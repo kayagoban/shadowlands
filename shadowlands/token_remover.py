@@ -19,7 +19,7 @@ from web3.exceptions import BadFunctionCallOutput
 class TokenRemover(SLDapp):
 
     def initialize(self):
-        self.add_frame(RemoveTokenFrame, height=5, width=42, title='Remove Token')
+        self.add_sl_frame(RemoveTokenFrame(self, 5, 42, title='Remove Token'))
 
 
 class RemoveTokenFrame(SLFrame):

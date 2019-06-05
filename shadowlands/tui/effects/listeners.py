@@ -6,7 +6,6 @@ from shadowlands.tui.effects.send_box import SendBox
 from shadowlands.tui.effects.message_dialog import MessageDialog
 from shadowlands.tui.effects.network_options import NetworkOptions
 from shadowlands.dapp_browser import DappBrowser
-from shadowlands.qrcode import QRCodeDisplay 
 from shadowlands.hd_addresses import HDAddressPicker
 from shadowlands.release import ReleaseVersion
 from shadowlands.tui.errors import ExitTuiError, PriceError
@@ -61,7 +60,9 @@ class MainMenuListener(Effect):
         pass
 
     def reset(self):
-        #debug(); pdb.set_trace()
+        '''
+        Here we allow a dapp to be loaded from the command line
+        '''
         if not self._interface._load_dapp:
             return
 
@@ -75,7 +76,8 @@ class MainMenuListener(Effect):
             self._screen, 
             self._scene, 
             self._interface.node,
-            self._interface.config
+            self._interface.config,
+            self._interface._block_callback_watcher
         )
         pass
 
@@ -116,7 +118,8 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config
+                self._interface.config,
+                self._interface._block_callback_watcher
             )
         # T, t for tokens
         elif event.key_code in [ord('a'), ord('A')]:
@@ -124,7 +127,8 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config
+                self._interface.config,
+                self._interface._block_callback_watcher
             )
         # T, t for tokens
         elif event.key_code in [ord('R'), ord('r')]:
@@ -132,7 +136,8 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config
+                self._interface.config,
+                self._interface._block_callback_watcher
             )
 
         elif event.key_code in [ord('B')]:
@@ -142,13 +147,6 @@ class MainMenuListener(Effect):
         elif event.key_code in [67, 99]:
             pyperclip.copy(self._interface.credstick.addressStr())
             self._scene.add_effect(MessageDialog(self._screen, "Address copied to clipboard", 3, 35) )
-        elif event.key_code in [ord('r'), ord('R')]:
-            QRCodeDisplay(
-                self._screen, 
-                self._scene, 
-                self._interface.node,
-                self._interface.config
-            )
         # E, e for ens
         #elif event.key_code in [ord('e'), ord('E')]:
         #    SLNetworkDapp(
@@ -167,7 +165,8 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config
+                self._interface.config,
+                self._interface._block_callback_watcher
             )
         elif event.key_code is 18:
             # super top secret shadowlands release management dapp. (ctrl-r)
@@ -175,7 +174,8 @@ class MainMenuListener(Effect):
                 self._screen, 
                 self._scene, 
                 self._interface.node,
-                self._interface.config
+                self._interface.config,
+                self._interface._block_callback_watcher
             )
         elif event.key_code in [ord('H'), ord('h')]:
             # Test to see if we're able to derive before launching this..
@@ -184,7 +184,8 @@ class MainMenuListener(Effect):
                     self._screen, 
                     self._scene, 
                     self._interface.node,
-                    self._interface.config
+                    self._interface.config,
+                    self._interface._block_callback_watcher
                 )
             except DeriveCredstickAddressError:
                 self._scene.add_effect(MessageDialog(self._screen, "Cannot derive addresses from Credstick.  Try restarting Shadowlands.", 3, 65) )
@@ -203,6 +204,7 @@ class MainMenuListener(Effect):
                 self._scene, 
                 self._interface.node,
                 self._interface.config,
+                self._interface._block_callback_watcher,
                 int(chr(event.key_code))
             )
 

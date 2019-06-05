@@ -21,7 +21,7 @@ class TokenAdder(SLDapp):
     def initialize(self):
         self.balances = self.node.erc20_balances
         self.selected_token = None
-        self.add_frame(AddTokenFrame, height=7, width=57, title='Add Token')
+        self.add_sl_frame(AddTokenFrame(self, 7, 57, title='Add Token'))
 
 
 class AddTokenFrame(SLFrame):

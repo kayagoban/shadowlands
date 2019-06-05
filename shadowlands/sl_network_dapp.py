@@ -13,9 +13,9 @@ class SLNetworkDapp(SLDapp):
     def initialize(self):
         pass
 
-    def __init__(self, screen, scene, eth_node, config, dapp_location, destroy_window=None):
+    def __init__(self, screen, scene, eth_node, config, block_watcher, dapp_location, destroy_window=None):
         self.dapp_location = dapp_location
-        super(SLNetworkDapp, self).__init__(screen, scene, eth_node, config, destroy_window=None)
+        super(SLNetworkDapp, self).__init__(screen, scene, eth_node, config, block_watcher, destroy_window=None)
         self.show_wait_frame()
         threading.Thread(target=self.run_network_dapp, args=[self.dapp_location]).start()
         #self.run_network_dapp(self.dapp_location)

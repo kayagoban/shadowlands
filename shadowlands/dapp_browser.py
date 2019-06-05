@@ -27,7 +27,7 @@ def _is_dapp(dirpath):
 class DappBrowser(SLDapp):
     def initialize(self):
         self.dapp_name = None
-        self.add_frame(DappMenuFrame, height=8, width=50, title="Dapps Menu")
+        self.add_sl_frame(DappMenuFrame(self, 8, 50, title="Dapps Menu"))
         self.digest = None
 
     def _dapps_in_path(self):
@@ -39,11 +39,10 @@ class DappBrowser(SLDapp):
 class DappMenuFrame(SLFrame):
     def initialize(self):
         options = [
-            ("Run local dapp", lambda: self.dapp.add_frame(RunLocalDappFrame, height=10, width=50, title="Run local Dapp") ),
-            ("Run network dapp", lambda: self.dapp.add_frame(RunNetworkDappFrame, height=8, width=71, title="Run network Dapp") ),
-            ("Deploy local dapp to network", lambda: self.dapp.add_frame(DeployChooseDappFrame, height=10, width=61, title="Deploy your Dapp") ),
-            ("Change local dapp directory", lambda: self.dapp.add_frame(DappDirFrame, height=7, width=75, title="Change Dapp Directory") ),
-            #("Deploy an Ethereum Contract", lambda: self.dapp.add_frame(DeployContractDappFrame, height=21, width=76, title="Choose contract to compile and deploy") ),
+            ("Run local dapp", lambda: self.dapp.add_sl_frame(RunLocalDappFrame(self.dapp, 10, 50, title="Run local Dapp"))),
+            ("Run network dapp", lambda: self.dapp.add_sl_frame(RunNetworkDappFrame(self.dapp, 8, 71, title="Run network Dapp"))),
+            ("Deploy local dapp to network", lambda: self.dapp.add_sl_frame(DeployChooseDappFrame(self.dapp, 10, 61, title="Deploy your Dapp"))),
+            ("Change local dapp directory", lambda: self.dapp.add_sl_frame(DappDirFrame(self.dapp, 7, 75, title="Change Dapp Directory"))),
         ]
         self._listbox_value = self.add_listbox(4, options, on_select=self._menu_action)
         self.add_button(self.close, "Cancel")
@@ -62,7 +61,7 @@ class DeployChooseDappFrame(SLFrame):
  
     def _choose_dapp(self):
         self.dapp.dapp_name = self._listbox_value()
-        self.dapp.add_frame(DeployMenuFrame, height=7, width=50, title="Deploy {}".format(self.dapp.dapp_name))
+        self.dapp.add_sl_frame(DeployMenuFrame(self.dapp, 7, 50, title="Deploy {}".format(self.dapp.dapp_name)))
         self.close()
         
 
@@ -88,10 +87,10 @@ class DeployMenuFrame(SLFrame):
         archive_path = Path("/tmp").joinpath(self.dapp.dapp_name)
         shutil.make_archive(str(archive_path), 'zip',  self.dapp.config._sl_dapp_path, self.dapp.dapp_name)
         self.dapp.digest = filehasher(str(archive_path)+".zip")   
-        self.dapp.add_frame(AskClipboardFrame, height=3, width=65, title="Archive is in /tmp.  Copy Sha256 digest to clipboard?")
+        self.dapp.add_sl_frame(AskClipboardFrame(self.dapp, 3, 65, title="Archive is in /tmp.  Copy Sha256 digest to clipboard?"))
 
     def _register_archive(self):
-        self.dapp.add_frame(ReleaseFrame, height=7, width=75, title='Register Dapp to {}'.format(self.dapp.node.credstick.address))
+        self.dapp.add_sl_frame(ReleaseFrame(self.dapp, 7, 75, title='Register Dapp to {}'.format(self.dapp.node.credstick.address)))
         self.close()
 
 class ReleaseFrame(SLFrame):
@@ -150,6 +149,7 @@ class RunNetworkDappFrame(SLFrame):
             self.dapp._scene, 
             self.dapp._node,
             self.dapp._config,
+            self.dapp._block_callback_watcher,
             self.textbox_value()
         )
         self.close()
@@ -222,7 +222,8 @@ class RunLocalDappFrame(SLFrame):
             self.dapp._screen, 
             self.dapp._scene, 
             self.dapp._node,
-            self.dapp._config
+            self.dapp._config,
+            self.dapp._block_callback_watcher
         )
 
 
@@ -233,7 +234,7 @@ class DappDirFrame(SLFrame):
         self.add_button(self.close, "Cancel")
 
     def _select_dir_fn(self):
-        self.dapp.add_frame(DirPickerFrame, height=21, width=70, title="Choose local Dapp directory")
+        self.dapp.add_sl_frame(DirPickerFrame(self.dapp, 21, 70, title="Choose local Dapp directory"))
         self.close()
 
     def add_path_selector(self, button_fn, text):

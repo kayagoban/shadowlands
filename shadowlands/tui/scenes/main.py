@@ -5,6 +5,7 @@ from asciimatics.effects import Print
 from shadowlands.tui.effects.materialize import Materialize
 from shadowlands.tui.effects.dynamic_cursor import DynamicSourceCursor
 from shadowlands.tui.effects.listeners import MainMenuListener
+from shadowlands.tui.effects.block_callback_watcher import BlockCallbackWatcher
 from shadowlands.tui.renderers import (
     BlockStatusRenderer, NetworkStatusRenderer, AddressRenderer, 
     CredstickNameRenderer, EthBalanceRenderer, EthValueRenderer, 
@@ -58,12 +59,10 @@ class MainScene(Scene):
 
 
     def __init__(self, screen, _name, interface):
-
-        #debug(screen._screen); import pdb; pdb.set_trace()
-
-        #debug(); pdb.set_trace()
+        interface._block_callback_watcher = BlockCallbackWatcher(screen, interface)
 
         effects = [
+            interface._block_callback_watcher,
             DynamicSourceCursor(screen, BlockStatusRenderer(interface.node), 0, 0),
             Materialize(screen, StaticRenderer(['${7,1}N${2,2}etwork:' ]), 41, 0, signal_acceleration_factor=2, stop_frame = 100),
             DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 51, 0),
@@ -81,9 +80,4 @@ class MainScene(Scene):
         ]
 
         super(MainScene, self).__init__(effects, -1, name=_name)
-
-        #debug(screen._screen); import pdb; pdb.set_trace()
- 
- 
-
 

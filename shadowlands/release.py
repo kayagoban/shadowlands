@@ -10,13 +10,16 @@ import pdb
 class ReleaseVersion(SLDapp):
     def initialize(self):
         self.sloader_contract = SLoader(self.node)
-        self.add_frame(ReleaseFrame, height=5, width=75, title='New Shadowlands Release')
+        self.add_sl_frame(ReleaseFrame(self, 7, 75, title='New Shadowlands Release'))
 
 class ReleaseFrame(SLFrame):
     def initialize(self):
         self.uri = self.add_textbox("URI:")
         self.checksum = self.add_textbox("SHA256:")
-        self.add_ok_cancel_buttons(self.ok_choice, lambda: self.close())
+        self.add_button_row([
+            ("Deploy Release", self.ok_choice, 0),
+            ("Cancel", self.close, 3)
+        ])
 
     def ok_choice(self):
         #sl_zipfile = wget.download(self.url(), out="/tmp", bar=False)
@@ -27,6 +30,6 @@ class ReleaseFrame(SLFrame):
                 shasum,
                 self.uri()
             ),
-            destroy_window=self
         )
+        self.close()
 

@@ -20,6 +20,7 @@ class Interface():
         self._credstick = None
         self._loading_scene = True
         self._load_dapp = preloaded_dapp
+        self._block_callback_watcher = None
 
     @property
     def credstick(self):

@@ -68,3 +68,4 @@ wcwidth==0.1.7
 web3==4.9.1
 websockets==6.0
 wget==3.2
+cached_property=1.5.1

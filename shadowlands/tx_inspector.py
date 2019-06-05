@@ -11,17 +11,17 @@ GWEI = Decimal(10**9)
 ETH = Decimal(10**18)
 
 class TxInspector(SLDapp):
-    def __init__(self, screen, scene, eth_node, config, tx_index, **kwargs):
+    def __init__(self, screen, scene, eth_node, config, block_watcher, tx_index, **kwargs):
         if len(config.txqueue(eth_node.network)) < 1:
             return
 
         self.tx = config.txqueue(eth_node.network)[tx_index]
         super(TxInspector, self).__init__(
-            screen, scene, eth_node, config, **kwargs
+            screen, scene, eth_node, config, block_watcher, **kwargs
         )
  
     def initialize(self):
-        self.add_frame(TxDetail, height=22, width=71, title='Pending Tx Detail')
+        self.add_sl_frame(TxDetail(self, 22, 71, title='Pending Tx Detail'))
 
 class TxDetail(SLFrame):
     def initialize(self):

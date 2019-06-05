@@ -15,7 +15,7 @@ class HDAddressPicker(SLDapp):
 
     def _worker(self):
         try:
-            self.add_frame(PathPickerFrame, height=20, width=80, title="Select HDPath / Address")
+            self.add_sl_frame(PathPickerFrame(self, 20, 80, title="Select HDPath / Address"))
         except DeriveCredstickAddressError:
             self.hide_wait_frame()
             self.add_message_dialog("Your credstick refused to generate addresses")

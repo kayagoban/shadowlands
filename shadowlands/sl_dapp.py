@@ -1,5 +1,5 @@
 from time import sleep
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from asciimatics.widgets import (
     Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox, QRCode
 )
@@ -17,30 +17,45 @@ import pdb
 
 from shadowlands.sl_frame import SLFrame, SLWaitFrame, AskClipboardFrame
 
+from shadowlands.block_callback_mixin import BlockCallbackMixin
 from shadowlands.uniswap_frame import UniswapFrame
-
 from shadowlands.sl_transaction_frame import SLTransactionFrame
-import cached_property
+from cached_property import cached_property
+import logging
 
-
-class SLDapp():
-    def __init__(self, screen, scene, eth_node, config, destroy_window=None):
+class SLDapp(BlockCallbackMixin):
+    def __init__(self, screen, scene, eth_node, config, block_callback_watcher, destroy_window=None):
         self._config_key = self.__module__
         self._screen = screen
         self._scene = scene
         self._node = eth_node
         self._config = config
+        self._block_listeners = []
+        self._block_callback_watcher = block_callback_watcher
+        block_callback_watcher.register_dapp(self)
         self.initialize()
         
-        # Start work on self-updating cached properties
-        #self.c_properties = [x for x in SLDapp.__dict__.values() if x.__class__ == cached_property.cached_property]
-        #if self.c_properties != []:
-        #    debug(); pdb.set_trace()
-
         if destroy_window is not None:
             destroy_window.close()
 
+    @abstractmethod
+    def initialize(self):
+        pass
 
+    def _new_block_callback(self):
+        '''
+        This is the private version of new_block_callback.
+        It calls the dapp callback and all the slframe callbacks.
+        '''
+        super(SLDapp, self)._new_block_callback()
+        for slframe in self._block_listeners:
+            slframe._new_block_callback()
+
+
+    def remove_block_listener(self, frame):
+        self._block_listeners.remove(frame)
+        if len(self._block_listeners) == 0:
+            self.quit()
 
     @property
     def node(self):
@@ -74,19 +89,12 @@ class SLDapp():
     def load_config_property(self, property_key):
         return self.config_properties[property_key]
 
-    @abstractmethod
-    def initialize(self):
-        pass
+    #def add_frame(self, cls, height=None, width=None, title=None, **kwargs):
+    #    frame = cls(self, height, width, title=title, **kwargs)
+    #    self._scene.add_effect(frame)
+    #    return frame 
 
-    # cls is a custom subclass of SLFrame
-    def add_frame(self, cls, height=None, width=None, title=None, **kwargs):
-        # we are adding SLFrame effects.  asciimatics can do a lot more
-        # than this, but we're hiding away the functionality for the 
-        # sake of simplicity.
-        frame = cls(self, height, width, title=title, **kwargs)
-        self._scene.add_effect(frame)
-        return frame 
-
+    # call before starting your thread
     def show_wait_frame(self, message="Please wait a moment..."):
         preferred_width= len(message) + 6
         self.waitframe = SLWaitFrame(self, message, 3, preferred_width)
@@ -98,24 +106,29 @@ class SLDapp():
         except:
             # We need to be able to call this method without consequence
             pass
-        # This should be called in a thread, so sleeping is an OK thing to do.
+        # This should be called in a new thread, so sleeping is an OK thing to do.
         # Should give the time for the UI to finish its current pass and remove the 
         # wait frame.
-        sleep(0.5)
+        sleep(1)
 
-
-    def add_message_dialog(self, message, **kwargs):
-        preferred_width= len(message) + 6
-        self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
+    def add_sl_frame(self, frame):
+        # register new block listeners
+        self._block_listeners.append(frame)
+        self._scene.add_effect(frame)
+        return frame 
 
     def add_transaction_dialog(self, tx_fn, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=300000, **kwargs):
-        self._scene.add_effect( 
-            SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
-        )
+
+        tx_dialog = SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
+        self.add_sl_frame(tx_dialog)
+
+        #self._scene.add_effect( 
+        #    SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
+        #)
 
     def add_uniswap_frame(self, token_address, action='buy', buy_amount='', sell_amount=''):
-        self._scene.add_effect(UniswapFrame(self, 17, 46, token_address, action=action, buy_amount=buy_amount, sell_amount=sell_amount) )
-
+        u_frame = UniswapFrame(self, 17, 46, token_address, action=action, buy_amount=buy_amount, sell_amount=sell_amount)
+        self.add_sl_frame(u_frame)
 
     def add_resend_dialog(self, tx_dict, title="Sign & Send"):
         # This class is duck typed to web3.py contract functions.
@@ -140,16 +153,13 @@ class SLDapp():
         )
  
 
-    def add_transaction_wait_dialog(self, tx_fn, wait_message, title="Sign & Send Transaction", tx_value=0, destroy_window=None, gas_limit=None, receipt_proc=None, **kwargs):
-        self._scene.add_effect( 
-            SLTransactionWaitFrame(self, 16, 59, wait_message, tx_fn=tx_fn, gas_limit=gas_limit, receipt_proc=receipt_proc, **kwargs) 
-        )
-
+    def add_message_dialog(self, message, **kwargs):
+        preferred_width= len(message) + 6
+        self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))
 
     def quit(self):
-        # Remove all owned windows
-        self._scene.remove_effect(self)
-        raise NextScene(self._scene.name)
+        # remove self as new_block_listener 
+        self._block_callback_watcher.unregister_dapp(self)
 
     def _update():
         pass

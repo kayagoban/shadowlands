@@ -1,19 +1,19 @@
 from asciimatics.event import KeyboardEvent, MouseEvent
-
+from abc import abstractmethod
 from asciimatics.exceptions import NextScene
 from asciimatics.widgets import (
     Frame, ListBox, Layout, Divider, Text, Button, Label, FileBrowser, RadioButtons, CheckBox, QRCode
 )
 import pyperclip
 
+from shadowlands.block_callback_mixin import BlockCallbackMixin
+from cached_property import cached_property
 from shadowlands.tui.debug import debug, end_debug
 import pdb
-
-#from shadowlands.tx_inspector import TxInspector
-
+import logging
 
 
-class SLFrame(Frame):
+class SLFrame(BlockCallbackMixin, Frame):
     def __init__(self, dapp, height, width, **kwargs):
         self._dapp = dapp
         self._screen = dapp._screen
@@ -29,6 +29,10 @@ class SLFrame(Frame):
         self.initialize()
         self.fix()
 
+    @abstractmethod
+    def initialize(self):
+        pass
+
 
     # Ctrl-d drops you into a pdb session.
     # look around, have fun.
@@ -41,19 +45,6 @@ class SLFrame(Frame):
             # drop to debug console
             debug(); pdb.set_trace()
             print("end_debug();; continue will get you back to the app")
-
-        #elif event.key_code in [41, 33, 64, 35, 36]:
-        #    # allow shift-0 through shift-4 to open a tx inspector window
-        #    tx_keymap = {'41': 0, '33': 1, '64': 2, '35': 3, '36': 4}
-
-        #    TxInspector(
-        #        self._screen, 
-        #        self._scene, 
-        #        self._interface.node,
-        #        self._interface.config,
-        #        tx_keymap[str(event.key_code)]
-        #    )
-
 
         return super(SLFrame, self).process_event(event)
 
@@ -185,6 +176,8 @@ class SLFrame(Frame):
         return lambda: browser._value
 
     def close(self):
+        # deregister from new_block callbacks
+        self.dapp.remove_block_listener(self)
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
