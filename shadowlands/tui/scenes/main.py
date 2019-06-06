@@ -77,7 +77,7 @@ class MainScene(Scene):
             DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
             DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
             MainMenuListener(screen, interface),
-            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=1)
+            DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=2)
         ]
 
         super(MainScene, self).__init__(effects, -1, name=_name)
