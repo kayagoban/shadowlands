@@ -11,7 +11,7 @@ Shadowlands is a python-based platform for writing Ethereum Dapps without a web 
 .. toctree::
    :maxdepth: 1
 
-   Quickstart
+   Tutorial 
    SLDapp
    SLFrame
    Node

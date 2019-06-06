@@ -53,16 +53,16 @@ order for the shadowlands plugin system to detect your dapp.  Override the
 		# Any other setup steps go here
 
 		# add a frame to begin the user interface
-		self.add_frame(MyMenuFrame, height=5, width=40, title="Trogdooooor!")
+		self.add_sl_frame(MyMenuFrame(self, height=5, width=40, title="Trogdooooor!"))
 
 	class MyMenuFrame(SLFrame):
 	    def initialize(self):
 		self.add_divider()
 		self.add_button(self.close, "Close")
 
-The line ``self.add_frame(MyMenuFrame, height=5, width=40, title="Trogdooooor!")``, referenced from ``initialize()``, will load an SLFrame instance with the listed parameters when the dapp loads.
+The line ``self.add_frame(MyMenuFrame(self, height=5, width=40, title="Trogdooooor!"))``, referenced from ``initialize()``, will load an SLFrame instance with the listed parameters when the dapp loads.
 
-SLFrame instances also execute ``initialize()`` when they are created.  Our SLFrame will add a one-line divider with ``self.add_divider()`` and then add a close button with ``self.add_button(self.close, "Close")``.  The first parameter to ``self.add_button`` is a function to be executed upon the button press action, in this case ``self.close()``.
+Like SLDapp instances, SLFrame instances execute ``initialize()`` when they are created, and you must implement this abstract method.  Our SLFrame will add a one-line divider with ``self.add_divider()`` and then add a close button with ``self.add_button(self.close, "Close")``.  The first parameter to ``self.add_button`` is a function to be executed upon the button press action, in this case ``self.close()``.
 
 Now, let's run our first dapp.  Open the dapps menu and choose to run a local dapp:
 
@@ -103,9 +103,9 @@ Now, let's make a few changes.
 
 		PEASANT_ADDRESS = '0x8B654789353b0B622667F105eAEF9E97d3C33F44'
 		peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
+		self.add_sl_frame(MyMenuFrame(self, height=5, width=40, title="Trogdooooor!"))
 
 		# add a frame to begin the user interface
-		self.add_frame(MyMenuFrame, height=5, width=40, title="Trogdooooor!")
 
 	class MyMenuFrame(SLFrame):
 	    def initialize(self):
@@ -154,9 +154,9 @@ Let's get some user input and do something, er... useful?
             def initialize(self):
                 PEASANT_ADDRESS = '0x8B654789353b0B622667F105eAEF9E97d3C33F44'
                 self.peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
-                self.peasants = self.peasant_contract.my_balance() / Decimal(10 **18)
-                self.add_frame(MyMenuFrame, height=10, width=70, title="Trogdooooor!")
-
+                self.peasants = self.peasant_contract.my_balance() / Decimal(10**18)
+		self.add_sl_frame(MyMenuFrame(self, height=10, width=70, title="Trogdooooor!"))
+                
         class MyMenuFrame(SLFrame):
             def initialize(self):
                 self.add_label("Trogdor the wingaling dragon intends to burninate peasants.")
@@ -232,7 +232,7 @@ Let's get on to burninating some peasants.
                 PEASANT_ADDRESS = '0x8B654789353b0B622667F105eAEF9E97d3C33F44'
                 self.peasant_contract = Erc20(self.node, address=PEASANT_ADDRESS)
                 self.peasants = Decimal(self.peasant_contract.my_balance() / (10 ** 18))
-                self.add_frame(MyMenuFrame, height=10, width=70, title="Trogdooooor!")
+                self.add_sl_frame(MyMenuFrame(self, height=10, width=70, title="Trogdooooor!"))
 
         class MyMenuFrame(SLFrame):
             def initialize(self):
@@ -364,7 +364,7 @@ fully understand everything they provide.
 		self.peasant_contract = PeasantCoin(self.node)
 		self.peasants = Decimal(self.peasant_contract.my_balance() / (10 ** 18))
 		self.total_peasants =  Decimal(self.peasant_contract.totalSupply() / (10 ** 18))
-		self.add_frame(MyMenuFrame, height=12, width=70, title="Trogdooooor!")
+		self.add_sl_frame(MyMenuFrame(self, height=12, width=70, title="Trogdooooor!"))
 
 	class MyMenuFrame(SLFrame):
 	    def initialize(self):
