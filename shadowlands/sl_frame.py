@@ -85,14 +85,7 @@ class SLFrame(Frame):
     #        cancel_fn = self.close
     #    layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
 
-    def add_button_row(self, buttons, layout=[1, 1, 1, 1], add_divider=True):
-        lyt = Layout(layout)
-        self.add_layout(lyt)
-        for b in buttons:
-            lyt.add_widget(Button(b[0], b[1]), b[2])
-        if add_divider:
-            lyt.add_widget(Divider(draw_line=False))
- 
+
     # named arguments will be passed on to the asciimatics Text() constructor
     def add_textbox(self, label_text, default_value=None, add_divider=True, **kwargs):
         layout = Layout([100])
@@ -145,6 +138,7 @@ class SLFrame(Frame):
         if add_divider:
             layout.add_widget(Divider(draw_line=False))
 
+    # DEPRECATED. Use add_label_row instead
     def add_label_pair(self, label0_text, label1_text, add_divider=True):
         layout = Layout([1, 1])
         self.add_layout(layout)
@@ -153,6 +147,7 @@ class SLFrame(Frame):
         if add_divider:
             layout.add_widget(Divider(draw_line=False))
 
+    # DEPRECATED. Use add_label_row instead
     def add_label_quad(self, label0_text, label1_text, label2_text, label3_text, add_divider=True):
         layout = Layout([1, 1, 1, 1])
         self.add_layout(layout)
@@ -163,6 +158,23 @@ class SLFrame(Frame):
         if add_divider:
             layout.add_widget(Divider(draw_line=False))
 
+    def add_label_row(self, labels, layout=[1, 1, 1, 1], add_divider=True):
+        lyt = Layout(layout)
+        self.add_layout(lyt)
+        for b in labels:
+            lyt.add_widget(Label(b[0]), b[1])
+        if add_divider:
+            lyt.add_widget(Divider(draw_line=False))
+ 
+
+    def add_button_row(self, buttons, layout=[1, 1, 1, 1], add_divider=True):
+        lyt = Layout(layout)
+        self.add_layout(lyt)
+        for b in buttons:
+            lyt.add_widget(Button(b[0], b[1]), b[2])
+        if add_divider:
+            lyt.add_widget(Divider(draw_line=False))
+ 
 
     def add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None):
         layout = Layout([100])
