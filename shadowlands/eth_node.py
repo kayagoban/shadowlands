@@ -159,6 +159,38 @@ class Node():
             except KeyError:
                 pass
 
+
+    def _force_update(self):
+        try:
+            self._update()
+        except (TypeError, Exception) as e:
+            logging.info("ERROR IN  eth_node _update_status")
+ 
+
+    def _update(self):
+        if self._credstick:
+            self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
+            # Trying to catch a wily web3.py bug.
+            # Sometimes when using the websockets middleware,
+            # strange responses start coming back.
+            if self._wei_balance.__class__ != int:
+                logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
+
+            self._erc20_balances = Erc20.balances(self, self.credstick.address)
+            if self._network == '1':
+                try:
+                    self._ens_domain = self._ns.name(self._credstick.addressStr())
+                except BadFunctionCallOutput:
+                    self._ens_domain = 'Unknown'
+            else:
+                self._ens_domain = 'Unknown'
+
+        self._syncing = self._w3.eth.syncing
+        self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
+        if self._syncing not in (None, False):
+            self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
+
+
     def _update_status(self):
         logging.debug("eth_node update_status")
 
@@ -169,34 +201,9 @@ class Node():
             else:
                 self._best_block = current_block
 
-            if self._credstick:
-                self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-                # Trying to catch a wily web3.py bug.
-                # Sometimes when using the websockets middleware,
-                # strange responses start coming back.
-                if self._wei_balance.__class__ != int:
-                    logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
-                    #debug(); pdb.set_trace()
-
-                self._erc20_balances = Erc20.balances(self, self.credstick.address)
-                if self._network == '1':
-                    try:
-                        self._ens_domain = self._ns.name(self._credstick.addressStr())
-                    except BadFunctionCallOutput:
-                        self._ens_domain = 'Unknown'
-                else:
-                    self._ens_domain = 'Unknown'
-
-            self._syncing = self._w3.eth.syncing
-            self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
-            if self._syncing not in (None, False):
-                self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
-
+            self._update()
         except (TypeError, Exception) as e:
             logging.info("ERROR IN  eth_node _update_status")
-            #logging.info(e)
-            #logging.info(e.format_exc())
-            #raise e
 
 
 

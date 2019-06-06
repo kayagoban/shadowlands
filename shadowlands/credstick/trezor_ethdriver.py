@@ -165,6 +165,7 @@ The layout is:
                     cls.hdpath_index = hdpath_index
                     cls.config.hd_index = hdpath_index
                     cls.config.hd_base_path = hdpath_base
+                    cls.eth_node._force_update()
 
                 return address
 
