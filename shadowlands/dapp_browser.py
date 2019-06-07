@@ -139,7 +139,7 @@ class RunNetworkDappFrame(SLFrame):
         self.add_divider()
         self.add_button_row([
             ("Download and Run", self.run, 0),
-            ("Cancel", self.close, 1)
+            ("Cancel", self.close, 3)
         ])
 
 

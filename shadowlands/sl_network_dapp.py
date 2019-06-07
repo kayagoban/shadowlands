@@ -64,7 +64,7 @@ class SLNetworkDapp(SLDapp):
 
             try:
                 pipbin = Path.home().joinpath('.shadowlands').joinpath('bin').joinpath('pip')
-                call([str(pipbin), 'install'] + reqs, stdout=DEVNULL)
+                call([str(pipbin), 'install'] + reqs, stderr=DEVNULL, stdout=DEVNULL)
 
             except Exception as e:
                 # Our dependencies were not installed, we have to scrap the file and try again next time.
