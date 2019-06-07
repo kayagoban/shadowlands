@@ -179,7 +179,7 @@ class Node():
             self._erc20_balances = Erc20.balances(self, self.credstick.address)
             if self._network == '1':
                 try:
-                    self._ens_domain = self._ns.name(self._credstick.addressStr())
+                    self._ens_domain = self.ens.name(self._credstick.addressStr())
                 except BadFunctionCallOutput:
                     self._ens_domain = 'Unknown'
             else:
@@ -392,8 +392,9 @@ class Node():
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
         return encode_hex(rx)
 
-    def send_ether(self,destination, amount, gas_price, nonce=None):
-        tx_dict = self.build_send_tx(amount, destination, gas_price, nonce=nonce)
+    def send_ether(self, destination, amount, gas_price, nonce=None):
+        target = self.ens.resolve(destination) or destination
+        tx_dict = self.build_send_tx(amount, target, gas_price, nonce=nonce)
         signed_tx = self._credstick.signTx(tx_dict)
         rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
         logging.info("%s | added tx %s", time.ctime(), rx.hex())
