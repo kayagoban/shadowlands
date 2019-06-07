@@ -34,7 +34,7 @@ class MainScene(Scene):
 ║
 ║  Ξth:
 ║
-║  Value:
+║  
 ║
 ╠═════════════════════════════════╗
 ║ Tokens - ${7,1}U${2,2}niswap, ${7,1}A${2,2}dd, ${7,1}R${2,2}emove
@@ -73,7 +73,7 @@ class MainScene(Scene):
             DynamicSourceCursor(screen, AddressRenderer(interface), 22, 5),
             DynamicSourceCursor(screen, HDPathRenderer(interface), 13, 7),
             DynamicSourceCursor(screen, EthBalanceRenderer(interface), 8, 11),
-            DynamicSourceCursor(screen, EthValueRenderer(interface), 10, 13),
+            DynamicSourceCursor(screen, EthValueRenderer(interface), 3, 13),
             DynamicSourceCursor(screen, ENSRenderer(interface), 16, 9),
             MainMenuListener(screen, interface),
             DynamicSourceCursor(screen, TxQueueHashRenderer(interface), 0, 23, speed=2)

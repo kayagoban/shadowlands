@@ -142,19 +142,25 @@ def txqueue():
     ]
 
 
-
 class CredstickNameRenderer(DynamicRenderer):
-    def __init__(self, interface):
+    def __init__(self, interface, add_padding=True):
         super(CredstickNameRenderer, self).__init__(1, 9)
         self._interface = interface
+        self._add_padding = add_padding
 
     def _render_now(self):
         space_available = 29 
         if not self._interface.credstick:
-            image =  ['Unknown']
+            image =  ['Please insert a Credstick and connect to Ethereum...']
         else:
             name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
-            padding = '═' * (space_available - len(name))
+            address = self._interface.credstick.address
+            hdpath = self._interface.credstick.hdpath
+            if self._add_padding:
+                padding = '═' * (space_available - len(name))
+            else:
+                padding = "detected with address {} at HD derivation {}.  Now resolving ENS and loading Eth, Erc20 balances, please wait... ".format(address, hdpath())
+
             image =  [ "{} {}".format(name,padding) ]
             
         return img_colour_map(image)

@@ -2,7 +2,7 @@ from asciimatics.renderers import StaticRenderer, FigletText
 from asciimatics.scene import Scene
 from shadowlands.tui.effects.materialize import Materialize
 from shadowlands.tui.effects.dynamic_cursor import DynamicSourceCursor
-from shadowlands.tui.renderers import BlockStatusRenderer, NetworkStatusRenderer
+from shadowlands.tui.renderers import BlockStatusRenderer, NetworkStatusRenderer, CredstickNameRenderer
 from shadowlands.tui.effects.credstick_watcher import CredstickWatcher
 from shadowlands.tui.effects.listeners import LoadingScreenListener
 from shadowlands.version import SL_VERSION
@@ -21,9 +21,10 @@ class LoadingScene(Scene):
             DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 51, 0, speed=4),
             Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.0),
             Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\t{}'.format(version)]), 10, 9, signal_acceleration_factor=1.0,),
+            DynamicSourceCursor(screen, CredstickNameRenderer(interface, add_padding=False), 0, 12, speed=1, no_blink=False),
 
             CredstickWatcher(screen, interface),
-            Materialize(screen, StaticRenderer(['Insert your credstick and connect to an ethereum client...']), 0, 13), 
+            #Materialize(screen, StaticRenderer(['Insert your credstick and connect to an ethereum client...']), 0, 13), 
             LoadingScreenListener(screen, interface)
         ]
 
