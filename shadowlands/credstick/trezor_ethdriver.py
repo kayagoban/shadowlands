@@ -4,6 +4,7 @@ from time import sleep
 
 import getpass
 
+from usb1 import USBErrorBusy
 from trezorlib.client import ProtocolMixin, BaseClient 
 from trezorlib.transport import enumerate_devices, get_transport, TransportException
 from trezorlib import tools
@@ -67,7 +68,7 @@ class TrezorEthDriver(Credstick):
         try:
             cls.features = cls.call_raw(init_msg)
             logging.info("call_raw transport.write(msg): %s", init_msg)
-        except (TransportException):
+        except (TransportException, USBErrorBusy):
             raise OpenCredstickError("Error opening Trezor")
 
 
