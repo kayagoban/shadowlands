@@ -47,6 +47,6 @@ class BlockCallbackMixin():
                     prop.func.__name__
                 ))
             except KeyError as e:
-                logging.debug("no need to expire {}".format(str(e)))
+                logging.info("no need to expire {}".format(str(e)))
 
 

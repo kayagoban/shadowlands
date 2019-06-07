@@ -90,7 +90,7 @@ class DeployMenuFrame(SLFrame):
         self.dapp.add_sl_frame(AskClipboardFrame(self.dapp, 3, 65, title="Archive is in /tmp.  Copy Sha256 digest to clipboard?"))
 
     def _register_archive(self):
-        self.dapp.add_sl_frame(ReleaseFrame(self.dapp, 7, 75, title='Register Dapp to {}'.format(self.dapp.node.credstick.address)))
+        self.dapp.add_sl_frame(ReleaseFrame(self.dapp, 7, 77, title='Register Dapp to {}'.format(self.dapp.node.credstick.address)))
         self.close()
 
 class ReleaseFrame(SLFrame):

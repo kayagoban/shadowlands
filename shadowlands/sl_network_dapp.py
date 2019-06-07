@@ -96,7 +96,8 @@ class SLNetworkDapp(SLDapp):
             self._screen, 
             self._scene, 
             self._node,
-            self._config
+            self._config,
+            self._block_callback_watcher
         )
 
 
