@@ -2,6 +2,7 @@
 detritus
 __pycache__
 shadow.log
+shadowlands.eth_node.log
 asciimatics
 qrcode
 *.pyc
