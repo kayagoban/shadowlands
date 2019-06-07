@@ -56,7 +56,7 @@ class SLConfig():
         self._default_method = None
         self._displayed_currency = 'USD' 
         self._sl_dapp_path = str(Path.home().joinpath('.shadowlands').joinpath('example'))
-        self._config_file_path = Path.home().joinpath(".shadowlands_conf")
+        self._config_file_path = Path.home().joinpath('.shadowlands').joinpath('config')
         self._txqueue = deque()
         self._txqueues = {}
         self._tokens = SLConfig.TOKENS
