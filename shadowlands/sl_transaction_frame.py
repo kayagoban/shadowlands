@@ -20,6 +20,9 @@ class SLTransactionFrame(TransactionFrame):
     def __init__(self, dapp, x, y, tx_fn=None, tx_value=0, gas_limit=300000,  **kwargs):
         super(SLTransactionFrame, self).__init__(dapp._screen, x, y, dapp, self._ok_fn, self.close, **kwargs) 
         self.dapp = dapp
+        # Add as block listener
+        dapp._block_listeners.append(self)
+
         self._tx_fn = tx_fn
         self.estimated_gas = gas_limit
 
@@ -34,7 +37,16 @@ class SLTransactionFrame(TransactionFrame):
         layout.add_widget(Divider(draw_line=False))
         self.fix()
 
-     
+    def close(self):
+        # deregister from new_block callbacks
+        self.dapp.remove_block_listener(self)
+        self._destroy_window_stack()
+        raise NextScene(self._scene.name)
+        
+    # duck typed to SLFrame
+    def _new_block_callback(self):
+        pass
+    
 
     def _ok_fn(self, gas_price_wei, nonce=None):
         try:
@@ -61,13 +73,4 @@ class SLTransactionFrame(TransactionFrame):
         self._destroy_window_stack()
         raise NextScene(self._scene.name)
 
-    def close(self):
-        # deregister from new_block callbacks
-        self.dapp.remove_block_listener(self)
-        self._destroy_window_stack()
-        raise NextScene(self._scene.name)
-        
-    # duck typed to SLFrame
-    def _new_block_callback(self):
-        pass
 

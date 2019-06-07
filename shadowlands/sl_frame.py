@@ -18,13 +18,16 @@ class SLFrame(BlockCallbackMixin, Frame):
         self._dapp = dapp
         self._screen = dapp._screen
 
+        # Add as block listener
+        dapp._block_listeners.append(self)
+
         super(SLFrame, self).__init__(self._screen,
                                       height,
                                       width,
                                       can_scroll=False,
                                       is_modal=True,
                                       **kwargs)
-                                      #hover_focus=True,
+
         self.set_theme('shadowlands')
         self.initialize()
         self.fix()
@@ -67,14 +70,6 @@ class SLFrame(BlockCallbackMixin, Frame):
         box = CheckBox(text, None, None, on_change, **kwargs)
         layout.add_widget(box)
         return lambda: box._value
-
-    #def add_ok_cancel_buttons(self, ok_fn, cancel_fn=None, ok_text="OK", cancel_text="Cancel", ok_index=0, cancel_index=3):
-    #    layout = Layout([1, 1, 1, 1])
-    #    self.add_layout(layout)
-    #    layout.add_widget(Button(ok_text, ok_fn), ok_index)
-    #    if cancel_fn is None:
-    #        cancel_fn = self.close
-    #    layout.add_widget(Button(cancel_text, cancel_fn), cancel_index)
 
 
     # named arguments will be passed on to the asciimatics Text() constructor

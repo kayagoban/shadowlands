@@ -112,8 +112,6 @@ class SLDapp(BlockCallbackMixin):
         sleep(1)
 
     def add_sl_frame(self, frame):
-        # register new block listeners
-        self._block_listeners.append(frame)
         self._scene.add_effect(frame)
         return frame 
 
