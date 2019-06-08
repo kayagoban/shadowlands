@@ -70,16 +70,26 @@ class Cursor(Effect):
             if colours is not None:
                 char_colour = colours[self.image_index][self.char] or self._colour
 
-            self._screen.print_at(
-                image[self.image_index][self.char], 
-                self._x, 
-                self._y, 
-                colour=char_colour[0], 
-                attr=char_colour[1], 
-                bg=char_colour[2]
-            )
+            #if image[self.image_index][self.char] == "\n":
+            #    self.char += 1
+            #    self._x = self.origin_x
+            #    self._y += 1
+            #    break
 
-            self._x += 1
+            if not self.newline_char():
+                self._screen.print_at(
+                    image[self.image_index][self.char], 
+                    self._x, 
+                    self._y, 
+                    colour=char_colour[0], 
+                    attr=char_colour[1], 
+                    bg=char_colour[2]
+                )
+
+                self._x += 1
+            else:
+                self._x = self.origin_x
+                self._y += 1
             self.char += 1
 
             # Force rendering if more than one char per pass
@@ -90,7 +100,13 @@ class Cursor(Effect):
             if self.char >= len(image[self.image_index]) - 1:
                 break
 
-            self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
+            #if image[self.image_index][self.char+1] == "\n":
+
+            #    break 
+            if self.char <= len(image[self.image_index]):
+                if image[self.image_index][self.char] != "\n":
+                    self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
+
             # Force rendering if more than one char per pass
             if self._speed > 1:
                 self._screen.force_update()
@@ -111,6 +127,10 @@ class Cursor(Effect):
         if self._x >= self._screen.width:
             self._x = self.origin_x
             self._y += 1
+            return True
+
+        return False
+            
         #debug(); import pdb; pdb.set_trace()
 
 
@@ -127,17 +147,21 @@ class Cursor(Effect):
         # otherwise, blink if you wanna
 
         if self.char >= len(image[self.image_index]):
-            if not self._no_blink:
+            if not self._no_blink and not self.newline_char():
                 self.blink()
             return
 
-
-        self.wrap_if_needed()
-
         self.render_multiple_chars(image, colours)
             
+    def newline_char(self):
+        image, colours = self.get_buffer()
+        if self.char < len(image[self.image_index]):
+            if image[self.image_index][self.char] =="\n":
+               return True
 
-    
+        return False
+ 
+
     def _update(self, frame_no):
         if self._thread:
             t = threading.Thread(target=self._update_thread, args=[frame_no])

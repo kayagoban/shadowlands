@@ -146,12 +146,14 @@ class CredstickNameRenderer(DynamicRenderer):
     def __init__(self, interface, add_padding=True):
         super(CredstickNameRenderer, self).__init__(1, 9)
         self._interface = interface
+        self._node = interface.node
         self._add_padding = add_padding
 
     def _render_now(self):
         space_available = 29 
         if not self._interface.credstick:
-            image =  ['Please insert a Credstick and connect to Ethereum...']
+            #image = ['blergh']
+            image =  ['Please insert Credstick.']
         else:
             name = self._interface.credstick.manufacturerStr + ' ' + self._interface.credstick.productStr
             address = self._interface.credstick.address
@@ -159,7 +161,7 @@ class CredstickNameRenderer(DynamicRenderer):
             if self._add_padding:
                 padding = '═' * (space_available - len(name))
             else:
-                padding = "detected with address {} at HD derivation {}.  Now resolving ENS and loading Eth, Erc20 balances, please wait... ".format(address, hdpath())
+                padding = "detected.\nHD derivation {}\nEthereum address {}\nResolving ENS...\nLoading Eth balance...\nLoading Erc20 balances...".format(hdpath(), address)
 
             image =  [ "{} {}".format(name,padding) ]
             
