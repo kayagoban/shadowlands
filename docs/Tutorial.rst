@@ -29,7 +29,7 @@ Your first SLDapp
 For our example, let's become Trogdor the Burninator, the wingaling dragon.  
 We will burninate peasants in the kingdom of peasantry.  In our case, peasants will be BRNT (Burninator tokens) visible at token.burninator.eth)
 
-Import ``SLDapp`` at the top of your ``__init__.py`` file in your dapp's subdirectory. We'll also import ``SLFrame`` and ``SLContract``.
+Import :class:`SLDapp` at the top of your ``__init__.py`` file in your dapp's subdirectory. We'll also import :class:`SLFrame` and :class:`SLContract`.
 
     .. code-block:: python
 
@@ -37,9 +37,9 @@ Import ``SLDapp`` at the top of your ``__init__.py`` file in your dapp's subdire
         from shadowlands.sl_frame import SLFrame
         from shadowlands.sl_contract import SLContract
 
-Create a class named ``Dapp`` that subclasses ``SLDapp``.  The class must be named ``Dapp`` in 
+Create a class named ``Dapp`` that subclasses :class:`SLDapp`.  The class must be named ``Dapp`` in 
 order for the shadowlands plugin system to detect your dapp.  Override the 
-``initialize()`` method, and do any necessary preperation within.  Then, add an ``SLFrame`` subclass (which you need to provide) with ``add_sl_frame()``.  This step begins the user interface.
+:func:`SLDapp.initialize` method, and do any necessary preperation within.  Then, add an :class:`SLFrame` subclass (which you need to provide) with :func:`SLDapp.add_sl_frame`.  This step begins the user interface.
 
     .. code-block:: python
 
@@ -60,9 +60,9 @@ order for the shadowlands plugin system to detect your dapp.  Override the
 		self.add_divider()
 		self.add_button(self.close, "Close")
 
-The line ``self.add_sl_frame(MyMenuFrame(self, height=5, width=40, title="Trogdooooor!"))``, referenced from ``initialize()``, will load an SLFrame instance with the listed parameters when the dapp loads.
+The line ``self.add_sl_frame(MyMenuFrame(self, height=5, width=40, title="Trogdooooor!"))``, referenced from ``initialize()``, will load an :class:`SLFrame` instance with the listed parameters when the dapp loads.
 
-Like SLDapp instances, SLFrame instances execute ``initialize()`` when they are created, and you must implement this abstract method.  Our SLFrame will add a one-line divider with ``self.add_divider()`` and then add a close button with ``self.add_button(self.close, "Close")``.  The first parameter to ``self.add_button`` is a function to be executed upon the button press action, in this case ``self.close()``.
+Like :class:`SLDapp` instances, :class:`SLFrame` instances execute ``initialize()`` when they are created, and you must implement this abstract method.  Our :class:`SLFrame` will add a one-line divider with ``self.add_divider()`` and then add a close button with ``self.add_button(self.close, "Close")``.  The first parameter to ``self.add_button`` is a function to be executed upon the button press action, in this case ``self.close()``.
 
 Now, let's run our first dapp.  Open the dapps menu and choose to run a local dapp:
 
@@ -132,7 +132,7 @@ Now, when you run your dapp, you'll see:
   :width: 800
   :alt: Debugging Trogdor
 
-Here you can see some of the methods that the Erc20 class provides.  You can also access the underlying web3.py contract object by accessing ``peasant_contract._contract``.
+Here you can see some of the methods that the :class:`Erc20` class provides.  You can also access the underlying web3.py contract object by accessing ``peasant_contract._contract``.
 
 To escape from the debug session and get back to your app, type ``end_debug();; continue``.  This incantation will restore control of the screen to the curses library and end the session.
 
@@ -198,13 +198,13 @@ Let's get some user input and do something, er... useful?
 
 
 
-We've add some height and width to our SLFrame on line 13, added labels and a textbox on lines 17 - 19, and traded in our simple button for ``add_button_row()`` on line 21.  All of the widgets available to display are documented on the ``SLFrame`` page.
+We've add some height and width to our :class:`SLFrame` on line 13, added labels and a textbox on lines 17 - 19, and traded in our simple button for ``add_button_row()`` on line 21.  All of the widgets available to display are documented on the :class:`SLFrame` page.
 
 On line 12, we divide the number of peasantcoins by (10 ** 18) to account for the 18 decimal places of precision of this coin.
 
 We're doing some simple input sanitization here, as well as some restrictions as to how many peasants can be burninated in one go.
 
-Note that ``add_message_dialog()`` is a method belonging to Dapp, which is always accessible from an ``SLFrame`` instance via ``self.dapp``.
+Note that ``add_message_dialog()`` is a method belonging to Dapp, which is always accessible from an :class:`SLFrame` instance via ``self.dapp``.
 
 
 So, let's see how we did.
@@ -313,14 +313,14 @@ And so, we see there are a few less peasants in the kingdom of peasantry.
   :width: 800
   :alt: Running Trogdor
 
-Subclassing Erc20 and SLContract
---------------------------------
+Subclassing :class:`Erc20` and :class:`SLContract <SLContract>`
+----------------------------------------------------------------
 
 Trogdor is distraught to discover that the peasants have not actually been burninated,
 but only banished to the cave of 0xdeadbeef.  He demands true burnination.
 
 Luckily, the PSNT contract supports burn(), although this is not a standard Erc20
-function.  Let's subclass Erc20 and use some of the features of SLContract to make
+function.  Let's subclass :class:`Erc20` and use some of the features of SLContract to make
 our lives easier.
 
 .. code-block:: python
@@ -598,14 +598,14 @@ We define the VictoryFrame class on line 98.
 A closer look at the peasantcoin contract
 ******************************************
 
-The Erc20 class and its SLContract base class give you a great deal of
+The :class:`Erc20` class and its SLContract base class give you a great deal of
 functionality for free, but it's often useful to add on some extra 
 methods that have close connection to our contract calls.
 
 The ``self.functions()`` is an easy way to get at the underlying 
 function of the web3.py contract class.
 
-Erc20 subclasses also provide passthrough methods to all standard
+:class:`Erc20` subclasses also provide passthrough methods to all standard
 erc20 functions, as well as helper methods like ``my_balance()``
 
 
@@ -719,7 +719,7 @@ function reference (or lambda) that returns a string. That
 will let us make the displays dynamic, but it also can make 
 your dapp VERY SLOW.
 
-To help solve this performance problem, the SLDapp and SLFrame classes 
+To help solve this performance problem, the :class:`SLDapp` and :class:`SLFrame` classes 
 will automatically expire the cache on any ``@cached_property`` 
 when a new block appears.
 
@@ -727,7 +727,7 @@ Using lambdas to cached properties as input to labels combines the
 best of both worlds - any function reference you pass to a label 
 will be both dynamic and reasonably performant.
 
-In addition, SLDapp and SLFrame will both trigger the ``new_block_callback()``
+In addition, :class:`SLDapp` and :class:`SLFrame` will both trigger the ``new_block_callback()``
 which you can override for your own purposes.  This callback will be called
 immediately after the cached properties are expired, 
 

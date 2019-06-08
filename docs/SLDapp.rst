@@ -1,29 +1,39 @@
 SLDapp
 ===========
 
-.. py:module:: shadowlands
 .. py:class:: SLDapp
 
 
-``SLDapp`` is the class which defines a Shadowlands Dapp.
+Abstract
+--------
+:class:`SLDapp` is the class which defines a Shadowlands Dapp.  
+
 
 Properties
 ----------
 
-``SLDapp`` provides many useful properties and methods to make writing dapps easier.
+:class:`SLDapp` provides many useful properties and methods to make writing dapps easier.
+
 
 .. py:attribute:: SLDapp.w3
 
     A web3 object as provided by the web3.py framework.
+    https://web3py.readthedocs.io/en/stable/web3.main.html#web3.Web3
 
 .. py:attribute:: SLDapp.node 
 
-    A (hopefully, connected) instance of ``shadowlands.Node`` Ethereum Node object.
+    An instance of :class:`Node`.
+
+    .. code-block:: python
+
+        # Find your address
+        my_address = self.node.credstick.address
 
 .. py:attribute:: SLDapp.config_key
 
-    Key to use for storing config properties.  Defaults to  ``self.__module__``.
-    Feel free to change this to something very unique at the top of your ``SLDapp.initialize()`` method.
+    A string to use as a key for storing config properties.  Defaults to the name of your dapp module.
+
+    Feel free to change this to something very unique at the top of your :func:`initialize` method.
 
 .. py:attribute:: SLDapp.config_properties
 
@@ -34,21 +44,26 @@ Properties
 Methods
 -------
 
+.. py:method:: SLDapp.initialize()
+
+    An abstract callback that you must implement.  It wil fire upon the initialization of the SLDapp object.  
+    Do your setup here and add SLFrames or other dialogs.
+
+.. py:method:: SLDapp.new_block_callack()
+
+    An optional callback that you may implement.  It will be fired when new blocks appear.
 
 .. py:method:: SLDapp.save_config_property(property_key, value)
 
-    Save a serializable object to the persistent data store specific to this dapp
+    Save a serializable object to the persistent data store.
 
 .. py:method:: SLDapp.load_config_property(property_key, value)
 
-    Save a serializable object to 
+    Load a serializable object from the persistent data store.
 
-
-.. py:method:: SLDapp.add_frame(cls, height=None, width=None, title=None, **kwargs)
+.. py:method:: SLDapp.add_sl_frame(sl_frame)
   
-    Display a custom frame.  cls is the Class name of a subclass of ``SLFrame``.  
-    ``height`` and ``width`` are integers (reasonable defaults if none given).  
-    ``title`` is a string. You may pass in kwargs which apply to ``asciimatics.Frame``.
+    Display a custom frame. Takes an instantiated subclass of :class:`SLFrame` as the sole argument.
 
 .. py:method:: SLDapp.add_message_dialog(message, **kwargs)
 

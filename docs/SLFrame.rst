@@ -1,7 +1,6 @@
 SLFrame
 ===========
 
-.. py:module:: shadowlands
 .. py:class:: SLFrame
 
 
