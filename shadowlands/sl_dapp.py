@@ -123,6 +123,7 @@ class SLDapp(BlockCallbackMixin):
         u_frame = UniswapFrame(self, 17, 46, token_address, action=action, buy_amount=buy_amount, sell_amount=sell_amount)
         self.add_sl_frame(u_frame)
 
+    # for internal use.
     def add_resend_dialog(self, tx_dict, title="Sign & Send"):
         # This class is duck typed to web3.py contract functions.
         class TransactionFunction():
@@ -145,7 +146,6 @@ class SLDapp(BlockCallbackMixin):
             )
         )
  
-
     def add_message_dialog(self, message, **kwargs):
         preferred_width= len(message) + 6
         self._scene.add_effect( MessageDialog(self._screen, message, width=preferred_width, **kwargs))

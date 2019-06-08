@@ -17,11 +17,13 @@ Properties
 
 .. py:attribute:: SLDapp.w3
 
+    Read-only property.
     A web3 object as provided by the web3.py framework.
     https://web3py.readthedocs.io/en/stable/web3.main.html#web3.Web3
 
 .. py:attribute:: SLDapp.node 
 
+    Read-only property.
     An instance of :class:`Node`.
 
     .. code-block:: python
@@ -37,7 +39,9 @@ Properties
 
 .. py:attribute:: SLDapp.config_properties
 
-    A persistent dictionary of properties specific to your dapp
+    Read-only property.
+    A persistent dictionary of properties specific to your dapp.
+    To load a single property, use :class:`SLDapp.load_config_property`.
 
 
 
@@ -49,17 +53,9 @@ Methods
     An abstract callback that you must implement.  It wil fire upon the initialization of the SLDapp object.  
     Do your setup here and add SLFrames or other dialogs.
 
-.. py:method:: SLDapp.new_block_callack()
+.. py:method:: SLDapp.new_block_callback()
 
     An optional callback that you may implement.  It will be fired when new blocks appear.
-
-.. py:method:: SLDapp.save_config_property(property_key, value)
-
-    Save a serializable object to the persistent data store.
-
-.. py:method:: SLDapp.load_config_property(property_key, value)
-
-    Load a serializable object from the persistent data store.
 
 .. py:method:: SLDapp.add_sl_frame(sl_frame)
   
@@ -70,37 +66,62 @@ Methods
     Display a message dialog with the string supplied by ``message``.  You may pass in kwargs 
     which apply to ``asciimatics.Frame``.
 
-.. py:method:: SLDapp.add_transaction_dialog(tx_fn, tx_value=0, gas_limit=None, destroy_window=None, title="Sign & Send Transaction", **kwargs)
+.. py:method:: SLDapp.add_transaction_dialog(tx_fn, tx_value=0, gas_limit=300000, title="Sign & Send Transaction", destroy_window=None, **kwargs)
 
     Display a transaction dialog, which allows the user to select gas price and gives a gas cost 
-    estimate.  You must pass in a transaction function to ``tx_fn`` (see example below).  You can 
-    provide a ``tx_value`` Decimal value denominated in Ether if the transaction will pass Ether. 
-    You may pass in an integer ``gas_limit``, but if you do not, it will be set by an attempt will 
-    be made to estimate the the gas (which defaults to 1000000 if the attempt to estimate fails).  
+    estimate.  
+    
+    You must pass in a transaction function to ``tx_fn`` as the first argument. Instances of :class:`Erc20` have many build-in methods which return transaction functions.  You can also access the underlying function generators of any :class:`SLContract` instance with :func:`SLContract.functions`.
+    
+    You can provide a ``tx_value`` Decimal value denominated in Ether if the transaction will pass Ether. 
+
+    You may pass in an integer ``gas_limit``, which defaults to 300000.  It is best practice to always set this.
+
+    A string ``title`` can be set.
+
     If there is a frame which needs to be programmatically destroyed upon the exit of the 
-    transaction dialog, pass the object into ``destroy_window``.  A string ``title`` can be set.
+    transaction dialog, pass the object into ``destroy_window``. 
+
     You may pass in kwargs which apply to ``asciimatics.Frame``.
 
         .. code-block:: python
             :caption: Example
 
             self.dapp.add_transaction_dialog(
-              tx_fn=lambda: self.dapp.ens_resolver_contract.set_address(self.dapp.name, self.dapp.node.credstick.address),
+              tx_fn = self.token.transfer(target, value),
               title="Set domain to current address",
               gas_limit=55000
             )
 
-.. py:method:: SLDapp.show_wait_frame()
+.. py:method:: SLDapp.add_uniswap_frame(ec20_address, action='buy', buy_amount='', sell_amount='')
 
-    Display a wait message frame, in case you have a thread doing work which will take time.
+        Adds a Uniswap dialog if there exists a Uniswap exchange for the Erc20 token which resides at `erc20_address`.
+
+        If no Exchange exists, a dialog will be displayed, informing the user of this.
+
+
+.. py:method:: SLDapp.show_wait_frame(message)
+
+    Display a wait message frame with string `message`.
+
+    Use in case you have a thread doing work which will take time.
+    Call this right *before* you start your new thread.
     The user will not be able to remove this frame; it needs to be programmatically removed by 
-    calling ``SLDapp.hide_wait_frame()``
+    calling :func:`SLDapp.hide_wait_frame`
 
 .. py:method:: SLDapp.hide_wait_frame()
 
     Remove the wait message frame.  If it is not currently displayed, this method is a no-op.
 
-.. py:method:: SLDapp.quit()
+    This should be called inside your new thread, as the last thing it does.
 
-    Destroy the SLDapp object and return to the Shadowlands main screen.
+
+.. py:method:: SLDapp.save_config_property(property_key, value)
+
+    Save a serializable object to the persistent data store.
+
+.. py:method:: SLDapp.load_config_property(property_key, value)
+
+    Load a serializable object from the persistent data store.
+
 
