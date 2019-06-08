@@ -38,6 +38,40 @@ class SLDapp(BlockCallbackMixin):
         if destroy_window is not None:
             destroy_window.close()
 
+    @property
+    def node(self):
+        return self._node
+
+    @property
+    def w3(self):
+        return self._node.w3
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def config_key(self):
+        return self._config_key
+
+    @config_key.setter
+    def config_key(self, key):
+        self._config_key = key
+
+    @property
+    def config_properties(self):
+        return self.config.dapp_config(self.config_key)
+
+
+    def save_config_property(self, property_key, value):
+        properties = dict(self.config_properties)
+        properties[property_key] = value
+        self.config.set_dapp_config(self.config_key, properties)
+
+    def load_config_property(self, property_key):
+        return self.config_properties[property_key]
+
+
     @abstractmethod
     def initialize(self):
         pass
@@ -52,47 +86,12 @@ class SLDapp(BlockCallbackMixin):
             slframe._new_block_callback()
 
 
+    # Used in SLFrame close().
     def remove_block_listener(self, frame):
         self._block_listeners.remove(frame)
         if len(self._block_listeners) == 0:
             self.quit()
 
-    @property
-    def node(self):
-        return self._node
-
-    @property
-    def w3(self):
-        return self._node.w3
-
-    @property
-    def config(self):
-        return self._config
-        
-    @property
-    def config_key(self):
-        return self._config_key
-
-    @config_key.setter
-    def config_key(self, key):
-        self._config_key = key
-
-    @property
-    def config_properties(self):
-        return self.config.dapp_config(self.config_key)
-
-    def save_config_property(self, property_key, value):
-        properties = dict(self.config_properties)
-        properties[property_key] = value
-        self.config.set_dapp_config(self.config_key, properties)
-
-    def load_config_property(self, property_key):
-        return self.config_properties[property_key]
-
-    #def add_frame(self, cls, height=None, width=None, title=None, **kwargs):
-    #    frame = cls(self, height, width, title=title, **kwargs)
-    #    self._scene.add_effect(frame)
-    #    return frame 
 
     # call before starting your thread
     def show_wait_frame(self, message="Please wait a moment..."):
@@ -119,10 +118,6 @@ class SLDapp(BlockCallbackMixin):
 
         tx_dialog = SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
         self.add_sl_frame(tx_dialog)
-
-        #self._scene.add_effect( 
-        #    SLTransactionFrame(self, 20, 59, tx_fn, destroy_window=destroy_window, title=title, gas_limit=gas_limit, tx_value=tx_value, **kwargs) 
-        #)
 
     def add_uniswap_frame(self, token_address, action='buy', buy_amount='', sell_amount=''):
         u_frame = UniswapFrame(self, 17, 46, token_address, action=action, buy_amount=buy_amount, sell_amount=sell_amount)
