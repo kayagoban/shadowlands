@@ -594,6 +594,98 @@ We define the VictoryFrame class on line 98.
 	    def peasant_decorator(self, peasants):
 		return "{:f}".format(peasants)[:14]
 
+******************************************
+A closer look at the peasantcoin contract
+******************************************
+
+The Erc20 class and its SLContract base class give you a great deal of
+functionality for free, but it's often useful to add on some extra 
+methods that have close connection to our contract calls.
+
+The ``self.functions()`` is an easy way to get at the underlying 
+function of the web3.py contract class.
+
+Erc20 subclasses also provide passthrough methods to all standard
+erc20 functions, as well as helper methods like ``my_balance()``
+
+
+.. code-block:: python
+
+	from shadowlands.sl_contract.erc20 import Erc20
+	from shadowlands.tui.debug import debug, end_debug
+	from decimal import Decimal
+	import pdb
+
+
+	class PeasantCoin(Erc20):
+
+	    ### Passthrough calls to contract
+	 
+	    # Similar to balanceOf, but keeps track of burninated peasants
+	    def burninatedBy(self, address):
+		return self.functions.burninatedBy(address).call()
+
+	    def topBurninators(self):
+		return self.functions.topBurninators().call()
+	 
+
+	    ### Helper methods
+
+	    def my_burninated_peasants(self):
+		return self.burninatedBy(self.node.credstick.address)
+
+	  
+	    def top_burninators(self): 
+		''' 
+		Returns a sorted list of lists of integers and addresses, 
+		representing the top burninators. Maximum 10 results.
+		'''
+		burninators = set(self.topBurninators())
+		burninators.remove('0x0000000000000000000000000000000000000000')
+		if len(burninators) == 0:
+		    return []
+
+		burninators = [[x, Decimal(self.burninatedBy(x)) / (10 ** 18)] for x in list(burninators)]
+		burninators.sort(key=lambda x: x[1], reverse=True)
+		return burninators
+
+	    def victorious(self):
+		'''
+		Returns True or False.
+		True only if user is not currently in the hall but is
+		allowed to take a spot.
+		'''
+		if self.my_burninated_peasants() == 0:
+		    return False
+
+		# Are we already in the hall of max burnination?
+		if self.node.credstick.address in [self.topBurninators()]:
+		    return False
+
+		if len(top) < 10:
+		    return True
+
+		# Weakest burninator first
+		top = self.top_burninators()
+		top.sort(key=lambda x: x[1])
+
+		if top[0][1] < Decimal(self.my_burninated_peasants()) / 10 ** 18:
+		    return True
+		return False
+
+
+	    ### TXs
+	    def burninate(self, peasants):
+		return self.functions.burn(peasants)
+
+
+	    def claimVictory(self):
+		return self.functions.claimVictory()
+
+	    ABI='''
+	    [{"name":"Transfer","inputs":[{"type":"addre...  
+	    '''
+
 Here is the hall of Maximum Burnination, in all its glory:
 
 .. image:: trogdor-run-8.png
