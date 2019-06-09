@@ -113,7 +113,7 @@ class Cursor(Effect):
 
 
     def blink(self):
-        sleep(0.5)
+        #sleep(0.5)
         if self._blink_state is True:
             self._screen.print_at(self.CURSOR, self._x, self._y, self._colour)
         else:
