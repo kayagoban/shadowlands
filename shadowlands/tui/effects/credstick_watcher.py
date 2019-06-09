@@ -33,6 +33,7 @@ class CredstickWatcher(Effect):
             # This makes sure the loading screen does not come back upon resize.
             self._screen._scenes = [self._screen._scenes[1]]
             self._interface._loading_scene = False
+            self._scene.remove_effect(self)
             raise NextScene
 
     def reset(self):
