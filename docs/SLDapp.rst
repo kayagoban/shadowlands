@@ -6,20 +6,31 @@ SLDapp
 
 Abstract
 --------
-:class:`SLDapp` is the class which defines a Shadowlands Dapp.  
+
+:class:`SLDapp` is the class which defines a Shadowlands Dapp.  It provides 
+many useful properties and methods to make writing dapps easier.
+
+See the :ref:`Tutorial` to get started quickly.
+
+
+.. code-block:: python
+        :caption: Example
+
+        from shadowlands.sl_dapp import SLDapp
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                self.add_message_dialog("Hello world!")
 
 
 Properties
 ----------
 
-:class:`SLDapp` provides many useful properties and methods to make writing dapps easier.
-
-
 .. py:attribute:: SLDapp.w3
 
     Read-only property.
-    A web3 object as provided by the web3.py framework.
-    https://web3py.readthedocs.io/en/stable/web3.main.html#web3.Web3
+    A web3 object as provided by `the web3.py framework.
+    <https://web3py.readthedocs.io/en/stable/web3.main.html#web3.Web3>`_
 
 .. py:attribute:: SLDapp.node 
 
@@ -50,7 +61,7 @@ Methods
 
 .. py:method:: SLDapp.initialize()
 
-    An abstract callback that you must implement.  It wil fire upon the initialization of the SLDapp object.  
+    An abstract callback that you must implement.  It will fire upon the initialization of the SLDapp object.  
     Do your setup here and add SLFrames or other dialogs.
 
 .. py:method:: SLDapp.new_block_callback()
