@@ -17,6 +17,7 @@ from shadowlands.sl_contract.erc20 import Erc20
 from shadowlands.sl_contract import SLContract
 
 import logging
+import traceback
 logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
 #debug(); #pdb.set_trace()
@@ -180,13 +181,13 @@ class Node():
             if self._network == '1':
                 try:
                     self._ens_domain = self.ens.name(self._credstick.addressStr())
+                    self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
                 except BadFunctionCallOutput:
                     self._ens_domain = 'Unknown'
             else:
                 self._ens_domain = 'Unknown'
 
         self._syncing = self._w3.eth.syncing
-        self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
         if self._syncing not in (None, False):
             self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
 
@@ -195,15 +196,11 @@ class Node():
         logging.debug("eth_node update_status")
 
         try:
-            current_block = str(self._w3.eth.blockNumber)
-            if self._best_block == current_block:
-                return
-            else:
-                self._best_block = current_block
-
+            self._best_block = str(self._w3.eth.blockNumber)
             self._update()
-        except (TypeError, Exception) as e:
-            logging.info("ERROR IN  eth_node _update_status")
+        except (Exception) as e:
+            #logging.info(str(e.__traceback__))
+            logging.info("eth_node _update_status: {}".format(traceback.format_exc()))
 
 
 
@@ -339,15 +336,12 @@ class Node():
     def poll(self):
         logging.debug("eth_node poll()")
         try: 
-            self._w3.isConnected()
-            self._update_status()
+            if self._w3.isConnected():
+                self._update_status()
 
-        except (ConnectionError, AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain):
+        except (ConnectionError, AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain, ValueError) as e:
+            logging.info("eth_node poll: {}".format(traceback.format_exc()))
             self.connect_config_default() or self.connect_w3_local()
-        except ValueError:
-            logging.debug("eth_node: Value Error in poll()")
-            self.stop_thread()
-            exit()
 
     def heartbeat(self):
         logging.debug("eth_node heartbeat()")
