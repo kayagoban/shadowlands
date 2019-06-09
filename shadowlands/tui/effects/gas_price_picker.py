@@ -29,11 +29,25 @@ class GasPricePicker(RadioButtons):
 
         #debug(); pdb.set_trace()
 
-        _options = [
-                (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_gwei), 
+        _options = []
+
+        if gas_price_gwei != 0:
+            _options.append(
+                (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_gwei)
+            )
+            _options.append(
                 (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_gwei_m20), 
+            )
+
+        _options.append(
                 ('Enter custom gas price', '0')
-        ]
+        )
+
+        #_options = [
+        #        (str(gas_price_gwei) + ' gwei  |from w3.gasPrice()' , gas_price_gwei), 
+        #        (str(round(gas_price_gwei_m20, 3)) + ' gwei (-20%)', gas_price_gwei_m20), 
+        #        ('Enter custom gas price', '0')
+        #]
 
         super(GasPricePicker, self).__init__(_options, on_change=on_change, label=' Gas Price:', name='gasoptions', **kwargs)
 

@@ -100,7 +100,10 @@ class Node():
     def network_name(self):
         if self._network is None:
             return None
-        return self.NETWORKDICT[self._network]
+        try:
+            return self.NETWORKDICT[self._network]
+        except KeyError:
+            return str(self._network)
 
     @property
     def network(self):
@@ -217,7 +220,7 @@ class Node():
 
         self._ns = ENS.fromWeb3(_w3)
 
-        if self._sai_pip is None:
+        if self._network == '1' and self._sai_pip is None:
             self._sai_pip = SaiPip(self)
 
         self._heart_rate = _heart_rate

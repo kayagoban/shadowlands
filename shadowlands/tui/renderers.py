@@ -211,7 +211,7 @@ class EthBalanceRenderer(DynamicRenderer):
         bal_str = 'Unknown'
 
         if bal:
-            bal_str = str( bal )
+            bal_str = "{:f}".format( bal )
 
         image  = [bal_str]
 
