@@ -69,11 +69,11 @@ Call to close the current frame.  In your dapp, be sure to open a new frame or d
 Widgets
 -------
 
-.. py:method:: SLFrame.add_button(fn, text, layout_distribution=[100], layout_index=0, add_divider=True)
+.. py:method:: SLFrame.add_button(fn, text, layout=[100], layout_index=0, add_divider=True)
 
     Add a single button to your SLFrame.  ``fn`` is a function to run (lambdas are
     useful for this) when the button is pressed.  You can place a string within the
-    button by setting ``text``.  The optional ``layout_distribution`` and ``layout_index``
+    button by setting ``text``.  The optional ``layout`` and ``layout_index``
     variables follow the ``asciimatics`` widget layout rules (see AsciimaticsLayout_ docs for details)
 
 .. code-block:: python
@@ -190,19 +190,48 @@ Diplays a textbox for input. ``on_change`` takes a function that is run when the
   :alt: Dapps Menu
 
 
-
 .. py:method:: SLFrame.add_divider(draw_line=False, **kwargs)
 
+Add a horizontal spacer.  ``draw_line`` will cause a line to be drawn across the space.
 
-.. py:method:: SLFrame.add_radiobuttons(options, default_value=None, layout_distribution=[100], layout_index=0, add_divider=True, on_change=None **kwargs)
+.. py:method:: SLFrame.add_radiobuttons(options, default_value=None, layout=[100], layout_index=0, add_divider=True, on_change=None **kwargs)
 
-.. py:method:: SLFrame.add_listbox(height, options, on_select=None, layout_distribution=[100], layout_index=0, **kwargs)
+Radiobuttons widget.  Returns a function which, when executed, gives the value chosen.  ``options`` is an array of tuples, filled with (label, value).  ``layout`` follows the layout rules described in AsciimaticsLayout_.  You can provide an optional ``on_change`` function.
 
-.. py:method:: SLFrame.add_label(label_text, layout_distribution=[100], layout_index=0, add_divider=True)
+.. code-block:: python
+        :caption: Example
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                options = [
+                    ("Option one", 1),
+                    ("Option two", 2),
+                    ("Option three", 3)
+                ]
+                self.options_value = self.add_radiobuttons(
+                    options,
+                    default_value = 2,
+                    on_change=self.useful_fn
+                )
+                self.add_button(self.close, "close")
+
+            def useful_fn(self):
+                self.dapp.add_message_dialog(self.options_value())
+
+
+.. image:: add_radiobuttons.png
+  :width: 800
+  :alt: Dapps Menu
+
+
+
+.. py:method:: SLFrame.add_listbox(height, options, on_select=None, layout=[100], layout_index=0, **kwargs)
+
+.. py:method:: SLFrame.add_label(label_text, layout=[100], layout_index=0, add_divider=True)
  
 .. py:method:: SLFrame.add_label_row(self, labels, layout=[1, 1, 1, 1], add_divider=True)
 
-.. py:method:: SLFrame.add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout_distribution=[70, 30])
+.. py:method:: SLFrame.add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout=[70, 30])
 
 .. py:method:: SLFrame.add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None)
 
