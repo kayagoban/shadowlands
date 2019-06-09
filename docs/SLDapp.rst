@@ -72,10 +72,47 @@ Methods
   
     Display a custom frame. Takes an instantiated subclass of :class:`SLFrame` as the sole argument.
 
+.. code-block:: python
+        
+        from shadowlands.sl_dapp import SLDapp
+        from shadowlands.sl_frame import SLFrame
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                myframe = MyFrame(self, 5, 50, title="frame title")
+                self.add_sl_frame(myframe)
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                self.add_button(self.close, "Select")
+
+
+.. image:: add_sl_frame.png
+  :width: 800
+  :alt: Add SL Frame
+
+
+
+
 .. py:method:: SLDapp.add_message_dialog(message, **kwargs)
 
     Display a message dialog with the string supplied by ``message``.  You may pass in kwargs 
     which apply to ``asciimatics.Frame``.
+
+.. code-block:: python
+
+        from shadowlands.sl_dapp import SLDapp
+        from shadowlands.sl_frame import SLFrame
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                self.add_message_dialog("Hello, world")
+
+.. image:: add_message_dialog.png
+  :width: 800
+  :alt: Add msg dialog
+
+
 
 .. py:method:: SLDapp.add_transaction_dialog(tx_fn, tx_value=0, gas_limit=300000, title="Sign & Send Transaction", destroy_window=None, **kwargs)
 
@@ -84,7 +121,7 @@ Methods
     
     You must pass in a transaction function to ``tx_fn`` as the first argument. Instances of :class:`Erc20` have many build-in methods which return transaction functions.  You can also access the underlying function generators of any :class:`SLContract` instance with :func:`SLContract.functions`.
     
-    You can provide a ``tx_value`` Decimal value denominated in Ether if the transaction will pass Ether. 
+    You can provide a ``tx_value`` -  Decimal value denominated in Ether. 
 
     You may pass in an integer ``gas_limit``, which defaults to 300000.  It is best practice to always set this.
 
@@ -95,20 +132,51 @@ Methods
 
     You may pass in kwargs which apply to ``asciimatics.Frame``.
 
-        .. code-block:: python
-            :caption: Example
+.. code-block:: python
+    :caption: Example
 
-            self.dapp.add_transaction_dialog(
-              tx_fn = self.token.transfer(target, value),
-              title="Set domain to current address",
-              gas_limit=55000
-            )
+        from shadowlands.sl_dapp import SLDapp
+        from shadowlands.sl_frame import SLFrame
+        from shadowlands.sl_contract.erc20 import Erc20
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                token = Erc20(
+                    self.node, 
+                    address='0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'
+                )
+                tx_fn = token.transfer(
+                    self.node.credstick.address, 1 * (10 ** token.decimals())
+                )
+                # we send ourselves 1.0 token
+                self.add_transaction_dialog(tx_fn) 
+
+.. image:: add_transaction_dialog.png
+  :width: 800
+  :alt: Add tx dialog
+
 
 .. py:method:: SLDapp.add_uniswap_frame(ec20_address, action='buy', buy_amount='', sell_amount='')
 
         Adds a Uniswap dialog if there exists a Uniswap exchange for the Erc20 token which resides at `erc20_address`.
 
         If no Exchange exists, a dialog will be displayed, informing the user of this.
+
+.. code-block:: python
+    :caption: Example
+
+        from shadowlands.sl_dapp import SLDapp
+        from shadowlands.sl_frame import SLFrame
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                address='0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'
+                self.add_uniswap_frame(address, buy_amount='3') 
+
+.. image:: add_uniswap_frame.png
+  :width: 800
+  :alt: Add uniswap frame
+
 
 
 .. py:method:: SLDapp.show_wait_frame(message)
@@ -120,6 +188,28 @@ Methods
     The user will not be able to remove this frame; it needs to be programmatically removed by 
     calling :func:`SLDapp.hide_wait_frame`
 
+.. code-block:: python
+    :caption: Example
+
+        from shadowlands.sl_dapp import SLDapp
+        from shadowlands.sl_frame import SLFrame
+        import threading
+        from time import sleep
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                self.show_wait_frame("Please wait 10 seconds for... reasons")
+                threading.Thread(target=self._my_thread).start()
+
+            def _my_thread(self):
+                sleep(10)
+                self.hide_wait_frame()
+
+.. image:: add_wait_frame.png
+  :width: 800
+  :alt: Add uniswap frame
+
+        
 .. py:method:: SLDapp.hide_wait_frame()
 
     Remove the wait message frame.  If it is not currently displayed, this method is a no-op.
