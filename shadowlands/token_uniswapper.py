@@ -46,7 +46,7 @@ class TokenFrame(SLFrame):
                 i
             ) for i in self.dapp.balances]
 
-        self.tokens_list = self.add_listbox(len(self.dapp.balances), options, on_change=self.select_token, on_select=self.trade)
+        self.tokens_list = self.add_listbox(options, on_change=self.select_token, on_select=self.trade)
 
         self.add_button_row([
             ("Back", self.close, 1)

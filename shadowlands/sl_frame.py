@@ -103,10 +103,10 @@ class SLFrame(BlockCallbackMixin, Frame):
         return lambda: radiobuttons_widget.value
 
 
-    def add_listbox(self, height, options, on_select=None, layout=[100], layout_index=0, **kwargs):
+    def add_listbox(self, options, on_select=None, layout=[100], layout_index=0, **kwargs):
         _layout = Layout(layout)
         self.add_layout(_layout)
-        list_widget = ListBox(height, options, on_select=on_select, **kwargs)
+        list_widget = ListBox(len(options), options, on_select=on_select, **kwargs)
         _layout.add_widget(list_widget, layout_index)
         _layout.add_widget(Divider(draw_line=False))
         return lambda: list_widget.value
