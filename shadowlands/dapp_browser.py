@@ -247,12 +247,11 @@ class DappDirFrame(SLFrame):
 
 class DirPickerFrame(SLFrame):
     def initialize(self):
-        self.browser_value = self.add_file_browser(self._select_fn, path=self.dapp.config.sl_dapp_path, height=17)
+        self.browser_value = self.add_file_browser(path=self.dapp.config.sl_dapp_path, height=17)
         self.add_button_row([
             ("Select", self._select_fn, 0),
             ("Cancel", self.close, 1)
         ])
-
 
     def _select_fn(self):
         self.dapp.config.sl_dapp_path = self.browser_value()
@@ -263,7 +262,7 @@ class DeployContractDappFrame(SLFrame):
     def initialize(self):
         #debug(); pdb.set_trace()
 
-        self.browser_value = self.add_file_browser(self._select_fn, path=self.dapp.config.sl_dapp_path, height=17)
+        self.browser_value = self.add_file_browser(path=self.dapp.config.sl_dapp_path, height=17)
         self.add_button(self.close, "Cancel")
 
     def _select_fn(self):

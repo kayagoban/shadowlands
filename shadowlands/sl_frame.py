@@ -103,12 +103,14 @@ class SLFrame(BlockCallbackMixin, Frame):
         return lambda: radiobuttons_widget.value
 
 
-    def add_listbox(self, options, on_select=None, layout=[100], layout_index=0, **kwargs):
+    def add_listbox(self, options, default_value=None, on_select=None, layout=[100], layout_index=0, **kwargs):
         _layout = Layout(layout)
         self.add_layout(_layout)
         list_widget = ListBox(len(options), options, on_select=on_select, **kwargs)
         _layout.add_widget(list_widget, layout_index)
         _layout.add_widget(Divider(draw_line=False))
+        if default_value is not None:
+            list_widget._value = default_value
         return lambda: list_widget.value
          
     def add_label(self, label_text, layout=[100], layout_index=0, add_divider=True):
@@ -164,12 +166,13 @@ class SLFrame(BlockCallbackMixin, Frame):
             lyt.add_widget(Divider(draw_line=False))
  
 
-    def add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None):
+    def add_file_browser(self, path='/', height=15, on_change_fn=None, add_divider=True):
         layout = Layout([100])
         self.add_layout(layout)
-        browser = FileBrowser(height, path, on_select=on_select_fn, on_change=on_change_fn)
+        browser = FileBrowser(height, path, on_change=on_change_fn)
         layout.add_widget(browser)
-        layout.add_widget(Divider(draw_line=False))
+        if add_divider: 
+            layout.add_widget(Divider(draw_line=False))
         return lambda: browser._value
 
     def close(self):

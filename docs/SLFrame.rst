@@ -69,6 +69,20 @@ Call to close the current frame.  In your dapp, be sure to open a new frame or d
 Widgets
 -------
 
+* :func:`SLFrame.add_button` 
+* :func:`SLFrame.add_button_row` 
+* :func:`SLFrame.add_checkbox` 
+* :func:`SLFrame.add_qrcode` 
+* :func:`SLFrame.add_textbox` 
+* :func:`SLFrame.add_divider` 
+* :func:`SLFrame.add_radiobuttons` 
+* :func:`SLFrame.add_listbox` 
+* :func:`SLFrame.add_label` 
+* :func:`SLFrame.add_label_row` 
+* :func:`SLFrame.add_label_with_button` 
+* :func:`SLFrame.add_file_browser` 
+
+
 .. py:method:: SLFrame.add_button(fn, text, layout=[100], layout_index=0, add_divider=True)
 
     Add a single button to your SLFrame.  ``fn`` is a function to run (lambdas are
@@ -86,7 +100,7 @@ Widgets
  
 .. image:: add_button.png
   :width: 800
-  :alt: Dapps Menu
+  :alt: Button
 
 
 .. py:method:: SLFrame.add_button_row(buttons, layout=[1, 1, 1, 1], add_divider=True)
@@ -107,9 +121,7 @@ A row of buttons.  The argument ``buttons`` is an array of ``(string, function, 
 
 .. image:: add_button_row.png
   :width: 800
-  :alt: Dapps Menu
-
-
+  :alt: Button Row
 
 
 .. py:method:: SLFrame.add_checkbox(text, on_change=None, default=False, **kwargs)
@@ -135,11 +147,7 @@ A row of buttons.  The argument ``buttons`` is an array of ``(string, function, 
 
 .. image:: add_checkbox.png
   :width: 800
-  :alt: Dapps Menu
-
-
-
-
+  :alt: Checkbox
 
 
 .. py:method:: SLFrame.add_qrcode(data)
@@ -162,7 +170,7 @@ Displays a QRCode from the data given.
 
 .. image:: add_qrcode.png
   :width: 800
-  :alt: Dapps Menu
+  :alt: QRcode
 
 
 .. py:method:: SLFrame.add_textbox(label_text, default_value=None, add_divider=True, on_change=None, **kwargs):
@@ -187,7 +195,7 @@ Diplays a textbox for input. ``on_change`` takes a function that is run when the
 
 .. image:: add_textbox.png
   :width: 800
-  :alt: Dapps Menu
+  :alt: Textbox
 
 
 .. py:method:: SLFrame.add_divider(draw_line=False, **kwargs)
@@ -221,18 +229,149 @@ Radiobuttons widget.  Returns a function which, when executed, gives the value c
 
 .. image:: add_radiobuttons.png
   :width: 800
-  :alt: Dapps Menu
+  :alt: Radiobuttons
 
 
 
-.. py:method:: SLFrame.add_listbox(height, options, on_select=None, layout=[100], layout_index=0, **kwargs)
+.. py:method:: SLFrame.add_listbox(options, default_value=None, on_select=None, layout=[100], layout_index=0, **kwargs)
+
+Returns a function which, when executed, gives the value chosen.  ``options`` is an array of tuples, filled with (label, value).  ``layout`` follows the layout rules described in AsciimaticsLayout_.  You can provide an optional ``on_change`` function.
+
+.. code-block:: python
+        :caption: Example
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                myframe = MyFrame(self, 8, 25, title="frame title")
+                self.add_sl_frame(myframe)
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                options = [
+                    ("Option one", 1),
+                    ("Option two", 2),
+                    ("Option three", 3)
+                ]
+                self.options_value = self.add_listbox(
+                    options,
+                    default_value = 2,
+                    on_change=self.useful_fn
+                )
+                self.add_button(self.close, "close")
+
+            def useful_fn(self):
+                self.dapp.add_message_dialog(self.options_value())
+
+.. image:: add_listbox.png
+  :width: 800
+  :alt: Listbox
 
 .. py:method:: SLFrame.add_label(label_text, layout=[100], layout_index=0, add_divider=True)
+
+Display the string ``label_text``.``layout`` follows the layout rules described in AsciimaticsLayout_.
+
+.. code-block:: python
+        :caption: Example
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                myframe = MyFrame(self, 8, 60, title="frame title")
+                self.add_sl_frame(myframe)
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                self.add_label("HELLOOO")
+
+.. image:: add_label.png
+  :width: 800
+  :alt: Label
+
+
  
 .. py:method:: SLFrame.add_label_row(self, labels, layout=[1, 1, 1, 1], add_divider=True)
 
-.. py:method:: SLFrame.add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout=[70, 30])
+Add multiple labels. ``labels`` is an array of tuples of format (string, index) where index is the layout index. ``layout`` follows the layout rules described in AsciimaticsLayout_.
 
-.. py:method:: SLFrame.add_file_browser(self, on_select_fn, path='/', height=15, on_change_fn=None)
+.. code-block:: python
+        :caption: Example
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                labels = [
+                    ("Hiiiii", 0),
+                    ("Heeeeey", 2),
+                    ("HELLOOO", 3)
+                ]
+                self.add_label_row(labels)
+
+
+.. image:: add_label_row.png
+  :width: 800
+  :alt: Label row
+
+
+.. py:method:: SLFrame.add_label_with_button(label_text, button_text, button_fn, add_divider=True, layout=[70, 30])
+
+A label on the left and button on the right.  ``button_fn`` will be executed upon button press.  ``layout`` follows the layout rules described in AsciimaticsLayout_.
+
+.. code-block:: python
+        :caption: Example
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                myframe = MyFrame(self, 20, 70, title="frame title")
+                self.add_sl_frame(myframe)
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                labels = [
+                    ("Hiiiii", 0),
+                    ("Heeeeey", 2),
+                    ("HELLOOO", 3)
+                ]
+                self.add_label_row(labels)
+
+
+.. image:: add_label_row.png
+  :width: 800
+  :alt: Label row
+
+
+.. py:method:: SLFrame.add_file_browser(path='/', height=15, on_change_fn=None)
+
+Creates a file browser to select directories and files. 
+
+Returns a function that returns the selected filepath.  
+
+``path`` is the default filepath to start at.  ``height`` is an integer number
+of how many files to display.  You can scroll through the rest.
+
+``on_change_fn`` will fire whenever the filepath is changed.
+
+
+.. code-block:: python
+        :caption: Example
+
+        class Dapp(SLDapp):
+            def initialize(self):
+                myframe = MyFrame(self, 20, 70, title="frame title")
+                self.add_sl_frame(myframe)
+
+        class MyFrame(SLFrame):
+            def initialize(self):
+                self.file_value = self.add_file_browser(path='/chaindata')
+                self.add_button(self.useful_fn, "Select")
+
+            def useful_fn(self):
+                self.dapp.add_message_dialog(self.file_value())
+
+.. image:: add_file_browser-1.png
+  :width: 800
+  :alt: File Browser
+
+.. image:: add_file_browser-2.png
+  :width: 800
+  :alt: File Browser
+
 
 .. _AsciimaticsLayout: https://asciimatics.readthedocs.io/en/stable/widgets.html#displaying-your-ui
