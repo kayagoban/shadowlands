@@ -22,11 +22,9 @@ class LoadingScene(Scene):
             DynamicSourceCursor(screen, NetworkStatusRenderer(interface.node), 51, 0, speed=4),
             Materialize(screen, FigletText('Shadowlands', 'slant'), 0, 2, signal_acceleration_factor=1.0),
             Materialize(screen, StaticRenderer([ 'p u b l i c    t e r m i n a l\t\t\t{}'.format(version)]), 10, 9, signal_acceleration_factor=1.0,),
-            #Cursor(screen, StaticRenderer(['Please insert a Credstick and connect to Ethereum...']), 0, 12),
-            DynamicSourceCursor(screen, CredstickNameRenderer(interface, add_padding=False), 0, 13, speed=2, no_blink=False),
+            DynamicSourceCursor(screen, CredstickNameRenderer(interface, add_padding=False), 0, 13, speed=6, no_blink=False),
 
             CredstickWatcher(screen, interface),
-            #Materialize(screen, StaticRenderer(['Insert your credstick and connect to an ethereum client...']), 0, 13), 
             LoadingScreenListener(screen, interface)
         ]
 
