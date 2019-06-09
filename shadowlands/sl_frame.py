@@ -64,11 +64,13 @@ class SLFrame(BlockCallbackMixin, Frame):
         self.add_layout(layout)
         layout.add_widget(QRCode(data))
 
-    def add_checkbox(self, text, on_change=None, **kwargs):
+    def add_checkbox(self, text, on_change=None, default=False, **kwargs):
         layout = Layout([100])
         self.add_layout(layout)
         box = CheckBox(text, None, None, on_change, **kwargs)
+        box._value = default
         layout.add_widget(box)
+
         return lambda: box._value
 
 
