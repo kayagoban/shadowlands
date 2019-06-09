@@ -52,12 +52,12 @@ class SLFrame(BlockCallbackMixin, Frame):
         return super(SLFrame, self).process_event(event)
 
 
-    def add_button(self, ok_fn, text, layout_distribution=[100], layout_index=0, add_divider=True):
-        layout = Layout(layout_distribution)
-        self.add_layout(layout)
-        layout.add_widget(Button(text, ok_fn), layout_index)
+    def add_button(self, ok_fn, text, layout=[100], layout_index=0, add_divider=True):
+        _layout = Layout(layout)
+        self.add_layout(_layout)
+        _layout.add_widget(Button(text, ok_fn), layout_index)
         if add_divider:
-            layout.add_widget(Divider(draw_line=False))
+            _layout.add_widget(Divider(draw_line=False))
 
     def add_qrcode(self, data):
         layout = Layout([100])
@@ -91,40 +91,40 @@ class SLFrame(BlockCallbackMixin, Frame):
         self.add_layout(layout)
         layout.add_widget(Divider(draw_line=draw_line, **kwargs))
 
-    def add_radiobuttons(self, options, default_value=None, layout_distribution=[100], layout_index=0, add_divider=True, **kwargs):
-        layout = Layout(layout_distribution)
-        self.add_layout(layout)
+    def add_radiobuttons(self, options, default_value=None, layout=[100], layout_index=0, add_divider=True, **kwargs):
+        _layout = Layout(layout)
+        self.add_layout(_layout)
         radiobuttons_widget = RadioButtons(options, **kwargs)
-        layout.add_widget(radiobuttons_widget, layout_index)
+        _layout.add_widget(radiobuttons_widget, layout_index)
         if add_divider:
-            layout.add_widget(Divider(draw_line=False))
+            _layout.add_widget(Divider(draw_line=False))
         if default_value is not None:
             radiobuttons_widget._value = default_value
         return lambda: radiobuttons_widget.value
 
 
-    def add_listbox(self, height, options, on_select=None, layout_distribution=[100], layout_index=0, **kwargs):
-        layout = Layout(layout_distribution)
-        self.add_layout(layout)
+    def add_listbox(self, height, options, on_select=None, layout=[100], layout_index=0, **kwargs):
+        _layout = Layout(layout)
+        self.add_layout(_layout)
         list_widget = ListBox(height, options, on_select=on_select, **kwargs)
-        layout.add_widget(list_widget, layout_index)
-        layout.add_widget(Divider(draw_line=False))
+        _layout.add_widget(list_widget, layout_index)
+        _layout.add_widget(Divider(draw_line=False))
         return lambda: list_widget.value
          
-    def add_label(self, label_text, layout_distribution=[100], layout_index=0, add_divider=True):
-        layout = Layout(layout_distribution)
-        self.add_layout(layout)
-        layout.add_widget(Label(label_text), layout_index) 
+    def add_label(self, label_text, layout=[100], layout_index=0, add_divider=True):
+        _layout = Layout(layout)
+        self.add_layout(_layout)
+        _layout.add_widget(Label(label_text), layout_index) 
         if add_divider:
-            layout.add_widget(Divider(draw_line=False))
+            _layout.add_widget(Divider(draw_line=False))
 
-    def add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout_distribution=[70, 30]):
-        layout = Layout(layout_distribution)
-        self.add_layout(layout)
-        layout.add_widget(Label(label_text), 0) 
-        layout.add_widget(Button(button_text, button_fn), 1) 
+    def add_label_with_button(self, label_text, button_text, button_fn, add_divider=True, layout=[70, 30]):
+        _layout = Layout(layout)
+        self.add_layout(_layout)
+        _layout.add_widget(Label(label_text), 0) 
+        _layout.add_widget(Button(button_text, button_fn), 1) 
         if add_divider:
-            layout.add_widget(Divider(draw_line=False))
+            _layout.add_widget(Divider(draw_line=False))
 
     # DEPRECATED. Use add_label_row instead
     def add_label_pair(self, label0_text, label1_text, add_divider=True):
