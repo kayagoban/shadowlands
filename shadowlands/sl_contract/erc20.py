@@ -92,8 +92,8 @@ class Erc20(SLContract):
         return int((10 **self.decimals()) * amount)
 
     def my_balance_str(self, length=18):
-        bal = str(self.balanceOf(self._node.credstick.address) / (10 ** self.decimals()))
-        return bal[0:length]
+        bal = self.balanceOf(self._node.credstick.address) / (10 ** self.decimals())
+        return "{:f}".format(bal)[0:length]
 
 
     # Transactions
