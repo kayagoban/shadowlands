@@ -28,9 +28,11 @@ subclass of :class:`SLFrame` and then add Widgets_ to it in the :func:`initializ
 Constructor
 -----------
 
-.. py:method:: SLFrame.__init__(dapp, height, width, title=None)
+.. py:method:: SLFrame(dapp, height, width, title=None)
 
-The constructor's first argument should be an instance of :class:`SLDapp`.  `height` and `width` parameters are also required.  An optional `title` string will be displayed at the top of the frame.
+SLFrame is not meant to be directly instantiated.  Subclass it and instantiate the subclass.
+
+The constructor's first argument should be an instance of :class:`SLDapp`. Integer `height` and `width` parameters are also required.  An optional `title` string will be displayed at the top of the frame.
 
     .. code-block:: python
         :caption: Example
