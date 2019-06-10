@@ -193,6 +193,8 @@ class Node():
         self._syncing = self._w3.eth.syncing
         if self._syncing not in (None, False):
             self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
+        else:
+            self._blocks_behind = None
 
 
     def _update_status(self):
@@ -398,9 +400,8 @@ class Node():
         self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
         return encode_hex(rx)
 
-    def send_erc20(self, token_name, destination, amount, gas_price, nonce=None):
-        token = Erc20.factory(self, token_name)
-        contract_fn = token.transfer(destination, self.w3.toWei(amount, 'ether'))
+    def send_erc20(self, token, destination, amount, gas_price, nonce=None):
+        contract_fn = token.transfer(destination, token.convert_to_integer(amount))
         rx = self.push(contract_fn, gas_price, gas_limit=150000, value=0, nonce=nonce)
         return rx
 

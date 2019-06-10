@@ -2,6 +2,7 @@ from shadowlands.sl_contract import SLContract
 import logging
 from shadowlands.tui.debug import debug
 import pdb
+from decimal import Decimal
 
 class TokenNotFound(Exception):
     pass
@@ -83,13 +84,13 @@ class Erc20(SLContract):
 
     @property
     def decimal_balance(self):
-        return self.balanceOf(self._node.credstick.address) / (10 ** self.decimals())
+        return Decimal(self.balanceOf(self._node.credstick.address)) / (10 ** self.decimals())
 
     def convert_to_decimal(self, amount):
-        return (amount / ( 10 ** self.decimals() ) )
+        return (Decimal(amount) / ( 10 ** self.decimals() ) )
 
     def convert_to_integer(self, amount):
-        return int((10 **self.decimals()) * amount)
+        return int(Decimal(amount) * (10 ** self.decimals()) )
 
     def my_balance_str(self, length=18):
         bal = self.balanceOf(self._node.credstick.address) / (10 ** self.decimals())

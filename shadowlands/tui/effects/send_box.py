@@ -114,7 +114,8 @@ class SendBox(TransactionFrame):
             if self.currency_listbox.value['name'] == 'ETH':
                 rx = self._interface.node.send_ether(address_text._value, Decimal(amount), gas_price_wei, nonce)
             else:
-                rx = self._interface.node.send_erc20(self.currency_listbox.value['name'], address_text._value, amount, gas_price_wei, nonce)
+                token = Erc20.factory(self._interface.node, self.currency_listbox.value['name'])
+                rx = self._interface.node.send_erc20(token, address_text._value, amount, gas_price_wei, nonce)
 
             #pyperclip.copy(rx)
             #self._scene.add_effect( MessageDialog(self._screen,"Tx submitted.", width = 20))
