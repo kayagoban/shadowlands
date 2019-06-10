@@ -13,10 +13,16 @@ do
       echo "Usage: shadowlands [arg]"
       echo
       echo "arguments:"
-      echo "            --clean    Removes the installation at ~/.shadowlands."
-      echo "            --staging  Run the version of shadowlands at staging.shadowlands.eth. (not recommended)"
-      echo "            --help     This message"
-      exit
+      echo "            --clean                     Removes the installation at ~/.shadowlands."
+      echo "            --staging                   Run the version of shadowlands at staging.shadowlands.eth. (not recommended)"
+#      echo "            --mock <address>            Set up a mock credstick with <address>."
+      echo "            --help                      This message"
+      shift
+      ;;
+      --mock)
+      ADDRESS="$2"
+      shift
+      shift
       ;;
       --clean)
       echo "Removing virtual python environment at ~/.shadowlands"
@@ -25,7 +31,7 @@ do
       ;;
       --staging)
       SHADOWLANDS=staging.shadowlands.eth
-      break
+      shift
       ;;
       *)  
       echo "Unrecognized option; try 'shadowlands --help'"
@@ -34,7 +40,7 @@ do
   esac
 done
 
-if [ ! -d ~/.shadowlands ]; then
+function make_shadowlands_dir {
   for pythonfile in `which python3.6` `which python3`; do
     if [ -f $pythonfile ]; then
       echo Found a usable python binary at `$pythonfile -V`
@@ -45,6 +51,17 @@ if [ ! -d ~/.shadowlands ]; then
   mkdir -p ~/.shadowlands/cache
   echo "Making a virtual python env for Shadowlands in ~/.shadowlands"
   $pythonfile -m venv ~/.shadowlands
+  touch ~/.shadowlands/v1
+}
+
+if [ ! -d ~/.shadowlands ]; then
+  make_shadowlands_dir
+fi
+
+# upgrade from alpha version
+if [ ! -f ~/.shadowlands/v1 ]; then
+  rm -rf ~/.shadowlands
+  make_shadowlands_dir
 fi
 
 echo "Activating Shadowlands virtual environment"
@@ -70,7 +87,7 @@ try:
     except ImportError:
         try:
             call(['pip','install', '--upgrade', 'pip'])
-            call(['pip','install', 'git+https://github.com/kayagoban/python3-wget.git', 'web3==4.7.2'])
+            call(['pip','install', 'git+https://github.com/kayagoban/python3-wget.git', 'web3==4.9.1'])
         except (KeyboardInterrupt, Exception) as e:
             raise BootstrapError(e)
 
@@ -161,6 +178,7 @@ try:
     importer = zipimport.zipimporter(str(sl_zipfile))
     print("Loading Shadowlands...")
     mod = importer.load_module('shadowlands')
+    mod.main()
 
 except BootstrapError as error:
     # If we have errors during the bootstrap pip installs, we have to scrap the install.
