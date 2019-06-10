@@ -44,7 +44,7 @@ class DappMenuFrame(SLFrame):
             ("Deploy local dapp to network", lambda: self.dapp.add_sl_frame(DeployChooseDappFrame(self.dapp, 10, 61, title="Deploy your Dapp"))),
             ("Change local dapp directory", lambda: self.dapp.add_sl_frame(DappDirFrame(self.dapp, 7, 75, title="Change Dapp Directory"))),
         ]
-        self._listbox_value = self.add_listbox(options, on_select=self._menu_action)
+        self._listbox_value = self.add_listbox(4, options, on_select=self._menu_action)
         self.add_button(self.close, "Cancel")
 
     def _menu_action(self):
@@ -56,12 +56,12 @@ class DeployChooseDappFrame(SLFrame):
     def initialize(self):
         self.add_label("Your Dapps:")
         options = self.dapp._dapps_in_path
-        self._listbox_value = self.add_listbox(options(), on_select=self._choose_dapp)
+        self._listbox_value = self.add_listbox(4, options(), on_select=self._choose_dapp)
         self.add_button(self.close, "Cancel")
  
     def _choose_dapp(self):
         self.dapp.dapp_name = self._listbox_value()
-        self.dapp.add_sl_frame(DeployMenuFrame(self.dapp, 7, 50, title="Deploy {}".format(self.dapp.dapp_name)))
+        self.dapp.add_sl_frame(DeployMenuFrame(self.dapp, 6, 50, title="Deploy {}".format(self.dapp.dapp_name)))
         self.close()
         
 
@@ -71,7 +71,7 @@ class DeployMenuFrame(SLFrame):
             ("Create archive", self._create_archive),
             ("Register archive", self._register_archive)
         ]
-        self._listbox_value = self.add_listbox(options, on_select=self._deploy_action)
+        self._listbox_value = self.add_listbox(2, options, on_select=self._deploy_action)
         self.add_button(self.close, "Cancel")
  
     def _deploy_action(self):
@@ -159,7 +159,7 @@ class RunLocalDappFrame(SLFrame):
     def initialize(self):
         self.add_label("Your Dapps:")
         options = self.dapp._dapps_in_path
-        self._listbox_value = self.add_listbox(options(), on_select=self._run_dapp)
+        self._listbox_value = self.add_listbox(4, options(), on_select=self._run_dapp)
         self.add_button(self.close, "Cancel")
 
     def reload_package(self, package):

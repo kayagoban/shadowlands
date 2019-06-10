@@ -30,6 +30,7 @@ class PathPickerFrame(SLFrame):
             ) 
         )
         self.index_list_value = self.add_listbox(
+            10,
             self._build_hdpaths(
                 range(
                     self.dapp.range_base, 

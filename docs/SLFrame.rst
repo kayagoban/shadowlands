@@ -235,9 +235,9 @@ Radiobuttons widget.  Returns a function which, when executed, gives the value c
 
 
 
-.. py:method:: SLFrame.add_listbox(options, default_value=None, on_select=None, layout=[100], layout_index=0, **kwargs)
+.. py:method:: SLFrame.add_listbox(height, options, default_value=None, on_select=None, layout=[100], layout_index=0, **kwargs)
 
-Returns a function which, when executed, gives the value chosen.  ``options`` is an array of tuples, filled with (label, value).  ``layout`` follows the layout rules described in AsciimaticsLayout_.  You can provide an optional ``on_change`` function.
+Returns a function which, when executed, gives the value chosen.  ``height`` is the number of lines high the listbox reaches.  If the length of the ``options`` array exceeds ``height``, the user will be able to scroll to see all the options.  ``options`` is an array of tuples, filled with (label, value).  ``layout`` follows the layout rules described in AsciimaticsLayout_.  You can provide an optional ``on_change`` function.
 
 .. code-block:: python
         :caption: Example
