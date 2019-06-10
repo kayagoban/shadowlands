@@ -1,1 +1,1 @@
-SL_VERSION='v0.16a'
+SL_VERSION='1.0.0'
