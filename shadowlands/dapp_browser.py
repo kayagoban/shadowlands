@@ -134,7 +134,7 @@ class AskClipboardFrame(SLFrame):
 
 class RunNetworkDappFrame(SLFrame):
     def initialize(self):
-        self.add_label("Ex: ens.shadowlands || 0x5c27053A642B8dCc79385f47fCB25b5e72348feD")
+        self.add_label("Ex: burninator.eth || 0x4c37BFF7B29F38bb9f34E2345220190Fa03f5ccC")
         self.textbox_value = self.add_textbox("Dapp location:")
         self.add_divider()
         self.add_button_row([
