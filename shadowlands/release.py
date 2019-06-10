@@ -10,7 +10,7 @@ import pdb
 class ReleaseVersion(SLDapp):
     def initialize(self):
         self.sloader_contract = SLoader(self.node)
-        self.add_sl_frame(ReleaseFrame(self, 7, 75, title='New Shadowlands Release'))
+        self.add_sl_frame(ReleaseFrame(self, 7, 77, title='New Shadowlands Release'))
 
 class ReleaseFrame(SLFrame):
     def initialize(self):
@@ -26,7 +26,7 @@ class ReleaseFrame(SLFrame):
         shasum = self.checksum()
         
         self.dapp.add_transaction_dialog(
-            tx_fn=lambda: self.dapp.sloader_contract.register_package(
+            tx_fn=self.dapp.sloader_contract.register_package(
                 shasum,
                 self.uri()
             ),
