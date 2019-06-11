@@ -87,7 +87,7 @@ try:
     except ImportError:
         try:
             call(['pip','install', '--upgrade', 'pip'])
-            call(['pip','install', 'git+https://github.com/kayagoban/python3-wget.git', 'web3'])
+            call(['pip','install', 'git+https://github.com/kayagoban/python3-wget.git', 'web3==4.9.1'])
         except (KeyboardInterrupt, Exception) as e:
             raise BootstrapError(e)
 
