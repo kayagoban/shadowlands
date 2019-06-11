@@ -22,7 +22,6 @@ from web3 import Web3
 import pdb
 
 import logging
-logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
 
 
 # The Trezor protocol is a dumpster fire of shitty design

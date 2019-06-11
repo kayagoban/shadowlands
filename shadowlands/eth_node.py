@@ -18,9 +18,6 @@ from shadowlands.sl_contract import SLContract
 
 import logging
 import traceback
-logging.basicConfig(level = logging.INFO, filename = "shadowlands.eth_node.log")
-
-#debug(); #pdb.set_trace()
    
 class NodeConnectionError(Exception):
     pass
