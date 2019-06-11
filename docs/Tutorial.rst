@@ -862,13 +862,15 @@ The source code for the Burninator app is available on github at https://github.
 Deploying your dapp
 -------------------
 
-Shadowlands has a package management contract that allows you to deploy your dapp
+Shadowlands has a package management contract at ``sloader.shadowlands.eth`` that allows you to deploy your dapp
 so you can share it with the world.
 
 Once registered, anyone can run your dapp by using the ethereum address
 you used to register the software (they can also reference your ENS, which is much nicer).
+If you want to register more than one dapp, use a different address to register each.
 
-It sounds complicated, but it's quite easy.
+In this example, I am using address ``0x4c37BFF7B29F38bb9f34E2345220190Fa03f5ccC`` which is 
+is resolved by the ENS name ``burninator.eth``.
 
 Select the ``Deploy local dapp to network`` from the Dapps menu.
 
@@ -898,7 +900,7 @@ Now, copy the zip file to some place on the internet.
   :width: 800
   :alt: Deploying dapp
 
-Now you will register this URL and checksum with the contract at sloader.shadowlands.eth - Once the TX is mined, anyone can run your app:
+Now you will register this URL and checksum. Once the TX is mined, anyone can run your app:
 
 .. image:: dapp-deploy-6.5.png
   :width: 800
