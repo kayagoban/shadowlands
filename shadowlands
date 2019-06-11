@@ -98,11 +98,13 @@ try:
     SLOADER_ABI='''[ {"constant":true,"inputs":[{"name":"","type":"address"}],"name":"packages","outputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"payable":false,"stateMutability":"view","type":"function"} ]'''
 
     try:
-        from web3.auto.infura import w3
-        w3.isConnected() and w3.version.network == '1'
-    except:
         from web3.auto import w3
-        if not (w3.isConnected() and w3.version.network == '1') :
+        if not (w3.isConnected() and w3.version.network == '1'):
+            raise Exception
+    except:
+        print("Could not connect to local node, trying Infura...")
+        from web3.auto.infura import w3
+        if not (w3.isConnected() and w3.version.network == '1'):
             print("Could not get an eth node to bootstrap from, exiting.")
             sys.exit(1)
 
@@ -160,9 +162,6 @@ try:
 
         try:
             call(['pip','install'] + reqs)
-            print("Install examples...")
-            example_dir = Path.home().joinpath(".shadowlands").joinpath("example")
-            call(['git', 'clone', 'https://github.com/kayagoban/example-dapps-shadowlands.git', str(example_dir)])
         except (KeyboardInterrupt, Exception) as e:
             # Our dependencies were not installed, we have to scrap the file and try again next time.
             os.remove(str(sl_zipfile))
