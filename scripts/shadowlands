@@ -2,13 +2,13 @@
 
 # Devs - Uncomment the following line 
 # and point it to the cloned github repo
-# SL_DIR=/usr/local/lib/shadowlands
+#SL_DIR=~/src/shadowlands
 
 
 if [ -z "$SL_DIR" ]; then 
 	case "$OSTYPE" in
 	  #solaris*) echo "SOLARIS" ;;
-	  darwin*)  echo "Detected $OSTYPE"; SL_DIR=/usr/local/Cellar/shadowlands ;;
+	  darwin*)  echo "Detected $OSTYPE"; SL_DIR=/usr/local/opt/shadowlands/lib ;;
 	  linux*)   echo "Running $OSTYPE"; SL_DIR=/usr/local/lib/shadowlands ;;
 	  #bsd*)     echo "BSD" ;;
 	*)        echo "unknown: $OSTYPE."; echo  Edit this script and see if you can make it better. ;;
@@ -59,7 +59,7 @@ function make_shadowlands_dir {
   $pythonfile -m venv ~/.shadowlands
   touch ~/.shadowlands/v1
   source ~/.shadowlands/bin/activate
-  pip3 install -r $SL_DIR/shadowlands/requirements.txt --no-cache-dir || rm -rf ~/.shadowlands; echo "pip failed; rolling back venv install"
+  pip3 install -r $SL_DIR/shadowlands/requirements.txt --no-cache-dir || rm -rf ~/.shadowlands; echo "pip failed; rolling back venv install"; exit 1
 }
 
 function activate_env {
