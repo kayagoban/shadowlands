@@ -15,10 +15,8 @@ API documentation is available at [ReadTheDocs](https://shadowlands.readthedocs.
 
 ### But why would you do that?
 
+* I don't want to rely on a 'frontender' to make interfaces for me.
 * I want to write dapps in Python.
-* It's easier on my nerves to write an entire dapp platform than to use Javascript, CSS and HTML5.
-* Text interfaces are remarkably efficient.
-* I just wanted to do it...
 
 ### An even more thrilling demo
 
@@ -45,13 +43,15 @@ Use the provided .deb package [on the releases page](https://github.com/kayagoba
 
 Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how to set up python 3.6 on Ubuntu 16.04 LTS: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
 
+
 # Writing your own Dapps
 
 You can write, deploy and register your own python based dapp modules that can be loaded within shadowlands, without any HTML, CSS or Javascript.  
-
 A Tutorial on how to start [is available](https://shadowlands.readthedocs.io/en/latest/Tutorial.html).
 
-The example dapp from the tutorial can be run within shadowlands by loading burninator.eth, and the [source code is available on github.](https://github.com/kayagoban/burninator)  
+Burninator, the example dapp from the tutorial, can be run within shadowlands by loading burninator.eth, and the [source code is available on github.](https://github.com/kayagoban/burninator)  
+
+
 
 ## You're gonna need a credstick.
 
