@@ -1,17 +1,20 @@
 [DEBREATE-0.7.13]
 <<CTRL>>
 Package: shadowlands
-Version: 1
-Maintainer: Chuck Thomas <cthomas@soykaf.digital>
+Version: 1.0.2
+Maintainer: Cath Thomas <cthomas@soykaf.digital>
 Section: devel
+Source: https://github.com/kayagoban/shadowlands/
+Homepage: https://github.com/kayagoban/shadowlands/
 Architecture: all
 Priority: optional
 Depends: git, build-essential, autoconf, libtool, pkg-config, libusb-dev, libudev-dev, libssl-dev, libusb-1.0-0-dev, bash, xsel, xclip, python3 (>=3.5.3) | python3.6 | python3.7, python3-venv (>=3.5.3) | python3.6-venv | python3.7-venv, python3-dev (>= 3.5.3) | python3.6-dev | python3.7-dev
-Description: Python RAD platform for Ethereum dapp development
+Description: Ethereum terminal and Python RAD platform for Ethereum dapp developmen
 
 <</CTRL>>
 <<FILES>>
 1
+/home/cthomas/src/shadowlands-core -> shadowlands-core -> /usr/local/lib
 /home/cthomas/src/shadowlands/shadowlands* -> shadowlands -> /usr/local/bin
 <</FILES>>
 <<SCRIPTS>>

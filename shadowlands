@@ -1,7 +1,5 @@
 #!/bin/bash -l
 
-SHADOWLANDS=app.shadowlands.eth
-
 while [[ $# -gt 0 ]]
 do
   key="$1"
@@ -14,7 +12,6 @@ do
       echo
       echo "arguments:"
       echo "            --clean                     Removes the installation at ~/.shadowlands."
-      echo "            --staging                   Run the version of shadowlands at staging.shadowlands.eth. (not recommended)"
 #      echo "            --mock <address>            Set up a mock credstick with <address>."
       echo "            --help                      This message"
       shift
@@ -28,10 +25,6 @@ do
       echo "Removing virtual python environment at ~/.shadowlands"
       rm -rf ~/.shadowlands
       exit
-      ;;
-      --staging)
-      SHADOWLANDS=staging.shadowlands.eth
-      shift
       ;;
       *)  
       echo "Unrecognized option; try 'shadowlands --help'"
@@ -52,145 +45,21 @@ function make_shadowlands_dir {
   echo "Making a virtual python env for Shadowlands in ~/.shadowlands"
   $pythonfile -m venv ~/.shadowlands
   touch ~/.shadowlands/v1
+  source ~/.shadowlands/bin/activate
+  pip3 install -r ~/src/shadowlands-core/shadowlands/requirements.txt
+}
+
+function activate_env {
+  echo "Activating Shadowlands virtual environment"
+  source ~/.shadowlands/bin/activate
 }
 
 if [ ! -d ~/.shadowlands ]; then
   make_shadowlands_dir
-fi
-
-# upgrade from alpha version
-if [ ! -f ~/.shadowlands/v1 ]; then
+elif [ ! -f ~/.shadowlands/v1 ]; then
   rm -rf ~/.shadowlands
   make_shadowlands_dir
 fi
 
-echo "Activating Shadowlands virtual environment"
-source ~/.shadowlands/bin/activate
-
-cat << EOF > ~/.shadowlands/shadowlands.py
-#!$HOME/.shadowlands/bin/python3
-
-from subprocess import call
-import sys, os, pdb, shutil
-from pathlib import Path
-import zipimport
-import zipfile
-import hashlib
-from time import sleep
-
-class BootstrapError(Exception):
-    pass
-
-try:
-    try:
-        import wget, web3, ens
-    except ImportError:
-        try:
-            call(['pip','install', '--upgrade', 'pip'])
-            call(['pip','install', 'git+https://github.com/kayagoban/python3-wget.git', 'web3==4.9.1'])
-        except (KeyboardInterrupt, Exception) as e:
-            raise BootstrapError(e)
-
-    from eth_utils import encode_hex
-    import wget
-
-    SLOADER_MAINNET='sloader.shadowlands.eth'
-    SLOADER_ABI='''[ {"constant":true,"inputs":[{"name":"","type":"address"}],"name":"packages","outputs":[{"name":"checksum","type":"bytes32"},{"name":"uri","type":"string"}],"payable":false,"stateMutability":"view","type":"function"} ]'''
-
-    try:
-        from web3.auto import w3
-        if not (w3.isConnected() and w3.version.network == '1'):
-            raise Exception
-    except:
-        print("Could not connect to local node, trying Infura...")
-        from web3.auto.infura import w3
-        if not (w3.isConnected() and w3.version.network == '1'):
-            print("Could not get an eth node to bootstrap from, exiting.")
-            sys.exit(1)
-
-    print("Connected to " + w3.version.node)
-
-    from ens import ENS
-
-    ns = ENS.fromWeb3(w3)
-
-    sloader_address = ns.address(SLOADER_MAINNET)
-
-    print("Bootstrapping {} at {}".format(SLOADER_MAINNET, sloader_address))
-
-    sloader_contract = w3.eth.contract(sloader_address, abi=SLOADER_ABI)
-
-    print("Collecting package info for $SHADOWLANDS")
-
-    package = sloader_contract.functions.packages("$SHADOWLANDS").call()
-    shadowlands_zip_url = package[1] 
-    shadowlands_checksum = encode_hex(package[0]).replace('0x','')
-
-    print("Contract reports latest checksum is " + shadowlands_checksum)
-
-    shadowlands_cache_dir = Path.home().joinpath(".shadowlands").joinpath("cache")
-
-    sl_zipfile = None
-
-    def filehasher(sl_zipfile):
-        hasher = hashlib.sha256()
-        with open(str(sl_zipfile), 'rb') as afile:
-            buf = afile.read()
-            hasher.update(buf)
-            return hasher.hexdigest()
-
-    for cached_file in shadowlands_cache_dir.iterdir():
-        if shadowlands_checksum == filehasher(cached_file):
-            print("Checksum matched cached copy of Shadowlands...")
-            sl_zipfile = cached_file
-            break
-
-    if sl_zipfile is None:
-        print("Getting latest Shadowlands version...")
-        sl_zipfile = wget.download(shadowlands_zip_url, out=str(shadowlands_cache_dir))
-        print(" ")
-        if shadowlands_checksum != filehasher(str(sl_zipfile)):
-            print("ERROR: Downloaded file did not pass checksum, aborting.")
-            sys.exit(1)
-        print("Checksum verified...")
-        print("")
-
-        archive = zipfile.ZipFile(str(sl_zipfile), 'r')
-        print("*** Gathering Shadowlands dependencies...")
-        requirements = archive.read('shadowlands/requirements.txt')
-        reqs = requirements.split()
-
-        try:
-            call(['pip','install'] + reqs)
-        except (KeyboardInterrupt, Exception) as e:
-            # Our dependencies were not installed, we have to scrap the file and try again next time.
-            os.remove(str(sl_zipfile))
-            import traceback
-            exc_type, exc_value, exc_tb = sys.exc_info()
-            traceback.print_exception(exc_type, exc_value, exc_tb)
-            print("\nError while gathering Shadowlands dependencies.")
-            sys.exit(1)
-
-        archive.close()
-   
-
-    importer = zipimport.zipimporter(str(sl_zipfile))
-    print("Loading Shadowlands...")
-    mod = importer.load_module('shadowlands')
-    mod.main()
-
-except BootstrapError as error:
-    # If we have errors during the bootstrap pip installs, we have to scrap the install.
-    shutil.rmtree(str(Path.home().joinpath(".shadowlands")))
-    import traceback
-    exc_type, exc_value, exc_tb = sys.exc_info()
-    traceback.print_exception(exc_type, exc_value, exc_tb)
-    print("\nError while bootstrapping the Shadowlands loader.")
-    sys.exit(1)
-    #pdb.set_trace()
-
-EOF
-
-chmod 755 ~/.shadowlands/shadowlands.py
-~/.shadowlands/shadowlands.py
-
+activate_env
+python3 ~/src/shadowlands-core/shadowlands.py
