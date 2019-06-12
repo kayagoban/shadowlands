@@ -27,6 +27,7 @@ do
   esac
 done
 
+
 function make_shadowlands_dir {
   for pythonfile in `which python3.6` `which python3`; do
     if [ -f $pythonfile ]; then
@@ -57,3 +58,5 @@ fi
 
 activate_env
 python3 /usr/local/lib/shadowlands-core/shadowlands.py
+
+#export PYTHONPATH=${PYTHONPATH}:/users/[your username]/PBI/Modules/

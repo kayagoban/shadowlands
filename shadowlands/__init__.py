@@ -70,5 +70,6 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
 
     sys.exit(0)
 
-#if __name__ == "__main__":
-#    main()
+if __name__ == "__main__":
+    main()
+
