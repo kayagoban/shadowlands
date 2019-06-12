@@ -27,6 +27,17 @@ do
   esac
 done
 
+export PYTHONPATH=${PYTHONPATH}:..
+SL_DIR=../shadowlands
+
+
+case "$OSTYPE" in
+  solaris*) echo "SOLARIS" ;;
+  darwin*)  echo "OSX" ;;
+  linux*)   echo "LINUX" ;;
+  bsd*)     echo "BSD" ;;
+*)        echo "unknown: $OSTYPE" ;;
+esac
 
 function make_shadowlands_dir {
   for pythonfile in `which python3.6` `which python3`; do
@@ -41,7 +52,7 @@ function make_shadowlands_dir {
   $pythonfile -m venv ~/.shadowlands
   touch ~/.shadowlands/v1
   source ~/.shadowlands/bin/activate
-  pip3 install -r /usr/local/lib/shadowlands-core/shadowlands/requirements.txt --no-cache-dir || exit 1
+  pip3 install -r $SL_DIR/requirements.txt --no-cache-dir || rm -rf ~/.shadowlands; echo "pip failed; rolling back venv install"
 }
 
 function activate_env {
@@ -57,6 +68,6 @@ elif [ ! -f ~/.shadowlands/v1 ]; then
 fi
 
 activate_env
-python3 /usr/local/lib/shadowlands-core/shadowlands.py
+python3 -m shadowlands
+#python3 /usr/local/lib/shadowlands-core/shadowlands.py
 
-#export PYTHONPATH=${PYTHONPATH}:/users/[your username]/PBI/Modules/
