@@ -7,5 +7,5 @@ A 100% Python, TextUI Dapp platform for ethereum, built on Python3.5+, [web3.py]
 
 API documentation is available at [ReadTheDocs](https://shadowlands-core.readthedocs.io).
 
-## Coming soon!  Standy....
+## Coming soon!  Standby....
 
