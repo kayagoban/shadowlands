@@ -1,5 +1,24 @@
 #!/bin/bash -l
 
+# Devs - Uncomment the following line 
+# and point it to the cloned github repo
+# SL_DIR=/usr/local/lib/shadowlands
+
+
+if [ -z "$SL_DIR" ]; then 
+	case "$OSTYPE" in
+	  #solaris*) echo "SOLARIS" ;;
+	  darwin*)  echo "Detected $OSTYPE"; SL_DIR=/usr/local/Cellar/shadowlands ;;
+	  linux*)   echo "Running $OSTYPE"; SL_DIR=/usr/local/lib/shadowlands ;;
+	  #bsd*)     echo "BSD" ;;
+	*)        echo "unknown: $OSTYPE."; echo  Edit this script and see if you can make it better. ;;
+	esac
+fi
+
+export PYTHONPATH=${PYTHONPATH}:$SL_DIR
+
+#echo Shadowlands located at $SL_DIR
+
 while [[ $# -gt 0 ]]
 do
   key="$1"
@@ -27,18 +46,6 @@ do
   esac
 done
 
-export PYTHONPATH=${PYTHONPATH}:..
-SL_DIR=../shadowlands
-
-
-case "$OSTYPE" in
-  solaris*) echo "SOLARIS" ;;
-  darwin*)  echo "OSX" ;;
-  linux*)   echo "LINUX" ;;
-  bsd*)     echo "BSD" ;;
-*)        echo "unknown: $OSTYPE" ;;
-esac
-
 function make_shadowlands_dir {
   for pythonfile in `which python3.6` `which python3`; do
     if [ -f $pythonfile ]; then
@@ -52,7 +59,7 @@ function make_shadowlands_dir {
   $pythonfile -m venv ~/.shadowlands
   touch ~/.shadowlands/v1
   source ~/.shadowlands/bin/activate
-  pip3 install -r $SL_DIR/requirements.txt --no-cache-dir || rm -rf ~/.shadowlands; echo "pip failed; rolling back venv install"
+  pip3 install -r $SL_DIR/shadowlands/requirements.txt --no-cache-dir || rm -rf ~/.shadowlands; echo "pip failed; rolling back venv install"
 }
 
 function activate_env {
@@ -69,5 +76,4 @@ fi
 
 activate_env
 python3 -m shadowlands
-#python3 /usr/local/lib/shadowlands-core/shadowlands.py
 
