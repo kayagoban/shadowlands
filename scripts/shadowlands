@@ -4,6 +4,10 @@
 # and point it to the cloned github repo
 #SL_DIR=~/src/shadowlands
 
+# Uncomment one of the following to generate shadowlands.log in your CWD
+#SL_DEBUG=DEBUG
+#SL_DEBUG=INFO
+
 
 if [ -z "$SL_DIR" ]; then 
 	case "$OSTYPE" in

@@ -17,8 +17,12 @@ import os
 import logging
 
 try:
-    os.environ['SL_DEBUG']
-    logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
+    level = os.environ['SL_DEBUG']
+    if level == 'DEBUG':
+        logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
+    elif level == 'INFO':
+        logging.basicConfig(level = logging.INFO, filename = "shadowlands.log")
+
 except KeyError:
     pass
 
