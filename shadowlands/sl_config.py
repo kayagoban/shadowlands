@@ -201,6 +201,7 @@ class SLConfig():
         item = item.__class__(item, chainId=chain_id)
         self._txqueue.remove(item)
         self._write_config_file()
+        logging.info("Removed tx from queue: {}".format(str(item)))
 
     def txqueue_add(self, chain_id, item):
         if item is None:
@@ -208,6 +209,7 @@ class SLConfig():
         item = item.__class__(item, chainId=chain_id)
         self._txqueue.appendleft(item)
         self._write_config_file()
+        logging.info("Added tx to queue:".format(str(item)))
 
     @property
     def hd_base_path(self):

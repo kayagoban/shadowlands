@@ -42,7 +42,8 @@ class BlockListener():
     def handle_event(self, event):
         # dedupe txqueue addresses
         addresses = set([x['from'] for x in self.config.txqueue(self.node.network)])
-        logging.info("block listener checking addresses: {}".format(addresses))
+        if len(addresses) > 0:
+            logging.info("block listener checking addresses: {}".format(addresses))
         for x in addresses:
             expired_txs = [y for y in self.config.txqueue(self.node.network) if y['from'] == x and y.nonce <= (self.node.w3.eth.getTransactionCount(x) - 1)]
             for y in expired_txs:
@@ -56,6 +57,7 @@ class BlockListener():
             while True:
                 for i in range(poll_interval):
                     if self.shutdown == True:
+                        logging.info("Shutting down block listener")
                         return
                     time.sleep(1)
                 for event in block_filter.get_new_entries():
