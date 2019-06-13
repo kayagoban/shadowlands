@@ -9,18 +9,20 @@ from shadowlands.tui.tui import Interface
 
 import pdb
 from shadowlands.tui.debug import debug
-
-
 from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
 from decimal import Decimal
 from time import sleep
+import os
 
 import logging
 
-#logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
+try:
+    os.environ['SL_DEBUG']
+    logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
+except KeyError:
+    pass
 
 load_dapp = None
-
 
 def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
     if mock_address:
