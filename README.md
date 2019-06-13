@@ -68,16 +68,15 @@ You can run either dapp by referencing the ens name they are registered under, w
 
 The source code to both projects is available on Github (linked to their names above).
 
-### Security Audit (v0.16a)
+### Hire me to write your dapp
+
+If your company needs a shadowlands dapp, I can be contracted to make one for you.  Contact me at cthomas@soykaf.digital to discuss the scope of your company's project.
+
+## Security Audit (v0.16a)
 
 Christopher M. Hobbs of Ascia Technologies performed a security audit on Shadowlands; [here is the report.](https://github.com/kayagoban/shadowlands/blob/master/shadowlands_v0.16a_audit.md) 
 
-
-## This is a free software project
-
-Every component of Shadowlands is freely available under the MIT license. 
-
 ## Support Shadowlands
 
-You can support Shadowlands directly by sending Ether and other things to soykafdigital.eth
+You can support Shadowlands directly by sending Ether and other things to shadowlands.eth
 
