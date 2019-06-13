@@ -15,13 +15,13 @@ API documentation is available at [ReadTheDocs](https://shadowlands.readthedocs.
 
 ### But why would you do that?
 
-* I don't want to rely on a 'frontender' to make interfaces for me.
+* I want to stand up my own interfaces quickly as ideas come to me.
 * I want to write dapps in Python.
 
 ### An even more thrilling demo
 
 (click on the image below to see a live demo)
- [![Alt text](https://asciinema.org/a/LxDmIP0Tja8RNQPf40oQnas7O.svg)](https://asciinema.org/a/LxDmIP0Tja8RNQPf40oQnas7O) 
+ [![Alt text](https://asciinema.org/a/cq1y5pfFlDVaO0qIxDSMdGSw1.svg)](https://asciinema.org/a/cq1y5pfFlDVaO0qIxDSMdGSw1) 
  
 ## Quickstart
 
