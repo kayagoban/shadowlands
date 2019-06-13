@@ -1,7 +1,7 @@
 [DEBREATE-0.7.13]
 <<CTRL>>
 Package: shadowlands
-Version: 1.0.2
+Version: 1.0.5
 Maintainer: Cath Thomas <cthomas@soykaf.digital>
 Section: devel
 Source: https://github.com/kayagoban/shadowlands/
@@ -14,8 +14,8 @@ Description: Ethereum terminal and Python RAD platform for Ethereum dapp develop
 <</CTRL>>
 <<FILES>>
 1
-/home/cthomas/src/shadowlands-core -> shadowlands-core -> /usr/local/lib
-/home/cthomas/src/shadowlands/shadowlands* -> shadowlands -> /usr/local/bin
+/home/cthomas/src/shadowlands -> shadowlands -> /usr/local/lib
+/home/cthomas/src/shadowlands/scripts/shadowlands* -> shadowlands -> /usr/local/bin
 <</FILES>>
 <<SCRIPTS>>
 <<PREINST>>

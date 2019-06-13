@@ -39,18 +39,10 @@ $ shadowlands
 ```
 
 #### Debian-based linuxes
+
 Use the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
 
 Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how to set up python 3.6 on Ubuntu 16.04 LTS: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
-
-
-# Writing your own Dapps
-
-You can write, deploy and register your own python based dapp modules that can be loaded within shadowlands, without any HTML, CSS or Javascript.  
-A Tutorial on how to start [is available](https://shadowlands.readthedocs.io/en/latest/Tutorial.html).
-
-Burninator, the example dapp from the tutorial, can be run within shadowlands by loading burninator.eth, and the [source code is available on github.](https://github.com/kayagoban/burninator)  
-
 
 
 ## You're gonna need a credstick.
@@ -63,6 +55,19 @@ If you have a local node, you will probably want to run the parity node with ```
 
 I strongly recommend using a local node or node accessible by HTTP on the same network.  Infura sorta-works.
 
+# Writing your own Dapps
+
+You can write, deploy and register your own python based dapp modules that can be loaded within shadowlands, without any HTML, CSS or Javascript.  
+A Tutorial on how to start [is available](https://shadowlands.readthedocs.io/en/latest/Tutorial.html).
+
+### Existing Shadowlands Dapps
+
+There are two existing dapps on shadowlands - the [CDP manager dapp](https://github.com/kayagoban/shadowlands_cdp_manager) at cdp.shadowlands.eth, and [Burninator](https://github.com/kayagoban/burninator) at burninator.eth, the example dapp from the tutorial.
+
+You can run either dapp by referencing the ens name they are registered under, within the "Run network dapp" option within Shadowlands.
+
+The source code to both projects is available on Github (linked to their names above).
+
 ### Security Audit (v0.16a)
 
 Christopher M. Hobbs of Ascia Technologies performed a security audit on Shadowlands; [here is the report.](https://github.com/kayagoban/shadowlands/blob/master/shadowlands_v0.16a_audit.md) 
@@ -70,5 +75,9 @@ Christopher M. Hobbs of Ascia Technologies performed a security audit on Shadowl
 
 ## This is a free software project
 
-Every component of Shadowlands is freely available under the MIT license.  This is not a not-for-profit project - its only aim is to create a great new way to interact with Ethereum. 
+Every component of Shadowlands is freely available under the MIT license. 
+
+## Support Shadowlands
+
+You can support Shadowlands directly by sending Ether and other things to soykafdigital.eth
 
