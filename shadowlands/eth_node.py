@@ -153,7 +153,11 @@ class Node():
         self._ns = None
         self._ens_domain = None
         self._w3 = None
- 
+
+        if self._block_listener:
+            self._block_listener.shutdown = True
+            self._block_listener = None
+
         for mod in ['web3', 'web3.auto', 'web3.auto.infura']:
             try:
                 del(sys.modules[mod])
@@ -187,6 +191,8 @@ class Node():
             else:
                 self._ens_domain = 'Unknown'
 
+        self._best_block = str(self._w3.eth.blockNumber)
+
         self._syncing = self._w3.eth.syncing
         if self._syncing not in (None, False):
             self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
@@ -198,7 +204,6 @@ class Node():
         logging.debug("eth_node update_status")
 
         try:
-            self._best_block = str(self._w3.eth.blockNumber)
             self._update()
         except (Exception) as e:
             #logging.info(str(e.__traceback__))

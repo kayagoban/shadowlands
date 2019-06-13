@@ -9,6 +9,7 @@ import sys
 import pdb
 from shadowlands.tui.debug import debug
 from shadowlands.sl_contract.erc20 import Erc20
+import logging
 
 class DuplicateTokenError(Exception):
     pass
