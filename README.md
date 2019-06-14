@@ -43,6 +43,15 @@ Then, open a terminal and...
 $ shadowlands
 ```
 
+#### Other linux distros
+1. Install a modern Python3
+2. run ``git clone https://github.com/kayagoban/shadowlands.git`` in a terminal
+3. edit line 5 of scripts/shadowlands to point the variable ``SL_DIR`` to where the repo was cloned to.
+4. run scripts/shadowlands and watch pip install fail.
+5. figure out what pip needs and supply it.
+6. goto 4
+
+
 ## You're gonna need a credstick.
 
 Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.
