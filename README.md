@@ -18,6 +18,11 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
  
 ## Quickstart
 
+#### Full node required
+Infura causes a multitude of problems, so
+access to a full node is required as of release 1.0.6.
+
+
 #### MacOS
 1. Install a modern Python3 from the official repo: [Python for MacOS](https://www.python.org/downloads/mac-osx/) 
 2. The Python MacOS installer includes a folder that has a script that fixes your SSL certificates.  MacOS hosed the certs a while ago, and if it's not fixed, pip will not work.  Run that script, and the other one that sets up your shell environment.
