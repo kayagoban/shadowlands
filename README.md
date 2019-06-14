@@ -19,8 +19,8 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
 ## Quickstart
 
 #### Full node required
-Infura causes a multitude of problems, so
-access to a full node is required as of release 1.0.6.
+Install and sync the [Parity](https://github.com/paritytech/parity-ethereum/releases) or [Geth](https://geth.ethereum.org/downloads/) Ethereum client.  
+200GB free space and an SSD drive required.
 
 
 #### MacOS
@@ -97,4 +97,3 @@ Christopher M. Hobbs of Ascia Technologies performed a security audit on Shadowl
 ## Support Shadowlands
 
 You can support Shadowlands directly by sending Ether and other things to shadowlands.eth
-
