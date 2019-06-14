@@ -76,6 +76,8 @@ class TrezorEthDriver(Credstick):
         response = cls.call_raw(proto.PinMatrixAck(pin=text))
         if response.__class__.__name__ is 'EthereumAddress':
             cls.address = response.address
+            #calling_window._scene.remove_effect( cls.matrix_window)
+            calling_window._scene.add_effect(MessageDialog(calling_window._screen, "Trezor is unlocked now.", destroy_window=calling_window))
         elif response.__class__.__name__ == 'PassphraseRequest':
             cls.passphrase_request_window()
         else:
@@ -103,7 +105,7 @@ The layout is:
                   4 5 6
                   1 2 3'''
         scr = cls.interface._screen
-        dialog = TextRequestDialog(scr, 
+        cls.matrix_window = TextRequestDialog(scr, 
                                    height=13,
                                    width = 60,
                                    label_prompt_text=legend,
@@ -116,7 +118,7 @@ The layout is:
                                    title="Trezor Auth",
                                    reset_scene=False
                                   )
-        scr.current_scene.add_effect( dialog )
+        scr.current_scene.add_effect( cls.matrix_window )
 
     @classmethod
     def passphrase_request_window(cls):

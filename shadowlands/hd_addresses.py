@@ -11,7 +11,11 @@ class HDAddressPicker(SLDapp):
         self.range_index = 10
 
         self.show_wait_frame("Deriving Addresses...")
-        threading.Thread(target=self._worker).start()
+
+        if self.node.credstick.productStr == 'Trezor Model T':
+            self._worker()
+        else:
+            threading.Thread(target=self._worker).start()
 
     def _worker(self):
         try:
@@ -64,7 +68,12 @@ class PathPickerFrame(SLFrame):
         self.dapp.range_base += 10
         self.dapp.range_index += 10
         self.dapp.show_wait_frame("Deriving addresses...")
-        threading.Thread(target=self.dapp._worker).start()
+
+        if self.dapp.node.credstick.productStr == 'Trezor Model T':
+            self.dapp._worker()
+        else:
+            threading.Thread(target=self.dapp._worker).start()
+
         self.close()
 
     def prev_10(self):
@@ -74,7 +83,11 @@ class PathPickerFrame(SLFrame):
         self.dapp.range_base -= 10
         self.dapp.range_index -= 10
         self.dapp.show_wait_frame("Deriving addresses...")
-        threading.Thread(target=self.dapp._worker).start()
+        if self.dapp.node.credstick.productStr == 'Trezor Model T':
+            self.dapp._worker()
+        else:
+            threading.Thread(target=self.dapp._worker).start()
+
         self.close()
 
     def _build_hdpaths(self, index_range):
