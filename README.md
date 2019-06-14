@@ -11,8 +11,6 @@
 
 Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python3.5+, [web3.py](https://github.com/ethereum/web3.py) and [asciimatics](https://github.com/peterbrittain/asciimatics)
 
-API documentation is available at [ReadTheDocs](https://shadowlands.readthedocs.io).
-
 ### Demo
 
 (click on the image below to see a live demo)
@@ -53,7 +51,12 @@ I strongly recommend using a local node or node accessible by HTTP on the same n
 # Writing your own Dapps
 
 You can write, deploy and register your own python based dapp modules that can be loaded within shadowlands, without any HTML, CSS or Javascript.  
-A Tutorial on how to start [is available](https://shadowlands.readthedocs.io/en/latest/Tutorial.html).
+
+### Documentation
+
+API documentation is available at [ReadTheDocs](https://shadowlands.readthedocs.io).
+
+[Read the tutorial](https://shadowlands.readthedocs.io/en/latest/Tutorial.html).
 
 ### Existing Shadowlands Dapps
 
