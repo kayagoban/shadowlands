@@ -9,7 +9,7 @@ from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
-        super(NetworkOptions, self).__init__(screen, 9, 26, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
+        super(NetworkOptions, self).__init__(screen, 8, 26, y=2, has_shadow=True, is_modal=True, name="networkopts", title="Network Options", can_scroll=False)
         self.set_theme('shadowlands')
         self._interface = interface
 
@@ -27,9 +27,9 @@ class NetworkOptions(Frame):
             ('Custom http', 'connect_w3_custom_http'), 
             ('Custom websocket', 'connect_w3_custom_websocket'),
             ('Custom ipc', 'connect_w3_custom_ipc'),
-            ('Custom Infura API Key', 'connect_w3_custom_infura'),
+            #('Custom Infura API Key', 'connect_w3_custom_infura'),
         ]
-        listbox = ListBox(6, options, on_select=self._ok, name='netpicker')
+        listbox = ListBox(4, options, on_select=self._ok, name='netpicker')
 
         # Set listbox to match stored options
         for i, option in enumerate(options):
