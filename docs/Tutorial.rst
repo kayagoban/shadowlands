@@ -30,17 +30,6 @@ Your first SLDapp
 For our example, let's become Trogdor the Burninator, the wingaling dragon.  
 We will burninate peasants in the kingdom of peasantry.  In our case, peasants will be BRNT (Burninator tokens) visible at token.burninator.eth)
 
-Import :class:`SLDapp` at the top of your ``__init__.py`` file in your dapp's subdirectory. We'll also import :class:`SLFrame` and :class:`SLContract`.
-
-    .. code-block:: python
-
-        from shadowlands.sl_dapp import SLDapp
-        from shadowlands.sl_frame import SLFrame
-        from shadowlands.sl_contract import SLContract
-
-Create a class named ``Dapp`` that subclasses :class:`SLDapp`.  The class must be named ``Dapp`` in 
-order for the shadowlands plugin system to detect your dapp.  Override the 
-:func:`SLDapp.initialize` method, and do any necessary preperation within.  Then, add an :class:`SLFrame` subclass (which you need to provide) with :func:`SLDapp.add_sl_frame`.  This step begins the user interface.
 
     .. code-block:: python
 
@@ -60,6 +49,13 @@ order for the shadowlands plugin system to detect your dapp.  Override the
 	    def initialize(self):
 		self.add_divider()
 		self.add_button(self.close, "Close")
+
+Import :class:`SLDapp` at the top of your ``__init__.py`` file in your dapp's subdirectory. We'll also import :class:`SLFrame` and :class:`SLContract`.
+
+Create a class named ``Dapp`` that subclasses :class:`SLDapp`.  The class must be named ``Dapp`` in 
+order for the shadowlands plugin system to detect your dapp.  
+Override the 
+:func:`SLDapp.initialize` method, and do any necessary preperation within.  Then, add an :class:`SLFrame` subclass (which you need to provide) with :func:`SLDapp.add_sl_frame`.  This step begins the user interface.
 
 The line ``self.add_sl_frame(MyMenuFrame(self, height=5, width=40, title="Trogdooooor!"))``, referenced from ``initialize()``, will load an :class:`SLFrame` instance with the listed parameters when the dapp loads.
 
