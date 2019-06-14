@@ -23,7 +23,7 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
 2. The Python MacOS installer includes a folder that has a script that fixes your SSL certificates.  MacOS hosed the certs a while ago, and if it's not fixed, pip will not work.  Run that script, and the other one that sets up your shell environment.
 3. [Install homebrew](https://brew.sh).   
 
-Then,
+Then, open a terminal and...
 
 ```
 $ brew tap kayagoban/shadowlands
@@ -37,6 +37,11 @@ Use the provided .deb package [on the releases page](https://github.com/kayagoba
 
 Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how to set up python 3.6 on Ubuntu 16.04 LTS: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
 
+Then, open a terminal and...
+
+```
+$ shadowlands
+```
 
 ## You're gonna need a credstick.
 
