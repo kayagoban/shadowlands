@@ -46,10 +46,12 @@ $ shadowlands
 #### Other linux distros
 1. Install a modern Python3
 2. run ``git clone https://github.com/kayagoban/shadowlands.git`` in a terminal
-3. edit line 5 of scripts/shadowlands to point the variable ``SL_DIR`` to where the repo was cloned to.
-4. run scripts/shadowlands and watch pip install fail.
-5. figure out what the pip modules need and do that.
-6. goto 4
+3. Install udev rules for trezor or ledger hardware
+4. edit line 5 of scripts/shadowlands to point the variable ``SL_DIR`` to where the repo was cloned to.
+5. run ``scripts/shadowlands`` and watch pip install fail.
+6. figure out what the pip modules need and do that.
+7. goto 5
+
 
 ## You're gonna need a credstick.
 
