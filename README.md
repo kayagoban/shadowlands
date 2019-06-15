@@ -18,11 +18,14 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
  
 ## Quickstart
 
+#### Credstick (hardware wallet) required
+
+Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.
+
 #### Full node required
 If you have access to a full node over HTTP or Websockets, you can connect to it.
 
 Otherwise you'll need to install and sync the [Parity](https://github.com/paritytech/parity-ethereum/releases) or [Geth](https://geth.ethereum.org/downloads/) Ethereum client.  Both options require about 200GB free space and an SSD drive.
-
 
 #### MacOS
 1. Install a modern Python3 from the official repo: [Python for MacOS](https://www.python.org/downloads/mac-osx/) 
@@ -58,16 +61,6 @@ $ shadowlands
 6. figure out what the pip modules need and do that.
 7. goto 5
 
-
-## You're gonna need a credstick.
-
-Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.
-
-Why does shadowlands require a credstick?  Because it's a basic precaution that everyone needs to take, and there's no excuse not to have one - especially if you're downloading software and running it on your computer, which all of us do.
-
-If you have a local node, you will probably want to run the parity node with ```--no-hardware-wallets``` or your geth node with ```--no-usb``` or else the node may, at times, interfere with shadowlands communicating with your hardware.  
-
-I strongly recommend using a local node or node accessible by HTTP on the same network.  Infura sorta-works.
 
 # Writing your own Dapps
 
