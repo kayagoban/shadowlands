@@ -20,7 +20,7 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
 
 #### Credstick (hardware wallet) required
 
-Shadowlands requires a credstick (which some people call a hardware wallet) to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.
+Shadowlands requires a credstick to function.  The following hardware has been tested: Ledger Nano S, Ledger Blue, Trezor original and Trezor T.
 
 #### Full node required
 If you have access to a full node over HTTP or Websockets, you can connect to it.
