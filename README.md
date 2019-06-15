@@ -86,7 +86,7 @@ API documentation is available at [ReadTheDocs](https://shadowlands.readthedocs.
 [Read the tutorial](https://shadowlands.readthedocs.io/en/latest/Tutorial.html).
 
 
-### Hire me to write your dapp
+# Hire me to write your dapp
 
 If your company needs a shadowlands dapp, I can be contracted to make one for you.  
 
