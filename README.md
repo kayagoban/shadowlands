@@ -29,7 +29,7 @@ Supported:
 #### Full node required
 If you have access to a full node over HTTP or Websockets, you can connect to it.
 
-Otherwise you'll need to install and sync the [Parity](https://github.com/paritytech/parity-ethereum/releases) or [Geth](https://geth.ethereum.org/downloads/) Ethereum client.
+Otherwise I recommend installing and syncing the [Parity](https://github.com/paritytech/parity-ethereum/releases) Ethereum client.
 
 #### MacOS instructions:
 1. Install a modern Python3 from the official repo: [Python for MacOS](https://www.python.org/downloads/mac-osx/) 
