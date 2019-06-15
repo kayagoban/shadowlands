@@ -27,7 +27,7 @@ Supported:
 * Trezor T.
 
 #### Full node required
-If you have access to a full node over HTTP or Websockets, you can connect to it.
+If you have access to a full node over HTTP, Websockets or IPC, you can connect to it.
 
 Otherwise I recommend installing and syncing the [Parity](https://github.com/paritytech/parity-ethereum/releases) Ethereum client.
 
