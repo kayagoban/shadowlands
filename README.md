@@ -20,8 +20,8 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
 
 #### Full node required
 If you have access to a full node over HTTP or Websockets, you can connect to it.
-Otherwise you'll need to install and sync the [Parity](https://github.com/paritytech/parity-ethereum/releases) or [Geth](https://geth.ethereum.org/downloads/) Ethereum client.  
-200GB free space and an SSD drive required.
+
+Otherwise you'll need to install and sync the [Parity](https://github.com/paritytech/parity-ethereum/releases) or [Geth](https://geth.ethereum.org/downloads/) Ethereum client.  Both options require about 200GB free space and an SSD drive.
 
 
 #### MacOS
