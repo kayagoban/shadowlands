@@ -33,7 +33,7 @@ Otherwise you'll need to install and sync the [Parity](https://github.com/parity
 
 #### MacOS
 1. Install a modern Python3 from the official repo: [Python for MacOS](https://www.python.org/downloads/mac-osx/) 
-2. The Python MacOS installer includes a folder that has a script that fixes your SSL certificates.  MacOS hosed the certs a while ago, and if it's not fixed, pip will not work.  Run that script, and the other one that sets up your shell environment.
+2. The Python MacOS installer includes a folder that has a script that fixes your SSL certificates.  Run that script, and the other one that sets up your shell environment.
 3. [Install homebrew](https://brew.sh).   
 
 Then, open a terminal and...
