@@ -19,12 +19,12 @@ Shadowlands is a 100% Python, TextUI Dapp platform for ethereum, built on Python
 ## Getting Started
 
 #### Credstick (hardware wallet) required
-
-Supported: 
+ 
 * Ledger Nano S
 * Ledger Blue
-* Trezor original
-* Trezor T.
+* Ledger Nano X
+* Trezor One
+* Trezor T
 
 #### Full node required
 If you have access to a full node over HTTP, Websockets or IPC, you can connect to it.
