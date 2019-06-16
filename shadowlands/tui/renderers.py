@@ -161,7 +161,7 @@ class CredstickNameRenderer(DynamicRenderer):
             if self._add_padding:
                 padding = '═' * (space_available - len(name))
             else:
-                padding = "detected.\nHD derivation {}\nEthereum address {}\nResolving ENS...\nLoading Eth balance...\nLoading Erc20 balances...".format(hdpath(), address)
+                padding = "detected.       \nHD derivation {}\nEthereum address {}\nResolving ENS...\nLoading Eth balance...\nLoading Erc20 balances...".format(hdpath(), address)
 
             image =  [ "{} {}".format(name,padding) ]
             
