@@ -24,13 +24,6 @@ import pdb
 import logging
 
 
-# The Trezor protocol is a dumpster fire of shitty design
-# caused by the inability to authenticate without client
-# side intervention.
-#
-# I hope you enjoy using this because I bled for its
-# implementation.
-#
 class TrezorEthDriver(Credstick):
     transport = None
     state = None

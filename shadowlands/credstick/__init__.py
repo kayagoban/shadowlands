@@ -63,31 +63,28 @@ class Credstick(object):
             from shadowlands.credstick.mock_ethdriver import MockEthDriver
             return MockEthDriver
 
+        def handle_trezor(hidDevice):
+            from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
+            TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
+            if hidDevice['release_number'] == 256:
+                TrezorEthDriver.productStr = 'Trezor One' 
+                sleep(1)
+            elif hidDevice['release_number'] == 512:
+                TrezorEthDriver.productStr = 'Trezor T' 
+            return TrezorEthDriver
+ 
         for hidDevice in hid.enumerate(0, 0):
-            #import pdb; pdb.set_trace()
-            #import pdb; pdb.set_trace()
-            if hidDevice['vendor_id'] == 0x2c97:
-                if hidDevice['path'] is not None:
+            if hidDevice['path'] is not None:
+                if hidDevice['vendor_id'] == 0x2c97:
                     from shadowlands.credstick.ledger_ethdriver import LedgerEthDriver
                     LedgerEthDriver.manufacturer = hidDevice['manufacturer_string']
                     LedgerEthDriver.product = hidDevice['product_string']
                     return LedgerEthDriver
-            elif hidDevice['vendor_id'] == 0x534c:
-                if hidDevice['path'] is not None:
-                    from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                    TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
-                    TrezorEthDriver.productStr = hidDevice['product_string']
-                    sleep(1)
-                    return TrezorEthDriver
-            elif hidDevice['vendor_id'] == 0x1209:
-                if hidDevice['path'] is not None:
-                    from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
-                    TrezorEthDriver.manufacturerStr = hidDevice['manufacturer_string']
-                    TrezorEthDriver.productStr = 'Trezor Model T'
-                    ##hidDevice['product_string']
-                    sleep(1)
-                    return TrezorEthDriver
- 
+                elif hidDevice['vendor_id'] == 0x534c:
+                    return handle_trezor(hidDevice)
+                elif hidDevice['vendor_id'] == 0x1209:
+                    return handle_trezor(hidDevice)
+
         raise NoCredstickFoundError("Could not identify any supported credstick")
 
     @classmethod
