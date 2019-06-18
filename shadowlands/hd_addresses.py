@@ -12,7 +12,7 @@ class HDAddressPicker(SLDapp):
 
         self.show_wait_frame("Deriving Addresses...")
 
-        if self.node.credstick.productStr == 'Trezor Model T':
+        if self.node.credstick.productStr == 'Trezor One':
             self._worker()
         else:
             threading.Thread(target=self._worker).start()
