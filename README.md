@@ -31,30 +31,30 @@ If you have access to a full node over HTTP, Websockets or IPC, you can connect 
 
 Otherwise I recommend installing and syncing the [Parity](https://github.com/paritytech/parity-ethereum/releases) Ethereum client.
 
-#### MacOS instructions:
-1. Install a modern Python3 from the official repo: [Python for MacOS](https://www.python.org/downloads/mac-osx/) 
-2. The Python MacOS installer includes a folder that has a script that fixes your SSL certificates.  Run that script, and the other one that sets up your shell environment.
-3. [Install homebrew](https://brew.sh).   
+#### Ubuntu and Debian linux instructions:
+
+Install the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
 
 Then, open a terminal and...
 
+```
+$ shadowlands
+```
+
+#### MacOS instructions:
+Open a terminal and...
 ```
 $ brew tap kayagoban/shadowlands
 $ brew install shadowlands
 $ shadowlands
 ```
+If that didn’t work, 
 
-#### Debian-based linux instructions:
+1. Install a modern Python3 from the official repo: [Python for MacOS](https://www.python.org/downloads/mac-osx/) 
+2. The Python MacOS installer includes a folder that has a script that fixes your SSL certificates.  Run that script, and the other one that sets up your shell environment.
+3. [Install homebrew](https://brew.sh).   
 
-Use the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
 
-Ubuntu 16.04 LTS will first need a modern python3 - here are instructions on how to set up python 3.6 on Ubuntu 16.04 LTS: http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/
-
-Then, open a terminal and...
-
-```
-$ shadowlands
-```
 
 #### Other linux distribution instructions:
 1. Install a modern Python3
