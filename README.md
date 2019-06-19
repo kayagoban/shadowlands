@@ -31,6 +31,8 @@ If you have access to a full node over HTTP, Websockets or IPC, you can connect 
 
 Otherwise I recommend installing and syncing the [Parity](https://github.com/paritytech/parity-ethereum/releases) Ethereum client.
 
+## Installation 
+
 #### Ubuntu and Debian linux instructions:
 
 Install the provided .deb package [on the releases page](https://github.com/kayagoban/shadowlands/releases) 
