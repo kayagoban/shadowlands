@@ -69,23 +69,13 @@ class NetworkStatusRenderer(DynamicRenderer):
 
 
 class BlockStatusRenderer(DynamicRenderer):
-
     def __init__(self, _node):
         super(BlockStatusRenderer, self).__init__(1, 40)
         self.node = _node
 
+	
     def _render_now(self):
-        sync_hash = self.node.syncing_hash 
-
-        if sync_hash.__class__ == bool and sync_hash == False:
-            images = ['[synced: block ' + str(self.node.w3.eth.blockNumber) + ']']
-        elif sync_hash is None or sync_hash['highestBlock'] is None:
-            return img_colour_map([ '[No blocks available]' ])
-        elif sync_hash['currentBlock'] == 0:
-            images = ['[synced: block ' + str(self.node.w3.eth.blockNumber) + ']']
-        else:
-            images = [ '[syncing:  ' + str(sync_hash['highestBlock'] - sync_hash['currentBlock']) + ' blocks to ' + str(sync_hash['highestBlock']) + ']' ]
-
+        images = ['[block ' + str(self.node.best_block) + ']']
         return img_colour_map(images)
 
 class AddressRenderer(DynamicRenderer):

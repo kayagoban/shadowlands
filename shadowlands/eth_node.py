@@ -47,7 +47,7 @@ class Node():
         self._ens_domain = None
         self._network = None
         self._syncing = None 
-        self._best_block = None
+        self._best_block = '...' 
         self._blocks_behind = None
         self._wei_balance = None
         self._credstick = None
@@ -175,12 +175,6 @@ class Node():
     def _update(self):
         if self._credstick:
             self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-            # Trying to catch a wily web3.py bug.
-            # Sometimes when using the websockets middleware,
-            # strange responses start coming back.
-            if self._wei_balance.__class__ != int:
-                logging.debug("w3.eth.getBalance returned something other than an int! = {}".format(self._wei_balance))
-
             self._erc20_balances = Erc20.balances(self, self.credstick.address)
             if self._network == '1':
                 try:
