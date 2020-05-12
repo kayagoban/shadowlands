@@ -220,7 +220,6 @@ class Node():
         if self._network == 4:
             self._w3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
-
         self._ns = ENS.fromWeb3(_w3)
 
         if self._network == 1 and self._sai_pip is None:
@@ -235,12 +234,11 @@ class Node():
         except (StaleBlockchain):
             return False
 
-        if self._block_listener is None:
-            logging.info("start block listener")
-            #self._block_listener = BlockListener(self, self.config)
+        #if self._block_listener is None:
+        #    logging.info("start block listener")
+        #    self._block_listener = BlockListener(self, self.config)
 
         logging.debug("is connected with " + connection_type + " every " + str(_heart_rate) + " seconds.")
-
 
         return True
 
@@ -364,9 +362,12 @@ class Node():
  
     def heartbeat(self):
       self.poll()
+      self._block_listener = BlockListener(self, self.config)
+
 
       # Eth node heartbeat
       schedule.every(15).to(20).seconds.do(self.poll)
+      schedule.every(15).to(20).seconds.do(self._block_listener.listen)
       while True:
         schedule.run_pending()
         sleep(.2)
