@@ -22,7 +22,7 @@ class BlockListener():
         # send fake event to clean up any malingering txs in queue
         self.handle_event(None)
         
-        self.thread = threading.Thread(target=self.listen, args=([6]))
+        self.thread = threading.Thread(target=self.listen, args=([12]))
         #self.listen(6)
         self.thread.start()
 
@@ -53,16 +53,13 @@ class BlockListener():
 
     def listen(self, poll_interval):
         block_filter = self.node.w3.eth.filter('latest')
-        try:
-            while True:
-                for i in range(poll_interval):
-                    if self.shutdown == True:
-                        logging.info("Shutting down block listener")
-                        return
-                    time.sleep(1)
-                for event in block_filter.get_new_entries():
-                    self.handle_event(event)
-        except (Exception) as e:
-            logging.debug("Error in block_listener: {}".format(e))
+        while True:
+            for i in range(poll_interval):
+                if self.shutdown == True:
+                    logging.info("Shutting down block listener")
+                    return
+                time.sleep(1)
+            for event in block_filter.get_new_entries():
+                self.handle_event(event)
 
 

@@ -4,7 +4,7 @@ from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
 from shadowlands.tui.effects.message_dialog import MessageDialog
 from asciimatics.exceptions import NextScene
 
-from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, StaleBlockchain
+from web3.exceptions import BadFunctionCallOutput, StaleBlockchain
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
 
 class NetworkOptions(Frame):
@@ -23,6 +23,7 @@ class NetworkOptions(Frame):
 
         options = [
             ('Local node', 'connect_w3_local'), 
+            ('Infura', 'connect_w3_infura'),
             #('Public infura', 'connect_w3_public_infura'),
             ('Custom http', 'connect_w3_custom_http'), 
             ('Custom websocket', 'connect_w3_custom_websocket'),
@@ -56,7 +57,6 @@ class NetworkOptions(Frame):
         except KeyError:
             no_infura_key = True 
 
-
         if connect_fn == 'connect_w3_custom_http':
             self._prompt_custom_http_uri()
         elif connect_fn == 'connect_w3_custom_ipc':
@@ -88,9 +88,9 @@ class NetworkOptions(Frame):
         except StaleBlockchain:
             self._scene.add_effect( MessageDialog(self._screen, "Stale blockchain on selected Node"))
             return
-        except (AttributeError, UnhandledRequest, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError) as e: #Timeout
-            self._scene.add_effect( MessageDialog(self._screen, "Could not connect to node ({})".format(str(e.__class__))))
-            return
+        #except (AttributeError, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError) as e: #Timeout
+        #    self._scene.add_effect( MessageDialog(self._screen, "Could not connect to node ({})".format(str(e.__class__))))
+        #    return
  
         self._interface.node.start_heartbeat_thread()
 

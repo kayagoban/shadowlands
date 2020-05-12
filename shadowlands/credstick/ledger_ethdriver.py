@@ -9,18 +9,20 @@ from rlp.sedes import big_endian_int, binary, Binary
 from rlp.sedes.serializable import Serializable
 from eth_utils import decode_hex, encode_hex
 from eth_keys.datatypes import PrivateKey
+
 #from eth_account.internal.transactions import UnsignedTransaction, Transaction
-from eth_account.datastructures import AttributeDict
+#from eth_account.datastructures import AttributeDict
+#from eth_account.internal.transactions import (
+#    serializable_unsigned_transaction_from_dict,
+#)
+
+
 from eth_utils.crypto import keccak
 import random, string
 
-from eth_account.internal.transactions import (
-    serializable_unsigned_transaction_from_dict,
-)
-
 import logging
-from shadowlands.tui.debug import debug
-import pdb
+#from shadowlands.tui.debug import debug
+#import pdb
 
 
 #import pdb; pdb.set_trace()

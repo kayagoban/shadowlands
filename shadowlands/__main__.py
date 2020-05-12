@@ -12,16 +12,16 @@ from shadowlands.tui.debug import debug
 from shadowlands.credstick.trezor_ethdriver import TrezorEthDriver
 from decimal import Decimal
 from time import sleep
-import os
 
+import os
 import logging
 
 try:
     level = os.environ['SL_DEBUG']
     if level == 'DEBUG':
-        logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
+        logging.basicConfig(level = logging.DEBUG, filename = "/tmp/shadowlands.log")
     elif level == 'INFO':
-        logging.basicConfig(level = logging.INFO, filename = "shadowlands.log")
+        logging.basicConfig(level = logging.INFO, filename = "/tmp/shadowlands.log")
 
 except KeyError:
     pass
@@ -47,9 +47,6 @@ def main(mock_address=None, dapp=None, hdpath_base=None, hdpath_index=None):
 
     # Start network subsystem
     eth_node = Node(sl_config=sl_config)
-
-    # Eth node heartbeat
-    eth_node.start_heartbeat_thread()
 
     # create user interface 
     interface = Interface(eth_node, sl_config, preloaded_dapp=dapp)

@@ -101,7 +101,7 @@ class HDPathRenderer(DynamicRenderer):
         if not self._interface.credstick:
             image = ['Unknown']
         else:
-            image = [ self._interface.credstick.hdpath_base + '/' + self._interface.credstick.hdpath_index ]
+            image = [ self._interface.credstick.hdpath() ]
 
         return img_colour_map(image)
 

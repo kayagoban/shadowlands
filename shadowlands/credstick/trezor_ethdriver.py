@@ -12,7 +12,7 @@ from trezorlib import messages as proto
 import binascii
 from eth_utils import decode_hex
 
-from eth_account.internal.transactions import serializable_unsigned_transaction_from_dict
+#from eth_account.internal.transactions import serializable_unsigned_transaction_from_dict
 
 from shadowlands.credstick import Credstick, DeriveCredstickAddressError, OpenCredstickError, CloseCredstickError, SignTxError
 from shadowlands.tui.effects.message_dialog import MessageDialog 

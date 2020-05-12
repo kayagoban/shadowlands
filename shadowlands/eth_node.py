@@ -1,9 +1,9 @@
 import sys, time, os
 from decimal import Decimal
-from web3.exceptions import UnhandledRequest, BadFunctionCallOutput, ValidationError, StaleBlockchain
+from web3.exceptions import BadFunctionCallOutput, ValidationError, StaleBlockchain
 from requests.exceptions import ConnectionError
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
-from web3.utils.threads import Timeout
+#from web3.utils.threads import Timeout
 from web3.middleware import geth_poa_middleware
 from enum import Enum
 from eth_utils import decode_hex, encode_hex
@@ -15,27 +15,29 @@ import pdb
 from shadowlands.tui.debug import debug, end_debug
 from shadowlands.sl_contract.erc20 import Erc20
 from shadowlands.sl_contract import SLContract
+import schedule
 
+from time import sleep
 import logging
 import traceback
    
+logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
+
 class NodeConnectionError(Exception):
     pass
 
 class ENSNotSetError(Exception):
     pass
-
-
-
+ 
 
 class Node():
 
     NETWORKDICT = {
-        '1': 'MainNet',
-        '2': 'Morden',
-        '3': 'Ropsten',
-        '4': 'Rinkeby',
-        '42': 'Kovan'
+        1: 'MainNet',
+        2: 'Morden',
+        3: 'Ropsten',
+        4: 'Rinkeby',
+        42: 'Kovan'
     }
 
     def __init__(self, sl_config=None):
@@ -60,6 +62,8 @@ class Node():
         self._erc20_balances = None
         self._sai_pip = None
         self._eth_usd = None
+
+        self.start_heartbeat_thread()
 
     @property
     def config(self):
@@ -211,14 +215,15 @@ class Node():
 
         self._w3 = _w3
 
-        if self._w3.version.network == '4':
+        self._network = self._w3.eth.chainId
+
+        if self._network == 4:
             self._w3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
-        self._network = self.w3.version.network
 
         self._ns = ENS.fromWeb3(_w3)
 
-        if self._network == '1' and self._sai_pip is None:
+        if self._network == 1 and self._sai_pip is None:
             self._sai_pip = SaiPip(self)
 
         self._heart_rate = _heart_rate
@@ -227,12 +232,15 @@ class Node():
 
         try:
             self._update_status()
-        except (UnhandledRequest, StaleBlockchain):
+        except (StaleBlockchain):
             return False
 
         if self._block_listener is None:
             logging.info("start block listener")
-            self._block_listener = BlockListener(self, self.config)
+            #self._block_listener = BlockListener(self, self.config)
+
+        logging.debug("is connected with " + connection_type + " every " + str(_heart_rate) + " seconds.")
+
 
         return True
 
@@ -257,6 +265,14 @@ class Node():
     def w3_websocket(self, uri=None):
         from web3 import Web3
         return Web3(Web3.WebsocketProvider(uri))
+
+    def connect_w3_infura(self):
+      self.cleanout_w3()
+      from web3.auto.infura import w3
+      if self.is_connected_with(w3, 'Infura', 14):
+        self.config.default_method = self.connect_w3_infura.__name__
+        return True
+      return False
 
 
     #def connect_w3_public_infura(self):
@@ -335,38 +351,33 @@ class Node():
 
 
     def poll(self):
-        logging.debug("eth_node poll()")
-        try: 
-            if self._w3.isConnected():
-                self._update_status()
+      # (ConnectionError, AttributeError, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain, ValueError)
 
-        except (ConnectionError, AttributeError, UnhandledRequest, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain, ValueError) as e:
-            logging.info("eth_node poll: {}".format(traceback.format_exc()))
-            self.connect_config_default() or self.connect_w3_local()
+      logging.debug("eth_node poll()")
+      if self._w3 != None:
+          if self._w3.isConnected():
+              self._update_status()
+      else:
+        logging.info("eth_node poll: {}".format(traceback.format_exc()))
+        self.connect_config_default() or self.connect_w3_local()
 
+ 
     def heartbeat(self):
-        logging.debug("eth_node heartbeat()")
-        while True:
-            try:
-                logging.debug("eth_node call poll() from  hearttbeat()")
-                self.poll()
-            except Timeout:
-                logging.debug("eth_node timeout in hearttbeat()")
+      self.poll()
 
-            for i in range(self._heart_rate):
-                time.sleep(1)
-                if self._thread_shutdown:
-                    logging.debug("eth_node thread_shutdown")
-                    return
+      # Eth node heartbeat
+      schedule.every(15).to(20).seconds.do(self.poll)
+      while True:
+        schedule.run_pending()
+        sleep(.2)
+        if self._thread_shutdown:
+          logging.debug("eth_node thread_shutdown")
+          return
+
 
     def start_heartbeat_thread(self):
-        logging.debug("eth_node start_heartbeat_thread()")
-
-        # Uncomment to run eth_node unthreaded for debugging
-        #self.heartbeat()
-
-        self._heartbeat_thread = threading.Thread(target=self.heartbeat)
-        self.heartbeat_thread.start()
+      logging.debug("eth_node start_heartbeat_thread()")
+      threading.Thread(target=self.heartbeat).start()
 
     def stop_thread(self):
         logging.debug("eth_node stop_thread()")

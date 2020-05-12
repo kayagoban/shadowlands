@@ -1,10 +1,13 @@
 import hid, threading, time
 from hexbytes import HexBytes
-from eth_account.internal.transactions import Transaction, UnsignedTransaction
-from eth_utils import decode_hex, encode_hex
 from eth_utils.crypto import keccak
-from eth_account.datastructures import AttributeDict
-from eth_account.internal.transactions import encode_transaction
+
+#from shadowlands.credstick.transactions import (
+#  AttributeDict,
+#	encode_transaction,
+#	Transaction, 
+#	UnsignedTransaction
+#)
 
 
 import rlp
@@ -44,7 +47,9 @@ class Credstick(object):
     detect_thread_shutdown = False
     hdpath_base = None
     hdpath_index = None
+    hd_addresses = []
     mock_address = None
+ 
 
     @classmethod
     def addressStr(cls):
