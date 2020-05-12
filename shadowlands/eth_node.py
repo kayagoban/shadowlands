@@ -377,7 +377,8 @@ class Node():
 
     def start_heartbeat_thread(self):
       logging.debug("eth_node start_heartbeat_thread()")
-      threading.Thread(target=self.heartbeat).start()
+      self._heartbeat_thread = threading.Thread(target=self.heartbeat)
+      self.heartbeat_thread.start()
 
     def stop_thread(self):
         logging.debug("eth_node stop_thread()")
