@@ -1,6 +1,7 @@
 import hid, threading, time
 from hexbytes import HexBytes
 from eth_utils.crypto import keccak
+import logging
 
 #from shadowlands.credstick.transactions import (
 #  AttributeDict,
@@ -45,9 +46,7 @@ class Credstick(object):
     address = None
     detect_thread = None
     detect_thread_shutdown = False
-    hdpath_base = None
-    hdpath_index = None
-    hd_addresses = []
+    hdpath = "44'/60'/0'/0 /0"
     mock_address = None
  
 
@@ -93,10 +92,6 @@ class Credstick(object):
         raise NoCredstickFoundError("Could not identify any supported credstick")
 
     @classmethod
-    def hdpath(cls):
-        return cls.hdpath_base + '/' + cls.hdpath_index
-
-    @classmethod
     def start_detect_thread(cls):
         cls.detect_thread = threading.Thread(target=cls.credstick_finder)
         #cls.credstick_finder()
@@ -116,10 +111,10 @@ class Credstick(object):
             try: 
                 credstick = cls.detect()
                 credstick.open()
+                logging.debug("credstick: attempt derive " + credstick.hdpath_default())
                 credstick.derive(
                     set_address=True, 
-                    hdpath_base=credstick.hd_path_base_default(), 
-                    hdpath_index=credstick.hd_index_default()
+                    hdpath=credstick.hdpath_default()
                 )
 
                 timeout = 30 
@@ -169,7 +164,7 @@ class Credstick(object):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
-    def derive(cls, hdpath_base=None, hdpath_index=None, set_address=False):
+    def derive(cls, set_address=False, hdpath=None):
         raise NotImplementedError(optional_error_message)
 
     @classmethod
@@ -178,36 +173,6 @@ class Credstick(object):
 
 
     @classmethod
-    def hd_path_base_default(cls):
-        # If the config has no setting, use the class default
-        if cls.config.hd_base_path is not None:
-            return cls.config.hd_base_path
-        else:
-            return cls.hdpath_base
-
-    @classmethod
-    def hd_index_default(cls):
-        # If the config has no setting, use the class default
-        if cls.config.hd_index is not None:
-            return cls.config.hd_index
-        else:
-            return cls.hdpath_index
-
-    #@classmethod
-    #def hd_path_base_default(cls):
-    #    debug(); pdb.set_trace()
-    #    # If the config has no setting, use the class default
-    #    if cls.config.hd_base_path is not None:
-    #        return cls.config.hd_base_path
-    #    else:
-    #        return cls.hdpath_base
-
-    #@classmethod
-    #def hd_index_default(cls):
-    #    debug(); pdb.set_trace()
-    #    # If the config has no setting, use the class default
-    #    if cls.config.hd_index is not None:
-    #        return cls.config.hd_index
-    #    else:
-    #        return cls.hdpath_index
+    def hdpath_default(cls):
+        return cls.config.hdpath or cls.hdpath
 

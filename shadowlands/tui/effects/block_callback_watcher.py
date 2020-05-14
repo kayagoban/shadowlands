@@ -2,7 +2,9 @@ from asciimatics.effects import Effect
 #from asciimatics.exceptions import NextScene
 from shadowlands.tui.debug import debug, end_debug
 import pdb
+import logging
 
+logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
 
 class BlockCallbackWatcher(Effect):
     def __init__(self, screen, interface, **kwargs):

@@ -92,8 +92,6 @@ class MainMenuListener(Effect):
         if type(event) != KeyboardEvent:
             return event
 
-        #debug(); pdb.set_trace()
-
         # if event.key_code == -1:    # esc.  for some reason esc has lag.
 
         # Q, q for quit

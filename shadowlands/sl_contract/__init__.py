@@ -12,7 +12,7 @@ class SLContract():
         self._contract = None
         self._node = node
 
-        if not self._node._w3.isConnected():
+        if not self._node.w3.isConnected():
             raise InvalidW3Error('w3 is not connected in the node you passed in to the Contract constructor')
 
         try:

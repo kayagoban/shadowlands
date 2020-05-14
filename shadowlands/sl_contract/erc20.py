@@ -31,8 +31,10 @@ class Erc20(SLContract):
        '''
 
     @classmethod
-    def balances(cls, node, target):
-        result = [{'name': x[0], 'balance': node.w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in node.config.tokens(node.network)]
+    def balances(cls, node, target, w3=None):
+        if w3 is None:
+          w3 =  node.w3
+        result = [{'name': x[0], 'balance': w3.fromWei(cls.balance(node, x[1], target), 'ether')} for x in node.config.tokens(node.network)]
         return result
 
 

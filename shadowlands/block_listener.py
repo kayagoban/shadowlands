@@ -11,6 +11,7 @@ import threading
 from shadowlands.tui.debug import debug
 import pdb
 
+logging.basicConfig(level = logging.DEBUG, filename = "shadowlands.log")
 
 class BlockListener():
 
@@ -42,13 +43,16 @@ class BlockListener():
         for x in addresses:
             expired_txs = [y for y in self.config.txqueue(self.node.network) if y['from'] == x and y.nonce <= (self.node.w3.eth.getTransactionCount(x) - 1)]
             for y in expired_txs:
-                self.config.txqueue_remove(self.node.network, y)
+                self.config.txqueue_mutate('remove', self.node.network, y)
                 logging.info("tx {} expired".format(y.hash.hex()))
 
 
     def listen(self):
+        logging.debug("listen()")
         block_filter = self.node.w3.eth.filter('latest')
         for event in block_filter.get_new_entries():
           self.handle_event(event)
+
+        logging.debug("end listen()")
 
 

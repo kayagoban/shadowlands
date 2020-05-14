@@ -21,12 +21,6 @@ from eth_utils.crypto import keccak
 import random, string
 
 import logging
-#from shadowlands.tui.debug import debug
-#import pdb
-
-
-#import pdb; pdb.set_trace()
-## Constants for APDU exchanges
 
 """
 // The transaction signing protocol is defined as follows:
@@ -105,9 +99,9 @@ class LedgerEthDriver(Credstick):
         cls._driver = None
 
     @classmethod
-    def derive(cls, hdpath_base="44'/60'/0'/0", hdpath_index='0', set_address=False):
+    def derive(cls, set_address=False, hdpath="44'/60'/0'/0 /0"):
+        logging.debug("ledger_ethdriver: derive " + hdpath)
         try:
-            hdpath = hdpath_base + '/' + hdpath_index
             encodedPath = encode_path(hdpath)
             derivationPathCount= (len(encodedPath) // 4).to_bytes(1, 'big')
             hd_payload = derivationPathCount + encodedPath 
@@ -122,11 +116,10 @@ class LedgerEthDriver(Credstick):
 
         derived_address = '0x' + address.decode('ascii')
         if set_address is True:
+            logging.debug("ledger_ethdriver: set address")
             cls.address = derived_address
-            cls.hdpath_base = hdpath_base
-            cls.hdpath_index = hdpath_index
-            cls.config.hd_index = hdpath_index
-            cls.config.hd_base_path = hdpath_base
+            cls.hdpath = hdpath
+            cls.config.hdpath = hdpath
             #cls.eth_node._force_update()
 
 

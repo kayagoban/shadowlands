@@ -42,75 +42,40 @@ class Node():
 
     def __init__(self, sl_config=None):
 
-        self._sl_config = sl_config
-        self._heartbeat_thread = None
-        self._w3 = None
-        self._ns = None
+        self.thread_shutdown = False
+        self.credstick = None
+        self.ns = None
+        self.best_block = '...' 
+        self.blocks_behind = None
+        self.erc20_balances = None
+        self.syncing_hash = None 
+        self.heartbeat_thread = None
+        self.config = sl_config
+        self.w3 = None
+        self.network = None
+
         self._ens_domain = None
-        self._network = None
-        self._syncing = None 
-        self._best_block = '...' 
-        self._blocks_behind = None
         self._wei_balance = None
-        self._credstick = None
         self._client_name = None
         self._heart_rate = 1
         self._connection_type = None
         self._localNode = None
-        self._thread_shutdown = False
         self._block_listener = None
-        self._erc20_balances = None
         self._sai_pip = None
-        self._eth_usd = None
+        self.eth_price = None
+        self.update_sem = threading.Semaphore(value=2)
+        self.update_lock = threading.Lock()
 
         self.start_heartbeat_thread()
 
     @property
-    def config(self):
-        return self._sl_config
-
-    @property
-    def w3(self):
-        return self._w3
-
-    @property
-    def best_block(self):
-        return self._best_block
-
-    @property
-    def blocks_behind(self):
-        return self._blocks_behind
-
-    @property
-    def ens(self):
-        return self._ns
-
-    @property
-    def eth_price(self):
-        return self._eth_usd
-
-    @property
-    def credstick(self):
-        return self._credstick
-
-    @credstick.setter
-    def credstick(self, credstick):
-        self._credstick = credstick
-
-    @property
     def network_name(self):
-        if self._network is None:
+        if self.network is None:
             return None
         try:
-            return self.NETWORKDICT[self._network]
+            return self.NETWORKDICT[self.network]
         except KeyError:
-            return str(self._network)
-
-    @property
-    def network(self):
-        if self._network is None:
-            return None
-        return self._network
+            return str(self.network)
 
     @property
     def connection_type(self):
@@ -124,39 +89,19 @@ class Node():
             return None
 
     @property
-    def erc20_balances(self):
-        return self._erc20_balances 
-
-    @property
-    def syncing_hash(self):
-        return self._syncing
-
-    @property
     def ens_domain(self):
-        if self._credstick:
+        if self.credstick:
             return self._ens_domain
         else:
             return None
 
-    @property
-    def heartbeat_thread(self):
-        return self._heartbeat_thread
-
-    @property 
-    def thread_shutdown(self):
-        pass
-
-    @thread_shutdown.setter
-    def thread_shutdown(self, bool_value):
-        self._thread_shutdown = bool_value
-
     def cleanout_w3(self):
         self._localNode = None
-        self._network = None
-        self._syncing = None
-        self._ns = None
+        self.network = None
+        self.syncing_hash = None
+        self.ens = None
         self._ens_domain = None
-        self._w3 = None
+        self.w3 = None
 
         if self._block_listener:
             self._block_listener.shutdown = True
@@ -177,52 +122,61 @@ class Node():
  
 
     def _update(self):
-        if self._credstick:
-            self._wei_balance = self._w3.eth.getBalance(self._credstick.addressStr())
-            self._erc20_balances = Erc20.balances(self, self.credstick.address)
-            if self._network == '1':
+        # semaphore only allows one thread to wait on update
+  
+        self.update_sem.acquire(blocking=False)
+ 
+        with self.update_lock:
+          if self.credstick:
+            self._wei_balance = self.w3.eth.getBalance(self.credstick.addressStr())
+            self.erc20_balances = Erc20.balances(self, self.credstick.address)
+            if self.network == '1':
                 try:
-                    self._ens_domain = self.ens.name(self._credstick.addressStr())
-                    self._eth_usd = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
+                    self._ens_domain = self.ens.name(self.credstick.addressStr())
+                    self.eth_price = self.w3.fromWei(self._sai_pip.eth_price(), 'ether')
                 except BadFunctionCallOutput:
                     self._ens_domain = 'Unknown'
             else:
                 self._ens_domain = 'Unknown'
 
-        self._best_block = str(self._w3.eth.blockNumber)
+          self.best_block = str(self.w3.eth.blockNumber)
 
-        self._syncing = self._w3.eth.syncing
-        if self._syncing not in (None, False):
-            self._blocks_behind = self._syncing['highestBlock'] - self._syncing['currentBlock']
-        else:
-            self._blocks_behind = None
+          self.syncing_hash = self.w3.eth.syncing
+          if self.syncing_hash not in (None, False):
+              self.blocks_behind = self.syncing_hash['highestBlock'] - self.syncing_hash['currentBlock']
+          else:
+              self.blocks_behind = None
+
+        self.update_sem.release()
+
 
 
     def _update_status(self):
         logging.debug("eth_node update_status")
 
         try:
-            self._update()
+            threading.Thread(target=self._update).start()
+            #self._update()
         except (Exception) as e:
             #logging.info(str(e.__traceback__))
             logging.info("eth_node _update_status: {}".format(traceback.format_exc()))
 
 
 
-    def is_connected_with(self, _w3, connection_type, _heart_rate):
+    def is_connected_with(self, _w3, connection_type, _heart_rate, _bg_w3=None):
         if not _w3.isConnected():
             return False
 
-        self._w3 = _w3
+        self.w3 = _w3
 
-        self._network = self._w3.eth.chainId
+        self.network = self.w3.eth.chainId
 
-        if self._network == 4:
-            self._w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+        if self.network == 4:
+            self.w3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
-        self._ns = ENS.fromWeb3(_w3)
+        self.ens = ENS.fromWeb3(_w3)
 
-        if self._network == 1 and self._sai_pip is None:
+        if self.network == 1 and self._sai_pip is None:
             self._sai_pip = SaiPip(self)
 
         self._heart_rate = _heart_rate
@@ -233,10 +187,6 @@ class Node():
             self._update_status()
         except (StaleBlockchain):
             return False
-
-        #if self._block_listener is None:
-        #    logging.info("start block listener")
-        #    self._block_listener = BlockListener(self, self.config)
 
         logging.debug("is connected with " + connection_type + " every " + str(_heart_rate) + " seconds.")
 
@@ -266,25 +216,17 @@ class Node():
 
     def connect_w3_infura(self):
       self.cleanout_w3()
+      from web3.auto.infura import w3 as bg_w3
       from web3.auto.infura import w3
-      if self.is_connected_with(w3, 'Infura', 14):
+      if self.is_connected_with(w3, 'Infura', 14, _bg_w3 = bg_w3):
         self.config.default_method = self.connect_w3_infura.__name__
         return True
       return False
 
 
-    #def connect_w3_public_infura(self):
-    #    self.cleanout_w3()
-    #    _w3 = self.w3_websocket("wss://mainnet.infura.io/ws")
-    #    if self.is_connected_with(_w3, 'Public infura', 18):
-    #        self.config.default_method = self.connect_w3_public_infura.__name__
-    #        return True
-    #    return False
-
     def connect_w3_public_infura(self):
         self.cleanout_w3()
         from web3.auto.infura import w3
-        #_w3 = self.w3_websocket("wss://mainnet.infura.io/ws")
         if self.is_connected_with(w3, 'Public infura', 18):
             self.config.default_method = self.connect_w3_public_infura.__name__
             return True
@@ -306,7 +248,14 @@ class Node():
 
     def connect_w3_custom_infura(self):
         self.cleanout_w3()
-        from web3.auto.infura import w3
+        #from web3.auto.infura import w3
+        proj_id = os.environ.get('WEB3_INFURA_PROJECT_ID')
+        proj_secret = os.environ.get('WEB3_INFURA_API_SECRET')
+        uri = f"wss://:{proj_secret}@mainnet.infura.io/ws/v3/{proj_id}"
+        w3 = Web3(Web3.WebsocketProvider(uri, websocket_kwargs={'ping_interval': None}))
+        #wss://:1f32c7000d4146bea9f78017427ae53a@mainnet.infura.io/ws/v3/3404d141198b45b191c7af24311cd9ea
+        #ping_interval to None k
+
         if self.is_connected_with(w3, 'Custom infura', 18):
             self.config.default_method = self.connect_w3_custom_infura.__name__
             return True
@@ -352,33 +301,33 @@ class Node():
       # (ConnectionError, AttributeError, Timeout, InvalidStatusCode, ConnectionClosed, TimeoutError, OSError, StaleBlockchain, ValueError)
 
       logging.debug("eth_node poll()")
-      if self._w3 != None:
-          if self._w3.isConnected():
+      if self.w3 != None:
+          if self.w3.isConnected():
               self._update_status()
       else:
         logging.info("eth_node poll: {}".format(traceback.format_exc()))
         self.connect_config_default() or self.connect_w3_local()
+      logging.debug("eth_node poll() finished")
 
  
     def heartbeat(self):
       self.poll()
       self._block_listener = BlockListener(self, self.config)
 
-
       # Eth node heartbeat
-      schedule.every(15).to(20).seconds.do(self.poll)
-      schedule.every(15).to(20).seconds.do(self._block_listener.listen)
+      #schedule.every(15).to(20).seconds.do(self.poll)
+      #schedule.every(15).to(20).seconds.do(self._block_listener.listen)
       while True:
         schedule.run_pending()
         sleep(.2)
-        if self._thread_shutdown:
+        if self.thread_shutdown:
           logging.debug("eth_node thread_shutdown")
           return
 
 
     def start_heartbeat_thread(self):
       logging.debug("eth_node start_heartbeat_thread()")
-      self._heartbeat_thread = threading.Thread(target=self.heartbeat)
+      self.heartbeat_thread = threading.Thread(target=self.heartbeat)
       self.heartbeat_thread.start()
 
     def stop_thread(self):
@@ -387,27 +336,28 @@ class Node():
         if self._block_listener is not None:
             self._block_listener.shutdown = True
 
-        if self._heartbeat_thread is not None:
-            self._thread_shutdown = True
-            self._heartbeat_thread.join()
+        if self.heartbeat_thread is not None:
+            self.thread_shutdown = True
+            self.heartbeat_thread.join()
+
+    def push_raw(self, tx):
+        self.credstick.signTx(tx_dict)
+        rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        self.config.txqueue_mutate('add', self.network, self.w3.eth.getTransaction(rx))
+        logging.info("%s | added tx %s", time.ctime(), rx.hex())
+        return encode_hex(rx)
+     
+    def send_ether(self, destination, amount, gas_price, nonce=None):
+        target = self.ens.resolve(destination) or destination
+        tx_dict = self.build_send_tx(amount, target, gas_price, nonce=nonce)
+        return self.push_raw(tx_dict)
+
 
     def push(self, contract_function, gas_price, gas_limit=None, value=0, nonce=None):
         tx = contract_function.buildTransaction(self.defaultTxDict(gas_price, gas_limit=gas_limit, value=value, nonce=nonce))
         logging.info("Tx submitted to credstick: {}".format(tx))
-        signed_tx = self._credstick.signTx(tx)
-        rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
-        logging.info("%s | added tx %s", time.ctime(), rx.hex())
-        return encode_hex(rx)
-
-    def send_ether(self, destination, amount, gas_price, nonce=None):
-        target = self.ens.resolve(destination) or destination
-        tx_dict = self.build_send_tx(amount, target, gas_price, nonce=nonce)
-        signed_tx = self._credstick.signTx(tx_dict)
-        rx = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        logging.info("%s | added tx %s", time.ctime(), rx.hex())
-        self.config.txqueue_add(self.network, self.w3.eth.getTransaction(rx))
-        return encode_hex(rx)
+        return self.push_raw(tx)
+        
 
     def send_erc20(self, token, destination, amount, gas_price, nonce=None):
         contract_fn = token.transfer(destination, token.convert_to_integer(amount))
@@ -424,7 +374,7 @@ class Node():
             value = amt
 
         return  dict(
-            chainId=int(self._network),
+            chainId=int(self.network),
             nonce=_nonce,
             gasPrice=gas_price,
             gas=gas_limit,
@@ -437,7 +387,7 @@ class Node():
         _nonce = nonce or self.next_nonce()
 
         txdict = dict(
-            chainId=int(self._network),
+            chainId=int(self.network),
             nonce=_nonce,
             gasPrice=int(gas_price),
             value=value

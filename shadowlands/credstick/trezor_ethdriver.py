@@ -134,10 +134,9 @@ The layout is:
 
  
     @classmethod
-    def derive(cls, hdpath_base="44'/60'/0'/0", hdpath_index='0', set_address=False):
+    def derive(cls, set_address=False, hdpath=None):
         logging.info("Attempting to derive %s/%s", hdpath_base, hdpath_index)
 
-        hdpath = hdpath_base + '/' + hdpath_index
         address_n = tools.parse_path(hdpath)
         call_obj = proto.EthereumGetAddress(address_n=address_n, show_display=False)
         try:
@@ -156,11 +155,8 @@ The layout is:
                 address = response.address
                 if set_address is True:
                     cls.address = address
-                    cls.hdpath_base = hdpath_base
-                    cls.hdpath_index = hdpath_index
-                    cls.config.hd_index = hdpath_index
-                    cls.config.hd_base_path = hdpath_base
-                    #cls.eth_node._force_update()
+                cls.hdpath = hdpath
+                cls.config.hdpath = hdpath
 
                 return address
 
