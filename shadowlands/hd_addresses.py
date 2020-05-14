@@ -1,9 +1,6 @@
 from shadowlands.sl_dapp import SLDapp, SLFrame
-from shadowlands.tui.debug import debug
+#from shadowlands.tui.debug import debug
 from shadowlands.credstick import DeriveCredstickAddressError
-import threading 
-from time import sleep
-import pdb
 
 class HDAddressPicker(SLDapp):
     def initialize(self):
@@ -21,7 +18,6 @@ class PathPickerFrame(SLFrame):
                 ("Ok", self.change_path, 2),
             ]
         )
-        self.dapp.hide_wait_frame()
 
     def change_path(self):
         try:
@@ -37,7 +33,6 @@ class PathPickerFrame(SLFrame):
             )
 
             self.dapp.config.hdpath = self.pathbox_value()
-            #self.dapp.node._update_status()
         except DeriveCredstickAddressError:
             self.dapp.add_message_dialog("Could not derive address from your credstick")
 

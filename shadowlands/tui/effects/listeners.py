@@ -175,20 +175,15 @@ class MainMenuListener(Effect):
                 self._interface.config,
                 self._interface._block_callback_watcher
             )
-        elif event.key_code in [ord('H'), ord('h')]:
+        elif event.key_code in [104, 72]:
             # Test to see if we're able to derive before launching this..
-            try:
-                HDAddressPicker(
-                    self._screen, 
-                    self._scene, 
-                    self._interface.node,
-                    self._interface.config,
-                    self._interface._block_callback_watcher
-                )
-            except DeriveCredstickAddressError:
-                self._scene.add_effect(MessageDialog(self._screen, "Cannot derive addresses from Credstick.  Try restarting Shadowlands.", 3, 65) )
-                return None
-
+            HDAddressPicker(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface._block_callback_watcher
+            )
         elif event.key_code in [ 
             ord('0'), ord('1'), ord('2'), ord('3'), ord('4')
         ]:
