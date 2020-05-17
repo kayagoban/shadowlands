@@ -4,7 +4,7 @@ import sys
 
 from shadowlands.credstick import Credstick
 from shadowlands.sl_config import SLConfig
-from shadowlands.eth_node import Node
+from shadowlands.sl_node import Node
 from shadowlands.tui.tui import Interface
 
 import pdb

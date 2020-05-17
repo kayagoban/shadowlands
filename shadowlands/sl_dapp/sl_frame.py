@@ -129,26 +129,6 @@ class SLFrame(BlockCallbackMixin, Frame):
         if add_divider:
             _layout.add_widget(Divider(draw_line=False))
 
-    # DEPRECATED. Use add_label_row instead
-    def add_label_pair(self, label0_text, label1_text, add_divider=True):
-        layout = Layout([1, 1])
-        self.add_layout(layout)
-        layout.add_widget(Label(label0_text), 0) 
-        layout.add_widget(Label(label1_text), 1) 
-        if add_divider:
-            layout.add_widget(Divider(draw_line=False))
-
-    # DEPRECATED. Use add_label_row instead
-    def add_label_quad(self, label0_text, label1_text, label2_text, label3_text, add_divider=True):
-        layout = Layout([1, 1, 1, 1])
-        self.add_layout(layout)
-        layout.add_widget(Label(label0_text), 0) 
-        layout.add_widget(Label(label1_text), 1) 
-        layout.add_widget(Label(label2_text), 2) 
-        layout.add_widget(Label(label3_text), 3) 
-        if add_divider:
-            layout.add_widget(Divider(draw_line=False))
-
     def add_label_row(self, labels, layout=[1, 1, 1, 1], add_divider=True):
         lyt = Layout(layout)
         self.add_layout(lyt)
@@ -157,7 +137,7 @@ class SLFrame(BlockCallbackMixin, Frame):
         if add_divider:
             lyt.add_widget(Divider(draw_line=False))
  
-
+    # buttons = (("Nuke Tx", self.nuke_tx, 0), ...)
     def add_button_row(self, buttons, layout=[1, 1, 1, 1], add_divider=True):
         lyt = Layout(layout)
         self.add_layout(lyt)

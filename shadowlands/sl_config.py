@@ -1,16 +1,13 @@
-from pathlib import Path
 import yaml
 from yaml.constructor import ConstructorError
-import pdb
 from collections import deque
-import pathlib
 from pathlib import Path
 import sys
-import pdb
-from shadowlands.tui.debug import debug
-from shadowlands.sl_contract.erc20 import Erc20
 import logging
 import threading
+
+import pdb
+from shadowlands.tui.debug import debug
 
 class DuplicateTokenError(Exception):
     pass
@@ -51,10 +48,8 @@ class SLConfig():
     def __init__(self):
         self._hdpath = None
         self._dapp_configs = {}
-        self._http_uri = ''
-        self._websocket_uri = ''
-        self._ipc_path = ''
-        self._default_method = None
+        self._connection_strategy = None
+        self._connection_args = []
         self._displayed_currency = 'USD' 
         self._sl_dapp_path = str(Path.home())
         self._config_file_path = Path.home().joinpath('.shadowlands').joinpath('config')
@@ -81,7 +76,6 @@ class SLConfig():
         self._read_yaml()
         self._load_properties()
 
- 
     def _read_yaml(self):
         f = open(str(self._config_file_path), 'r')
         try:
@@ -93,10 +87,9 @@ class SLConfig():
 
 
     def _load_properties(self):
-            self._default_method = self._options_dict['network_options']['default_method']
-            self._http_uri = self._options_dict['network_options']['http_uri']
-            self._websocket_uri = self._options_dict['network_options']['websocket_uri']
-            self._ipc_path = self._options_dict['network_options']['ipc_path']
+            self._connection_strategy = self._options_dict['network_options']['connection_strategy']
+            self._connection_strategy = self._options_dict['network_options']['connection_args']
+
             self._displayed_currency = self._options_dict['displayed_currency']
             self._txqueue = self._options_dict['txqueue']
             # sl_dapp_path should probably be _sl_dapp_path.
@@ -122,10 +115,8 @@ class SLConfig():
             "hdpath": self._hdpath,
             "txqueue": self._txqueue,
             "network_options": {
-                "default_method": self._default_method,
-                "http_uri": self._http_uri,
-                "websocket_uri": self._websocket_uri,
-                "ipc_path": self._ipc_path
+                "connection_strategy": self._connection_strategy,
+                "connection_args": self._connection_args
             },
             "tokens": self._tokens
         }
@@ -189,30 +180,35 @@ class SLConfig():
         self._tokens.remove(matches[0])
         self._write_config_file()
 
+    
+    # Elements consist of 
+    # { sx: signed_transaction, chain_id: integer_chain_id, rx: tx_receipt }
 
     def txqueue(self, chain_id):
-        return [x for x in self._txqueue if x.chainId == chain_id]
-
-    def txqueue_mutate(self, operation, chain_id, item):
-      with self.txqueue_lock:
-        if operation == 'add':
-          self.txq_add(chain_id, item)
-        elif operation == 'remove':
-          self.txq_remove(chain_id, item)
+        return [x for x in self._txqueue if x['rx'] != None and x['chain_id'] == chain_id]
 
     def txq_remove(self, chain_id, item):
-        item = item.__class__(item, chainId=chain_id)
+      with self.txqueue_lock:
         self._txqueue.remove(item)
         self._write_config_file()
         logging.info("Removed tx from queue: {}".format(str(item)))
 
-    def txq_add(self, chain_id, item):
+    def txq_next(self):
+      return next(x for x in self._txqueue if x['rx'] == None)
+
+    def txq_update(self, index, rx):
+      with self.txqueue_lock:
+        self._txqueue[index]['rx'] = rx
+
+    def _txq_add(self, chain_id, item):
+      with self.txqueue_lock:
         if item is None:
             return
-        item = item.__class__(item, chainId=chain_id)
+        item = { 'sx': item, 'chain_id': chain_id, 'rx': None }
         self._txqueue.appendleft(item)
         self._write_config_file()
         logging.info("Added tx to queue:".format(str(item)))
+
 
     @property
     def hdpath(self):
@@ -224,40 +220,22 @@ class SLConfig():
         self._write_config_file()
  
     @property
-    def default_method(self):
-        return self._default_method
+    def connection_strategy(self):
+      return self._connection_strategy
 
-    @default_method.setter
-    def default_method(self, new_value):
-        self._default_method = new_value
-        self._write_config_file()
-
-    @property
-    def http_uri(self):
-        return self._http_uri
-
-    @http_uri.setter
-    def http_uri(self, new_value):
-        self._http_uri = new_value
-        self._write_config_file()
+    @connection_strategy.setter
+    def connection_strategy(self, new_value):
+      self._connection_strategy = new_value
+      self._write_config_file()
 
     @property
-    def websocket_uri(self):
-        return self._websocket_uri
+    def connection_args(self):
+      return self._connection_args
 
-    @websocket_uri.setter
-    def websocket_uri(self, new_value):
-        self._websocket_uri = new_value
-        self._write_config_file()
-
-    @property
-    def ipc_path(self):
-        return self._ipc_path
-
-    @ipc_path.setter
-    def ipc_path(self, new_value):
-        self._ipc_path = new_value
-        self._write_config_file()
+    @connection_args.setter
+    def connection_args(self, new_value):
+      self._connection_args = new_value
+      self._write_config_file()
 
     @property
     def displayed_currency(self):

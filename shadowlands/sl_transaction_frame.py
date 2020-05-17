@@ -10,7 +10,7 @@ from asciimatics.widgets import (
 )
 from asciimatics.exceptions import NextScene
 
-from shadowlands.sl_frame import AskClipboardFrame, SLFrame
+from shadowlands.sl_dapp import AskClipboardFrame, SLFrame
 
 import threading
 from decimal import Decimal

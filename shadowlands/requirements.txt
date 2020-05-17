@@ -1,5 +1,6 @@
 git+https://github.com/kayagoban/asciimatics
 git+https://github.com/kayagoban/python-qrcode.git
+git+https://github.com/kayagoban/schedule.git
 asn1crypto==0.24.0
 attrdict==2.0.0
 bitcoin==1.1.42
@@ -51,4 +52,3 @@ wcwidth==0.1.7
 web3==5.9.0
 wget==3.2
 cached_property==1.5.1
-schedule

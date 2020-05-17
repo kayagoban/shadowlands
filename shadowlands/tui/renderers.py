@@ -2,7 +2,7 @@ from asciimatics.renderers import DynamicRenderer
 from asciimatics.screen import Screen
 from decimal import Decimal
 from shadowlands.tui.errors import PriceError
-from shadowlands.eth_node import NodeConnectionError
+from shadowlands.sl_node import NodeConnectionError
 import qrcode
 from shadowlands.tui.debug import debug
 import pdb
@@ -32,13 +32,12 @@ class TxQueueHashRenderer(DynamicRenderer):
         color_map = sl_color_map(image)
 
         for index, tx in enumerate(self.txqueue(self._interface.node.network)):
-            #debug(); pdb.set_trace()
 
             if index > 0 and index < len(self.txqueue(self._interface.node.network)):
                 image += '║'
                 color_map += [SL_COLOR]
                 
-            tx_image = " {}) {} ".format(index, tx.hash.hex()[0:9])
+            tx_image = " {}) {} ".format(index, tx['rx'].hash.hex()[0:9])
             tx_map = sl_color_map(tx_image) 
             tx_map[1] = (Screen.COLOUR_WHITE, 
                          Screen.A_BOLD, 

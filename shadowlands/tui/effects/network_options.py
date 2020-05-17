@@ -1,11 +1,10 @@
 from asciimatics.widgets import Frame, Layout, Text, Button, CheckBox, Divider, ListBox, RadioButtons, Label
-import os
 from shadowlands.tui.effects.text_request_dialog import TextRequestDialog
 from shadowlands.tui.effects.message_dialog import MessageDialog
 from asciimatics.exceptions import NextScene
-
 from web3.exceptions import BadFunctionCallOutput, StaleBlockchain
 from websockets.exceptions import InvalidStatusCode, ConnectionClosed
+import os
 
 class NetworkOptions(Frame):
     def __init__(self, screen, interface):
@@ -23,8 +22,7 @@ class NetworkOptions(Frame):
 
         options = [
             ('Local node', 'connect_w3_local'), 
-            ('Infura', 'connect_w3_infura'),
-            #('Public infura', 'connect_w3_public_infura'),
+            ('Custom infura', 'connect_w3_custom_infura'),
             ('Custom http', 'connect_w3_custom_http'), 
             ('Custom websocket', 'connect_w3_custom_websocket'),
             ('Custom ipc', 'connect_w3_custom_ipc'),
@@ -63,8 +61,8 @@ class NetworkOptions(Frame):
             self._prompt_custom_ipc_path()
         elif connect_fn == 'connect_w3_custom_websocket':
             self._prompt_custom_websocket_uri()
-        elif connect_fn == 'connect_w3_custom_infura' and no_infura_key:
-            self._scene.add_effect( MessageDialog(self._screen, "Set WEB3_INFURA_API_KEY in your ENV and restart.", width=60, destroy_window=self))
+        elif connect_fn == 'connect_w3_custom_infura':
+            self._prompt_custom_infura_key()
         else:
             connected = self._attempt_connection(connect_fn)
 
@@ -131,6 +129,25 @@ class NetworkOptions(Frame):
             next_scene="Main"
         )
         self._scene.add_effect(dialog)
+
+    def _prompt_custom_infura_key(self):
+        dialog = TextRequestDialog(
+            self._screen, 
+            label_prompt_text="Ex: http://127.0.0.1:8545", 
+            label_align="<",
+            width=40,
+            continue_button_text="Connect", 
+            name="dialog_custom_http_uri", 
+            title="Custom HTTP URI", 
+            text_label="URI: ",
+            text_default_value=self._interface._config.http_uri,
+            destroy_window=self,
+            continue_function=self._continue_function,
+            next_scene="Main"
+        )
+        self._scene.add_effect(dialog)
+
+
 
     def _prompt_custom_websocket_uri(self):
         dialog = TextRequestDialog(

@@ -1,5 +1,5 @@
 from asciimatics.widgets import Text, Layout, Divider
-from shadowlands.sl_frame import SLFrame
+from shadowlands.sl_dapp import SLFrame
 from shadowlands.uniswap.exchange import Exchange
 from shadowlands.tui.debug import debug, end_debug
 import pdb

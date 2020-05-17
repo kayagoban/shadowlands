@@ -22,7 +22,7 @@ class TxInspector(SLDapp):
  
     def initialize(self):
         self.add_sl_frame(
-            TxDetail(self, 15, 71, title=self.tx.hash.hex().replace('0x',''))
+            TxDetail(self, 15, 71, title=self.tx['rx'].hash.hex().replace('0x',''))
         )
 
 class TxDetail(SLFrame):
@@ -30,10 +30,10 @@ class TxDetail(SLFrame):
         self.add_divider()
 
         top_buttons = [
-           ("Copy TxHash", lambda: self.copy_to_clipboard(self.dapp.tx.hash.hex()), 2)
+           ("Copy TxHash", lambda: self.copy_to_clipboard(self.dapp.tx['rx'].hash.hex()), 2)
         ]
 
-        if self.dapp.tx['from'] == self.dapp.node.credstick.address:
+        if self.dapp.tx['rx']['from'] == self.dapp.node.credstick.address:
             top_buttons.append( ("Resubmit Tx", self.resend_tx, 0))
             top_buttons.append( ("Nuke Tx", self.nuke_tx, 1))
  
@@ -42,28 +42,28 @@ class TxDetail(SLFrame):
 
 
         try:
-            nname = self.dapp.node.NETWORKDICT[self.dapp.tx['chainId']]
+            nname = self.dapp.node.NETWORKDICT[self.dapp.tx['chain_id']]
         except KeyError:
             nname = "Unknown"
 
 
-        decimalstr = "{:f}".format(Decimal(self.dapp.tx.gasPrice) / GWEI)
+        decimalstr = "{:f}".format(Decimal(self.dapp.tx['rx'].gasPrice) / GWEI)
         self.add_label_row([
-            ("Nonce: {}".format(self.dapp.tx.nonce), 0),
+            ("Nonce: {}".format(self.dapp.tx['rx'].nonce), 0),
             ("Gas Price: {} Gwei".format(decimalstr[:6]), 1),
             ("Network: {}".format(nname), 2)
             ],
             layout=[25, 45, 30]
         )
-        formatted_value = "{:f}".format(Decimal(self.dapp.tx.value) / ETH)
+        formatted_value = "{:f}".format(Decimal(self.dapp.tx['rx'].value) / ETH)
         self.add_label("Value: {} ETH".format(formatted_value[:13]))
 
         # 'from' is a python keyword so we must access the item
         # using bracket notation
-        self.add_label_with_button("From: {}".format(self.dapp.tx['from']), "Copy", lambda: self.copy_to_clipboard(self.dapp.tx['from']), add_divider=False)
-        self.add_label_with_button("To:   {}".format(self.dapp.tx.to), "Copy", lambda: self.copy_to_clipboard(self.dapp.tx.to))
-        self.add_label_with_button("Input data: {}".format(self.dapp.tx.input[:12]), "Copy", lambda: self.copy_to_clipboard(self.dapp.tx.input))
-        self.add_label_with_button("Gas Limit: {} Gwei".format(self.dapp.tx.gas), "Back", self.close, add_divider=False)
+        self.add_label_with_button("From: {}".format(self.dapp.tx['rx']['from']), "Copy", lambda: self.copy_to_clipboard(self.dapp.tx['rx']['from']), add_divider=False)
+        self.add_label_with_button("To:   {}".format(self.dapp.tx['rx'].to), "Copy", lambda: self.copy_to_clipboard(self.dapp.tx['rx'].to))
+        self.add_label_with_button("Input data: {}".format(self.dapp.tx['rx'].input[:12]), "Copy", lambda: self.copy_to_clipboard(self.dapp.tx['rx'].input))
+        self.add_label_with_button("Gas Limit: {} Gwei".format(self.dapp.tx['rx'].gas), "Back", self.close, add_divider=False)
 
     # 0 eth tx from and to current address
     def nuke_tx(self):
@@ -71,7 +71,7 @@ class TxDetail(SLFrame):
             0,
             self.dapp.node.credstick.address,
             None,
-            nonce=self.dapp.tx.nonce
+            nonce=self.dapp.tx['rx'].nonce
         )
 
         self.dapp.add_resend_dialog(
@@ -84,17 +84,16 @@ class TxDetail(SLFrame):
         old_tx = self.dapp.tx
 
         tx_dict = dict(
-            chainId = int(old_tx.chainId),
-            nonce = old_tx.nonce,
+            chainId = int(old_tx['chain_id']),
+            nonce = old_tx['rx'].nonce,
             gasPrice = None,
-            gas = old_tx.gas,
-            to=old_tx.to,
-            value=old_tx.value,
-            data=old_tx.input
+            gas = old_tx['rx'].gas,
+            to=old_tx['rx'].to,
+            value=old_tx['rx'].value,
+            data=old_tx['rx'].input
         )
 
         self.dapp.add_resend_dialog(tx_dict, "Resend Tx with different gas price")
-
         self.close()
 
 

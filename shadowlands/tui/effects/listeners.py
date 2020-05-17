@@ -4,17 +4,21 @@ from asciimatics.event import KeyboardEvent
 from shadowlands.tui.effects.widgets import QuitDialog
 from shadowlands.tui.effects.send_box import SendBox 
 from shadowlands.tui.effects.message_dialog import MessageDialog
-from shadowlands.tui.effects.network_options import NetworkOptions
-from shadowlands.dapp_browser import DappBrowser
-from shadowlands.hd_addresses import HDAddressPicker
-from shadowlands.release import ReleaseVersion
-from shadowlands.tui.errors import ExitTuiError, PriceError
-from shadowlands.sl_network_dapp import SLNetworkDapp
-from shadowlands.tx_inspector import TxInspector
+
+from shadowlands.sl_dapp.network_connection import NetworkConnection
+from shadowlands.sl_dapp.dapp_browser import DappBrowser
+from shadowlands.sl_dapp.sl_network_dapp import SLNetworkDapp
+from shadowlands.sl_dapp.hd_addresses import HDAddressPicker
+from shadowlands.sl_dapp.release import ReleaseVersion
+from shadowlands.sl_dapp.network_connection import NetworkConnection
+from shadowlands.sl_dapp.tx_inspector import TxInspector
+from shadowlands.sl_dapp.token_adder import TokenAdder
+from shadowlands.sl_dapp.token_remover import TokenRemover
+from shadowlands.sl_dapp.token_uniswapper import TokenUniswapper
+
 from shadowlands.credstick import DeriveCredstickAddressError
-from shadowlands.token_adder import TokenAdder
-from shadowlands.token_remover import TokenRemover
-from shadowlands.token_uniswapper import TokenUniswapper
+
+from shadowlands.tui.errors import ExitTuiError, PriceError
 import importlib
 import pyperclip
 
@@ -45,7 +49,15 @@ class LoadingScreenListener(Effect):
         if event.key_code == -1 or event.key_code == 113:
             raise ExitTuiError
         elif event.key_code == ord('N') or event.key_code == ord('n'):
-            self._scene.add_effect(NetworkOptions(self._screen, self._interface))
+            NetworkConnection(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface._block_callback_watcher
+            )
+ 
+            #self._scene.add_effect(NetworkOptions(self._screen, self._interface))
 
         return None
 
@@ -156,7 +168,15 @@ class MainMenuListener(Effect):
         #    )
         # N, n for network
         elif event.key_code in [78, 110]:
-            self._scene.add_effect(NetworkOptions(self._screen, self._interface))
+            #self._scene.add_effect(NetworkOptions(self._screen, self._interface))
+            NetworkConnection(
+                self._screen, 
+                self._scene, 
+                self._interface.node,
+                self._interface.config,
+                self._interface._block_callback_watcher
+            )
+ 
         # D, d for Deploy
         elif event.key_code in [ord('D'), ord('d')]:
             DappBrowser(

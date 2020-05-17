@@ -1,5 +1,5 @@
 from shadowlands.sl_dapp import SLDapp, SLFrame
-from shadowlands.sl_network_dapp import SLNetworkDapp
+from shadowlands.sl_dapp.sl_network_dapp import SLNetworkDapp
 from shadowlands.sl_contract.sloader import SLoader
 from asciimatics.widgets import Layout, Label, Button, Divider, TextBox
 from asciimatics.effects import Print

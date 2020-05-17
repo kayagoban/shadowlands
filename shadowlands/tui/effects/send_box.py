@@ -14,7 +14,7 @@ from shadowlands.sl_contract.erc20 import Erc20
 from decimal import Decimal
 import logging
 
-from shadowlands.sl_frame import AskClipboardFrame
+from shadowlands.sl_dapp.sl_frame import AskClipboardFrame
 
 class SendBox(TransactionFrame):
 

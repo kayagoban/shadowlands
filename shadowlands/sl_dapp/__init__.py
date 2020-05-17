@@ -15,11 +15,12 @@ import pyperclip
 from shadowlands.tui.debug import debug, end_debug
 import pdb
 
-from shadowlands.sl_frame import SLFrame, SLWaitFrame, AskClipboardFrame
+from shadowlands.sl_dapp.sl_frame import SLFrame, SLWaitFrame, AskClipboardFrame
+from shadowlands.sl_dapp.uniswap_frame import UniswapFrame
+from shadowlands.sl_transaction_frame import SLTransactionFrame
 
 from shadowlands.block_callback_mixin import BlockCallbackMixin
-from shadowlands.uniswap_frame import UniswapFrame
-from shadowlands.sl_transaction_frame import SLTransactionFrame
+
 from cached_property import cached_property
 import logging
 
