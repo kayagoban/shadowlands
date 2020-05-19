@@ -1,14 +1,13 @@
 from shadowlands.sl_dapp import SLDapp, SLFrame
 import pyperclip, os
-
+import schedule
 from shadowlands.tui.debug import debug
 import pdb
 
 class NetworkConnection(SLDapp):
   def initialize(self):
     self.add_sl_frame( NetworkStrategies(self, 10, 26, title="Network Options"))
-    self.conn_fn = None
-    self.args = []
+    self.connection_strategy = None
 
   def attempt_connection(self):
     fn = self._interface.node.__getattribute__(self.conn_fn)
@@ -37,13 +36,14 @@ class NetworkStrategies(SLFrame):
         ('Custom ipc', 'connect_w3_custom_ipc'),
     ]
     self.listbox_value = self.add_listbox(
-      5, options, on_select=self._select, 
-      default_value=self.dapp.config.connection_strategy
+      5, options, on_select=self._select 
+      #default_value=self.dapp.config.connection_strategy
     )
     self.add_button(self.close, "Cancel")
 
   def _select(self):
     connect_fn = self.listbox_value()
+    self.dapp.connection_strategy = connect_fn
 
     if connect_fn == 'connect_w3_custom_http':
       self.dapp.add_sl_frame(CustomHttpUri(self.dapp, 5, 30, title="Custom Http URI"))
@@ -81,8 +81,10 @@ class CustomInfura(SLFrame):
     id_value = self.id_value()
     secret_value = self.secret_value()
     self.dapp.config.connection_args = (self.id_value(), self.secret_value())
-    self.dapp.config.connection_strategy = self.dapp.listbox_value()
-    self.node.schedule.do(self.node.poll)
+    self.dapp.config.connection_strategy = self.dapp.connection_strategy
+    #debug(); pdb.set_trace()
+    schedule.once().do(self.dapp.node.poll)
+    self.close()
 
 
 class CustomHttpUri(SLFrame):

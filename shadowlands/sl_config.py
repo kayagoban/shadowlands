@@ -88,7 +88,7 @@ class SLConfig():
 
     def _load_properties(self):
             self._connection_strategy = self._options_dict['network_options']['connection_strategy']
-            self._connection_strategy = self._options_dict['network_options']['connection_args']
+            self._connection_args = self._options_dict['network_options']['connection_args']
 
             self._displayed_currency = self._options_dict['displayed_currency']
             self._txqueue = self._options_dict['txqueue']
