@@ -40,7 +40,7 @@ pyperclip==1.7.0
 pysha3==1.0.2
 python-u2flib-host==3.0.3
 python3-wget==0.0.2b1
-PyYAML==5.1
+PyYAML==5.4
 repoze.lru==0.7
 scrypt==0.8.6
 semantic-version==2.6.0
