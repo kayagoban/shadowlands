@@ -4,7 +4,7 @@ git+https://github.com/kayagoban/schedule.git
 asn1crypto==0.24.0
 attrdict==2.0.0
 bitcoin==1.1.42
-certifi==2018.8.24
+certifi==2022.12.7
 cffi==1.12.2
 chardet==3.0.4
 Click==7.0
